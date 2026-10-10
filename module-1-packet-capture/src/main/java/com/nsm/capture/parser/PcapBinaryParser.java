@@ -51,13 +51,13 @@ public class PcapBinaryParser {
         buffer.getInt();   // thiszone
         buffer.getInt();   // sigfigs
         int snaplen = buffer.getInt();
-        int network = buffer.getInt(); // 1 = LINKTYPE_ETHERNET
+        buffer.getInt(); // network: link-layer header type (1 = LINKTYPE_ETHERNET)
 
         while (buffer.remaining() >= 16) {
             long tsSec = Integer.toUnsignedLong(buffer.getInt());
             long tsUsec = Integer.toUnsignedLong(buffer.getInt());
             int inclLen = buffer.getInt();
-            int origLen = buffer.getInt();
+            buffer.getInt(); // origLen: actual length of packet on wire
 
             if (inclLen <= 0 || inclLen > snaplen + 65535 || inclLen > buffer.remaining()) {
                 break;

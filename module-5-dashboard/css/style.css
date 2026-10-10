@@ -1,9 +1,9 @@
 :root {
-    --bg-dark: #0a0f1d;
-    --card-bg: #111827;
-    --card-border: #1f2937;
-    --text-main: #f9fafb;
-    --text-muted: #9ca3af;
+    --bg-dark: #050811;
+    --card-bg: #0a0f1d;
+    --card-border: #141c2e;
+    --text-main: #f8fafc;
+    --text-muted: #8492a6;
     --accent-blue: #38bdf8;
     --accent-green: #10b981;
     --accent-red: #ef4444;
@@ -29,7 +29,7 @@ body {
 
 /* Header */
 .header {
-    background: #0f172a;
+    background: #070c18;
     border-bottom: 1px solid var(--card-border);
     padding: 0.85rem 1.5rem;
     display: flex;
@@ -140,7 +140,7 @@ body {
 
 /* Simulation Trigger Bar */
 .sim-bar {
-    background: #0f172a;
+    background: #090e1a;
     border: 1px solid var(--card-border);
     border-radius: 8px;
     padding: 0.75rem 1rem;
@@ -496,3 +496,109 @@ body {
     border-bottom: 1px solid rgba(31, 41, 55, 0.5);
     color: #e2e8f0;
 }
+
+/* Serious Threat Rhythm Title Icon */
+.threat-title-svg {
+    width: 17px;
+    height: 17px;
+    stroke: var(--accent-green);
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-right: 0.45rem;
+    transition: stroke 0.3s ease;
+}
+
+/* Confirmation Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: var(--card-bg);
+    border: 1px solid #dc2626;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(220, 38, 38, 0.2);
+    border-radius: 10px;
+    padding: 1.75rem;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    animation: modalPop 0.15s ease-out;
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.75rem;
+}
+
+.modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.modal-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.85rem;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border: 1px solid #ef4444;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+    border-color: #f87171;
+}
+
+.btn-secondary {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+}
+
+.btn-secondary:hover {
+    background: #334155;
+}
+
+/* Footer (Academic Note Under The Page) */
+.footer {
+    margin-top: 3.5rem;
+    padding: 1.75rem 0;
+    text-align: center;
+    border-top: 1px solid var(--card-border);
+}
+
+.footer-note {
+    font-size: 0.72rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-family: var(--font-sans);
+}
+

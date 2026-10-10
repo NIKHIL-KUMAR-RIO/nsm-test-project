@@ -355,6 +355,11 @@ function setAttackState(state) {
         }
     }
 
+    const threatSvg = document.querySelector('.threat-title-svg');
+    if (threatSvg) {
+        threatSvg.style.stroke = theme.color;
+    }
+
     // Reset decay timer: return to flatline after 7 seconds if no new alerts arrive
     if (attackStateTimeout) clearTimeout(attackStateTimeout);
     if (state !== 'normal') {
@@ -491,9 +496,9 @@ function renderAlerts(alerts) {
     }
 
     if (!alerts || alerts.length === 0) {
-        if (lastAlertsFingerprint !== 'EMPTY') {
+        const container = document.getElementById('alertsContainer');
+        if (lastAlertsFingerprint !== 'EMPTY' || (container && !container.innerHTML.includes('No security alerts detected'))) {
             lastAlertsFingerprint = 'EMPTY';
-            const container = document.getElementById('alertsContainer');
             if (container) {
                 container.innerHTML = `
                     <div style="text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.85rem;">
@@ -611,17 +616,60 @@ async function handlePcapUpload(event) {
     }
 }
 
-async function clearAlerts() {
-    // 1. Immediately return waveform to flatline
+// ==========================================
+// CLEAR ALERTS & MODAL HANDLING
+// ==========================================
+function promptClearAlerts() {
+    const modal = document.getElementById('clearConfirmModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        if (confirm('Clear all security alerts and reset all monitoring telemetry?')) {
+            executeClearAlerts();
+        }
+    }
+}
+
+function closeClearModal() {
+    const modal = document.getElementById('clearConfirmModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function handleModalBackdropClick(event) {
+    if (event.target && event.target.id === 'clearConfirmModal') {
+        closeClearModal();
+    }
+}
+
+// Close modal on Escape key
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeClearModal();
+});
+
+async function executeClearAlerts() {
+    closeClearModal();
+
+    // 1. Immediately return waveform to flatline/normal
     setAttackState('normal');
 
-    // 2. Wipe local UI immediately (instant responsiveness)
-    lastAlertsFingerprint = 'EMPTY';
-    lastTopIpsFingerprint = 'EMPTY';
-    lastSummaryJson = '';
+    // 2. Wipe ALL local UI elements immediately
+    const alertsContainer = document.getElementById('alertsContainer');
+    if (alertsContainer) {
+        alertsContainer.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.85rem;">
+                🛡️ No security alerts detected yet. Listening for traffic...
+            </div>`;
+    }
 
-    renderAlerts([]);
-    renderTopIps([]);
+    const topIpsTableBody = document.getElementById('topIpsTableBody');
+    if (topIpsTableBody) {
+        topIpsTableBody.innerHTML = `
+            <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">
+                    No attacking hosts detected yet
+                </td>
+            </tr>`;
+    }
 
     const elPort = document.getElementById('sumPortScan');
     const elBrute = document.getElementById('sumBruteForce');
@@ -631,6 +679,10 @@ async function clearAlerts() {
     if (elBrute) elBrute.textContent = '0';
     if (elSyn) elSyn.textContent = '0';
     if (elActive) elActive.textContent = '0';
+
+    lastAlertsFingerprint = 'EMPTY';
+    lastTopIpsFingerprint = 'EMPTY';
+    lastSummaryJson = '';
 
     // 3. Clear backend storage and reset detection engines
     try {
@@ -647,5 +699,10 @@ async function clearAlerts() {
     }
 
     // 4. Re-sync with backend
-    setTimeout(fetchData, 300);
+    setTimeout(fetchData, 400);
+}
+
+// Keep clearAlerts mapped to promptClearAlerts
+function clearAlerts() {
+    promptClearAlerts();
 }

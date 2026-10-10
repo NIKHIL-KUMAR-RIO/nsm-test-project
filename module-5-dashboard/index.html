@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shield NSM Platform | Real-Time Security Monitor</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-title">🛡️ Shield <span>NSM Platform</span></div>
+            <div class="brand-subtitle">Academic Team Project &bull; 5-Module Security Monitor</div>
+        </div>
+        <div class="controls">
+            <button id="btnSoundToggle" class="btn btn-sound-on" onclick="toggleSound()">
+                <span id="soundStatusText">🔊 Sound: ON</span>
+            </button>
+            <button id="btnLiveToggle" class="btn btn-live" onclick="toggleLiveState()">
+                <span class="dot"></span>
+                <span id="liveStatusText">LIVE (Real-Time)</span>
+            </button>
+            <button class="btn" onclick="clearAlerts()">
+                🧹 Clear
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Attack Simulation Bar (For Interactive Demonstration) -->
+        <div class="sim-bar">
+            <div class="sim-title">⚡ Interactive Attack Triggers (Demo Helper)</div>
+            <div class="sim-buttons">
+                <button class="btn-attack" onclick="triggerAttack('port-scan')">🎯 Trigger Port Scan</button>
+                <button class="btn-attack" onclick="triggerAttack('syn-flood')">🌊 Trigger SYN Flood</button>
+                <button class="btn-attack" onclick="triggerAttack('brute-force')">🔑 Trigger Brute Force (SSH)</button>
+                <input type="file" id="pcapUploadInput" accept=".pcap" style="display: none;" onchange="handlePcapUpload(event)">
+                <button class="btn-attack" onclick="document.getElementById('pcapUploadInput').click()">📂 Replay .pcap</button>
+            </div>
+        </div>
+
+        <!-- Top Grid: Real-Time Heart-Rate Monitor + Summary Counters -->
+        <div class="grid-top">
+            
+            <!-- Real-Time Heart-Rate & Threat Rhythm Monitor -->
+            <div class="card" id="rhythmCard">
+                <div class="card-header">
+                    <div class="rhythm-header-left">
+                        <div class="card-title">💓 Live Threat Rhythm Monitor</div>
+                        <span id="rhythmBadge" class="rhythm-badge badge-normal">
+                            <span class="pulse-dot"></span>
+                            <span id="rhythmText">NORMAL • SYSTEM SECURE</span>
+                        </span>
+                    </div>
+                    <div class="rhythm-header-right">
+                        <span class="rhythm-rate"><span id="rhythmRate">12</span> <small>pkts/s</small></span>
+                        <span class="rhythm-sep">|</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">
+                            Alerts: <span id="activeAlertsCount" style="color: var(--accent-red); font-weight: 700;">0</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body" style="padding: 0.75rem;">
+                    <div class="ecg-container">
+                        <canvas id="ecgCanvas"></canvas>
+                        <div class="ecg-legend">
+                            <span class="leg-item leg-green"><span class="leg-dot"></span> Flatline (Secure)</span>
+                            <span class="leg-item leg-orange"><span class="leg-dot"></span> Port Scan</span>
+                            <span class="leg-item leg-red"><span class="leg-dot"></span> SYN Flood</span>
+                            <span class="leg-item leg-purple"><span class="leg-dot"></span> Brute Force</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Counters -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📊 Attack Summary</div>
+                </div>
+                <div class="card-body">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">🎯 Port Scans:</span>
+                            <span class="summary-val" id="sumPortScan" style="color: var(--accent-red);">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">🔑 Brute Force:</span>
+                            <span class="summary-val" id="sumBruteForce" style="color: var(--accent-yellow);">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">🌊 SYN Floods:</span>
+                            <span class="summary-val" id="sumSynFlood" style="color: var(--accent-blue);">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Grid: Alerts Feed + Top Source IPs -->
+        <div class="grid-bottom">
+            
+            <!-- Alerts Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🚨 Real-Time Security Alerts</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Newest First</div>
+                </div>
+                <div class="card-body">
+                    <div class="alerts-list" id="alertsContainer">
+                        <div style="text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.85rem;">
+                            🛡️ No security alerts detected yet. Listening for traffic...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Attacking IPs -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🌐 Top Source IPs</div>
+                </div>
+                <div class="card-body">
+                    <div class="top-ips-table-wrap">
+                        <table class="top-ips-table">
+                            <thead>
+                                <tr>
+                                    <th>Source IP</th>
+                                    <th>Alerts</th>
+                                    <th>Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topIpsTableBody">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">
+                                        No attacking hosts detected yet
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script Controller -->
+    <script src="js/app.js"></script>
+</body>
+</html>

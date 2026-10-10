@@ -1,0 +1,31 @@
+# Maven build artifacts
+target/
+**/target/
+*.jar
+*.war
+*.nar
+*.ear
+*.class
+
+# SQLite databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+nsm.db
+**/nsm.db
+
+# IDE settings
+.idea/
+*.iml
+.vscode/
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.log
+*.tmp

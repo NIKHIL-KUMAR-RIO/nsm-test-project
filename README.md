@@ -399,6 +399,7 @@ Member 1 owned the data ingestion boundary, converting raw network signals and b
 1. **Endianness & Header Truncation**: Libpcap files can be recorded on either Big-Endian or Little-Endian architectures. Solved by reading the 4-byte magic number and configuring `ByteBuffer.order()`.
 2. **TCP Flag Bitwise Extraction**: TCP headers pack flags across a 9-bit bitfield within a 16-bit word. Solved by masking `dataOffsetAndFlags & 0x01FF` and isolating individual bits (`SYN`, `ACK`, `FIN`, `RST`, `PSH`, `URG`).
 3. **Handling Live Probe Concurrency**: When multiple network ports are scanned simultaneously, traditional thread pools can experience thread starvation. Solved by dispatching each incoming probe via Java 21+ Virtual Threads (`Executors.newVirtualThreadPerTaskExecutor()`).
+4. **Unused Local Variables Warning in Binary Dissection**: The Java 21 compiler flagged `network` (link-layer header) and `origLen` (wire length) in `PcapBinaryParser.java` as unused variables (`Java 536870973`). While advancing 4 bytes per field is strictly mandated by the libpcap format, storing unread variables generated compiler warnings. Solved by invoking `buffer.getInt()` in-place to advance buffer pointers without allocating unused stack variables, achieving 0 compiler warnings across the entire build.
 
 ### What They Completed
 * Zero-dependency **Pure Java PCAP Parser** supporting standard capture files.
@@ -474,12 +475,16 @@ Member 4 served as the connective tissue of the platform, linking Modules 1, 2, 
 1. **SQLite Database Locking Under Concurrency**: Simultaneous writes from multiple Virtual Threads can trigger `SQLITE_BUSY` locks. Solved by configuring Write-Ahead Logging (WAL mode) and synchronized repository write methods.
 2. **Rolling Traffic Stats Window Management**: Keeping a clean 30-point array for the frontend line chart without dropping timestamps. Solved using synchronized circular lists updated via `@Scheduled(fixedRate = 1000)`.
 3. **Schema Compliance & Jackson Serialization**: Ensuring timestamps serialize as ISO 8601 UTC strings (`2026-09-18T10:32:01.500Z`). Solved by registering `JavaTimeModule` with Jackson.
+4. **Orphaned Background Process & JAR Locks During Hot Restarts**: When restarting the backend from PowerShell/terminal, lingering background `java.exe` processes held exclusive locks on `module-4-backend-storage-1.0.0.jar` and port `8080`, causing Maven repackage failures (`Unable to rename jar to .jar.original`). Solved by auditing active Windows sockets via `Win32_Process`, force-killing the socket owner, and adding process clearance commands to the project runbook.
+5. **Repository Hygiene & Database Conflict Prevention in Git**: Unchecked `git add .` operations threatened to commit compiled binaries (`target/`, `.class`, `.jar`) and active SQLite binary databases (`nsm.db`) into GitHub, which would corrupt team databases. Solved by configuring a strict multi-layer `.gitignore` and architecting `DatabaseInitializer` to autonomously self-seed schema tables on clean teammate checkouts.
+6. **Multi-Developer Collaboration & Monorepo Architecture**: Coordinating 5 developers across 5 Maven modules without code collisions. Solved by authoring the official Team Lead Git Workflow SOP (`TEAM_LEADER_AND_COLLABORATION_GUIDE`), establishing dedicated feature branches (`feature/module-X`), and formalizing GitHub Pull Request review checkpoints.
 
 ### What They Completed
 * Spring Boot 3 backend orchestrating the full NSM pipeline.
-* SQLite storage engine for alerts and aggregated metrics.
+* SQLite storage engine for alerts and aggregated metrics with automated startup self-healing.
 * 1Hz rolling traffic statistics service.
 * Full REST API supporting frozen contracts, attack triggers, and MockMvc integration tests.
+* Production packaging, process management, and Team Leader Git & GitHub Collaboration Architecture.
 
 ---
 
@@ -501,12 +506,18 @@ Member 5 created the primary user-facing deliverable: the Security Operations Ce
 1. **Chart.js Flickering on 2s Polling**: Rebuilding the chart on every poll caused visible flicker. Solved by updating `chart.data.datasets[0].data` in-place and calling `chart.update()`.
 2. **Empty State & Zero-Data Rendering**: Handling the initial startup state when no alerts exist without breaking the layout. Solved with defensive empty-state placeholder cards.
 3. **Demo Presentation Control**: Evaluators frequently ask questions during demos, but automated polling would shift the screen. Solved by building the `[LIVE] / [PAUSED]` toggle button.
+4. **Clear Action State Synchronization Bug**: During incident reset, clicking the Clear button purged the Top Source IPs table but failed to clear the Real-Time Security Alerts list. Investigation revealed `clearAlerts()` set `lastAlertsFingerprint = 'EMPTY'` before invoking `renderAlerts([])`, which caused the conditional check `if (lastAlertsFingerprint !== 'EMPTY')` to evaluate to `false` and bypass DOM replacement. Solved by re-architecting `executeClearAlerts()` to unconditionally wipe the alerts container, restore telemetry waveforms, and dispatch `POST /api/alerts/clear` to the backend.
+5. **Accidental Telemetry Wipe Prevention (Confirmation Modal)**: Evaluator triage during live presentations risked accidental data clearing. Solved by engineering a high-contrast cyber modal dialog (`#clearConfirmModal`) with Cancel and Yes confirmation triggers, ESC key listener, and backdrop dismissal.
+6. **Aggressive Browser Asset Caching**: Browsers cached `style.css` and `app.js` across backend server restarts, preventing live UI updates from displaying. Solved by injecting cache-busting version parameters (`?v=2`) and permanently configuring acoustic audio alerts to default ON without redundant UI toggles.
+7. **Command Center Aesthetic Overhaul**: Replaced the informal heart symbol (`💓`) on the threat monitor with a tactical SVG pulse waveform whose glowing stroke dynamically follows threat severity levels (green, amber, red, purple), migrated academic credits from the top navigation bar into a subtle, scroll-only footer, and deepened the color palette to an ultra-dark stealth theme (`#050811`).
 
 ### What They Completed
 * High-performance, single-page **SOC Web Dashboard** in pure HTML/JS + Chart.js.
 * Dynamic traffic line chart with 2-second smooth polling.
-* Real-time alert feed with visual detection method badges.
+* Real-time alert feed with visual detection method badges and state-synchronized Clear engine.
 * Interactive Live/Pause switch and 1-click attack simulation triggers.
+* Secure confirmation modal and acoustic intrusion siren system.
+* Enterprise command-center dark theme with dynamic threat pulse telemetry.
 
 ---
 
@@ -696,6 +707,7 @@ During **Week 12**, the NetSentinel team finalized production packaging, verifie
 | :--- | :--- | :--- |
 | 📄 **Final Project Report** | Complete Technical Architecture Document, System Requirements Specification (SRS), and Evaluation Metrics | [View Project Report (PDF)](https://drive.google.com/file/d/---/view?usp=drive_link) \| [`README.md`](./README.md) |
 | 📊 **Presentation Deck (PPT)** | 20-Slide B.Tech Final Project Evaluation Deck covering System Design, Detection Pipeline & Live Demo | [View Presentation (PPT / Slides)](https://drive.google.com/file/d/---/view?usp=drive_link) |
+| 📘 **Team Collaboration SOP** | Official Team Leader Git Workflow Manual: Branching, Pull Requests & Architecture Protocol | [View Collaboration SOP (PDF)](./TEAM_LEADER_AND_COLLABORATION_GUIDE.pdf) \| [Markdown Guide](./TEAM_LEADER_AND_COLLABORATION_GUIDE.md) |
 
 ---
 

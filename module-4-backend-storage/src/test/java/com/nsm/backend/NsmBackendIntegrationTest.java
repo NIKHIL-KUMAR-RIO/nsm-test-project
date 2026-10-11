@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -28,6 +29,7 @@ class NsmBackendIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testGetSummaryEndpoint() throws Exception {
         mockMvc.perform(get("/api/summary"))
                 .andExpect(status().isOk())
@@ -37,6 +39,7 @@ class NsmBackendIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testGetTrafficStatsEndpoint() throws Exception {
         mockMvc.perform(get("/api/traffic-stats"))
                 .andExpect(status().isOk())
@@ -45,6 +48,7 @@ class NsmBackendIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testIngestAlertAndRetrieve() throws Exception {
         AlertData alert = AlertData.create(
                 "port_scan",
@@ -69,6 +73,7 @@ class NsmBackendIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testIngestPacketPipelineExecution() throws Exception {
         PacketData packet = PacketData.create(
                 Instant.now(),
@@ -86,5 +91,64 @@ class NsmBackendIntegrationTest {
                         .content(objectMapper.writeValueAsString(packet)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("accepted"));
+    }
+
+    // ==========================================
+    // SECURITY HARDENING VERIFICATION TESTS
+    // ==========================================
+
+    @Test
+    void testUnauthenticatedUserCannotAccessProtectedApi() throws Exception {
+        mockMvc.perform(get("/api/alerts"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "guest", roles = {"USER"})
+    void testNonAdminIsForbiddenFromDestructiveClearAction() throws Exception {
+        mockMvc.perform(post("/api/alerts/clear"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testAdminIsAllowedToClearAlerts() throws Exception {
+        mockMvc.perform(post("/api/alerts/clear"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("cleared"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testInputValidationRejectsInvalidIpAddress() throws Exception {
+        mockMvc.perform(post("/api/attack/port-scan")
+                        .param("attackerIp", "999.999.999.999")
+                        .param("victimIp", "10.0.0.1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("error"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testInputValidationRejectsOutOfRangePort() throws Exception {
+        mockMvc.perform(post("/api/attack/port-scan")
+                        .param("attackerIp", "192.168.1.50")
+                        .param("victimIp", "10.0.0.1")
+                        .param("startPort", "70000")
+                        .param("endPort", "80000"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("error"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testLogoutSucceedsAndRedirectsToLoginPage() throws Exception {
+        mockMvc.perform(get("/logout"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/login.html?logout=true"));
+
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/login.html?logout=true"));
     }
 }

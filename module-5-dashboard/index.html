@@ -1,140 +1,259 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shield NSM Platform | Real-Time Security Monitor</title>
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <title>NetSentinel | Enterprise SOC & Network Security Platform</title>
+    <link rel="stylesheet" href="css/style.css?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- ==========================================================================
+         TOP MEGA NAVIGATION BAR
+         ========================================================================== -->
     <header class="header">
-        <div class="brand">
-            <div class="brand-title">🛡️ Shield <span>NSM Platform</span></div>
+        <div class="nav-left">
+            <a class="brand" onclick="switchView('view-live-soc')">
+                <div class="brand-icon">🛡️</div>
+                <div class="brand-title">NetSentinel <span id="brandConsoleLabel" style="color: var(--accent-red);">SOC ADMIN</span></div>
+            </a>
+
+            <!-- Mega Nav Menus -->
+            <nav class="nav-menu">
+                <!-- MY DASHBOARDS Dropdown -->
+                <div class="nav-item">
+                    <button class="nav-link" id="navDashboardsBtn">
+                        <span data-i18n="nav_dashboards">MY DASHBOARDS</span> ▾
+                    </button>
+                    <div class="nav-dropdown">
+                        <div class="dropdown-section-title" data-i18n="nav_sec_ops">SECURITY OPERATIONS</div>
+                        <a class="dropdown-item" onclick="switchView('view-vuln-risk')">
+                            <span>📊</span> <span data-i18n="menu_vuln_risk">Vulnerability & Risk Dashboard</span>
+                        </a>
+                        <a class="dropdown-item" onclick="switchView('view-nodes')">
+                            <span>🖥️</span> <span data-i18n="menu_nodes">Node & Host Inventory</span>
+                        </a>
+                        <a class="dropdown-item" onclick="switchView('view-threat-map')">
+                            <span>🌍</span> <span data-i18n="menu_threat_map">Global Threat Map & WAN</span>
+                        </a>
+                        <div class="dropdown-section-title" data-i18n="nav_knowledge">KNOWLEDGE & ARCHITECTURE</div>
+                        <a class="dropdown-item" onclick="switchView('view-faq')">
+                            <span>💡</span> <span data-i18n="menu_capabilities_faq">Capabilities & Knowledge Base</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ALERTS & ACTIVITY Dropdown -->
+                <div class="nav-item">
+                    <button class="nav-link" id="navAlertsBtn">
+                        <span data-i18n="nav_alerts">ALERTS & ACTIVITY</span> ▾
+                    </button>
+                    <div class="nav-dropdown">
+                        <a class="dropdown-item" onclick="switchView('view-live-soc')">
+                            <span>🚨</span> <span data-i18n="menu_active_stream">Real-Time Alert Stream</span>
+                        </a>
+                        <a class="dropdown-item" onclick="switchView('view-signatures')">
+                            <span>📜</span> <span data-i18n="menu_attack_vectors">Threat Signatures & Attack Vectors</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
         </div>
-        <div class="controls">
-            <button id="btnLiveToggle" class="btn btn-live" onclick="toggleLiveState()">
-                <span class="dot"></span>
-                <span id="liveStatusText">LIVE (Real-Time)</span>
+
+        <!-- Nav Right Utilities -->
+        <div class="nav-right">
+            <!-- Theme Toggle Button (Sun / Moon) -->
+            <button id="themeToggleBtn" class="btn-icon" onclick="toggleTheme()" title="Toggle Light / Dark Theme">
+                <span id="themeIcon">☀️</span>
             </button>
-            <button class="btn" onclick="promptClearAlerts()">
-                🧹 Clear
+
+            <!-- Language Dropdown (English, Spanish, German, French) -->
+            <div class="lang-selector">
+                <button class="lang-btn" id="langSelectorBtn">
+                    <span id="currentLangFlag">
+                        <svg class="lang-flag-svg" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="20" height="14" fill="#b22234"/>
+                            <path d="M0 2.15h20M0 4.31h20M0 6.46h20M0 8.62h20M0 10.77h20M0 12.92h20" stroke="#fff" stroke-width="1.08"/>
+                            <rect width="8" height="7.54" fill="#3c3b6e"/>
+                            <circle cx="2" cy="2" r="0.6" fill="#fff"/>
+                            <circle cx="4" cy="2" r="0.6" fill="#fff"/>
+                            <circle cx="6" cy="2" r="0.6" fill="#fff"/>
+                            <circle cx="3" cy="3.8" r="0.6" fill="#fff"/>
+                            <circle cx="5" cy="3.8" r="0.6" fill="#fff"/>
+                            <circle cx="2" cy="5.6" r="0.6" fill="#fff"/>
+                            <circle cx="4" cy="5.6" r="0.6" fill="#fff"/>
+                            <circle cx="6" cy="5.6" r="0.6" fill="#fff"/>
+                        </svg>
+                    </span>
+                    <span id="currentLangLabel">English</span> ▾
+                </button>
+                <div class="lang-dropdown">
+                    <div class="lang-option active" onclick="setLanguage('en')">
+                        <svg class="lang-flag-svg" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="20" height="14" fill="#b22234"/>
+                            <path d="M0 2.15h20M0 4.31h20M0 6.46h20M0 8.62h20M0 10.77h20M0 12.92h20" stroke="#fff" stroke-width="1.08"/>
+                            <rect width="8" height="7.54" fill="#3c3b6e"/>
+                            <circle cx="2" cy="2" r="0.6" fill="#fff"/>
+                            <circle cx="4" cy="2" r="0.6" fill="#fff"/>
+                            <circle cx="6" cy="2" r="0.6" fill="#fff"/>
+                            <circle cx="3" cy="3.8" r="0.6" fill="#fff"/>
+                            <circle cx="5" cy="3.8" r="0.6" fill="#fff"/>
+                            <circle cx="2" cy="5.6" r="0.6" fill="#fff"/>
+                            <circle cx="4" cy="5.6" r="0.6" fill="#fff"/>
+                            <circle cx="6" cy="5.6" r="0.6" fill="#fff"/>
+                        </svg>
+                        <span>English</span>
+                    </div>
+                    <div class="lang-option" onclick="setLanguage('es')">
+                        <svg class="lang-flag-svg" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="20" height="3.5" fill="#aa151b"/>
+                            <rect y="3.5" width="20" height="7" fill="#f1bf00"/>
+                            <rect y="10.5" width="20" height="3.5" fill="#aa151b"/>
+                            <circle cx="5" cy="7" r="1.6" fill="#aa151b"/>
+                        </svg>
+                        <span>Español</span>
+                    </div>
+                    <div class="lang-option" onclick="setLanguage('de')">
+                        <svg class="lang-flag-svg" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="20" height="4.67" fill="#000000"/>
+                            <rect y="4.67" width="20" height="4.67" fill="#dd0000"/>
+                            <rect y="9.34" width="20" height="4.66" fill="#ffce00"/>
+                        </svg>
+                        <span>Deutsch</span>
+                    </div>
+                    <div class="lang-option" onclick="setLanguage('fr')">
+                        <svg class="lang-flag-svg" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="6.67" height="14" fill="#002395"/>
+                            <rect x="6.67" width="6.66" height="14" fill="#ffffff"/>
+                            <rect x="13.33" width="6.67" height="14" fill="#ed2939"/>
+                        </svg>
+                        <span>Français</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authenticated User Profile Badge -->
+            <div id="userBadge" class="user-badge">
+                <span>👑</span>
+                <span id="usernameDisplay">admin</span>
+                <span id="roleDisplay" style="font-size: 0.7rem; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 700; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">SOC ADMIN</span>
+            </div>
+
+            <!-- Live State Toggle -->
+            <button id="btnLiveToggle" class="btn btn-live" onclick="toggleLiveState()" title="Toggle Live / Paused Telemetry Stream">
+                <span class="dot"></span>
+                <span id="liveStatusText" data-i18n="live_status">LIVE</span>
+            </button>
+
+            <!-- Clear Alerts Action (Admin Operational Control) -->
+            <button id="btnClearAlerts" class="btn" onclick="promptClearAlerts()" title="Purge database alerts">
+                🧹 <span data-i18n="btn_clear">Clear</span>
+            </button>
+
+            <!-- Logout Button -->
+            <button type="button" class="btn" onclick="handleLogout()" style="border-color: rgba(244, 63, 94, 0.35); color: #fda4af;" title="End SOC Session">
+                🚪 <span data-i18n="btn_logout">Logout</span>
             </button>
         </div>
     </header>
 
-    <div class="container">
+    <!-- ==========================================================================
+         MAIN CONTENT AREA (MULTI-VIEW ROUTER)
+         ========================================================================== -->
+    <main class="main-wrapper">
 
-        <!-- Attack Simulation Bar (For Interactive Demonstration) -->
-        <div class="sim-bar">
-            <div class="sim-title">⚡ Interactive Attack Triggers (Demo Helper)</div>
-            <div class="sim-buttons">
-                <button class="btn-attack" onclick="triggerAttack('port-scan')">🎯 Trigger Port Scan</button>
-                <button class="btn-attack" onclick="triggerAttack('syn-flood')">🌊 Trigger SYN Flood</button>
-                <button class="btn-attack" onclick="triggerAttack('brute-force')">🔑 Trigger Brute Force (SSH)</button>
-                <input type="file" id="pcapUploadInput" accept=".pcap" style="display: none;" onchange="handlePcapUpload(event)">
-                <button class="btn-attack" onclick="document.getElementById('pcapUploadInput').click()">📂 Replay .pcap</button>
+        <!-- ======================================================================
+             VIEW 1: LIVE SOC THREAT RHYTHM & ATTACK SIMULATOR (ORIGINAL VIEW)
+             ====================================================================== -->
+        <section id="view-live-soc" class="view-pane active">
+            <div class="breadcrumb">
+                <a onclick="switchView('view-live-soc')">Home</a> <span>/</span> <span>Live SOC Threat Rhythm</span>
             </div>
-        </div>
 
-        <!-- Top Grid: Real-Time Heart-Rate Monitor + Summary Counters -->
-        <div class="grid-top">
-            
-            <!-- Real-Time Heart-Rate & Threat Rhythm Monitor -->
-            <div class="card" id="rhythmCard">
-                <div class="card-header">
-                    <div class="rhythm-header-left">
+            <!-- Interactive Attack Triggers (Admin Console) -->
+            <div class="sim-bar" id="adminSimBar">
+                <div class="sim-title" data-i18n="sim_bar_title">⚡ Interactive Attack Triggers (Admin Console)</div>
+                <div class="sim-buttons">
+                    <button class="btn-attack" onclick="triggerAttack('port-scan')">🎯 <span data-i18n="sim_port_scan">Port Scan</span></button>
+                    <button class="btn-attack" onclick="triggerAttack('syn-flood')">🌊 <span data-i18n="sim_syn_flood">SYN Flood</span></button>
+                    <button class="btn-attack" onclick="triggerAttack('brute-force')">🔑 <span data-i18n="sim_brute_force">Brute Force (SSH)</span></button>
+                    <input type="file" id="pcapUploadInput" accept=".pcap" style="display: none;" onchange="handlePcapUpload(event)">
+                    <button class="btn-attack" onclick="document.getElementById('pcapUploadInput').click()">📂 <span data-i18n="sim_pcap_replay">Replay .pcap</span></button>
+                </div>
+            </div>
+
+            <!-- Top Grid: Real-Time Heart-Rate & Threat Rhythm Monitor + Counters -->
+            <div class="grid-top">
+                <div class="card" id="rhythmCard">
+                    <div class="card-header">
                         <div class="card-title">
-                            <svg class="threat-title-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                             </svg>
-                            <span>Live Threat Rhythm Monitor</span>
+                            <span data-i18n="title_live_rhythm">Live Threat Rhythm Monitor</span>
                         </div>
                         <span id="rhythmBadge" class="rhythm-badge badge-normal">
                             <span class="pulse-dot"></span>
                             <span id="rhythmText">NORMAL • SYSTEM SECURE</span>
                         </span>
                     </div>
-                    <div class="rhythm-header-right">
-                        <span class="rhythm-rate"><span id="rhythmRate">12</span> <small>pkts/s</small></span>
-                        <span class="rhythm-sep">|</span>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">
-                            Alerts: <span id="activeAlertsCount" style="color: var(--accent-red); font-weight: 700;">0</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body" style="padding: 0.75rem;">
-                    <div class="ecg-container">
+                    <div class="ecg-canvas-container">
                         <canvas id="ecgCanvas"></canvas>
-                        <div class="ecg-legend">
-                            <span class="leg-item leg-green"><span class="leg-dot"></span> Flatline (Secure)</span>
-                            <span class="leg-item leg-orange"><span class="leg-dot"></span> Port Scan</span>
-                            <span class="leg-item leg-red"><span class="leg-dot"></span> SYN Flood</span>
-                            <span class="leg-item leg-purple"><span class="leg-dot"></span> Brute Force</span>
+                    </div>
+                </div>
+
+                <!-- Threat Category Stat Counters -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 <span data-i18n="title_threat_breakdown">Incident Telemetry</span></div>
+                    </div>
+                    <div class="summary-cards-grid">
+                        <div class="stat-tile">
+                            <div class="stat-tile-title" data-i18n="stat_active_alerts">Active Alerts</div>
+                            <div class="stat-tile-val" id="activeAlertsCount" style="color: var(--accent-red);">0</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-tile-title" data-i18n="stat_port_scans">Port Scans</div>
+                            <div class="stat-tile-val" id="sumPortScan" style="color: var(--accent-yellow);">0</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-tile-title" data-i18n="stat_syn_floods">SYN Floods</div>
+                            <div class="stat-tile-val" id="sumSynFlood" style="color: var(--accent-orange);">0</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-tile-title" data-i18n="stat_brute_force">Brute Force</div>
+                            <div class="stat-tile-val" id="sumBruteForce" style="color: var(--accent-purple);">0</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Summary Counters -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📊 Attack Summary</div>
-                </div>
-                <div class="card-body">
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <span class="summary-label">🎯 Port Scans:</span>
-                            <span class="summary-val" id="sumPortScan" style="color: var(--accent-red);">0</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">🔑 Brute Force:</span>
-                            <span class="summary-val" id="sumBruteForce" style="color: var(--accent-yellow);">0</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">🌊 SYN Floods:</span>
-                            <span class="summary-val" id="sumSynFlood" style="color: var(--accent-blue);">0</span>
-                        </div>
+            <!-- Bottom Grid: Alerts Feed + Top Attacking IPs -->
+            <div class="grid-top">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🚨 <span data-i18n="title_recent_alerts">Recent Security Alerts</span></div>
                     </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Bottom Grid: Alerts Feed + Top Source IPs -->
-        <div class="grid-bottom">
-            
-            <!-- Alerts Feed -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">🚨 Real-Time Security Alerts</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted);">Newest First</div>
-                </div>
-                <div class="card-body">
-                    <div class="alerts-list" id="alertsContainer">
+                    <div id="alertsContainer" style="max-height: 480px; overflow-y: auto;">
                         <div style="text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.85rem;">
                             🛡️ No security alerts detected yet. Listening for traffic...
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Top Attacking IPs -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">🌐 Top Source IPs</div>
-                </div>
-                <div class="card-body">
-                    <div class="top-ips-table-wrap">
-                        <table class="top-ips-table">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🎯 <span data-i18n="title_top_ips">Top Attacking Hosts</span></div>
+                    </div>
+                    <div class="table-container">
+                        <table class="enterprise-table">
                             <thead>
                                 <tr>
                                     <th>Source IP</th>
-                                    <th>Alerts</th>
+                                    <th>Incidents</th>
                                     <th>Last Seen</th>
                                 </tr>
                             </thead>
@@ -149,32 +268,563 @@
                     </div>
                 </div>
             </div>
+        </section>
 
+        <!-- ======================================================================
+             VIEW 2: VULNERABILITY & RISK DASHBOARD (SOLARWINDS EXECUTIVE STYLE)
+             ====================================================================== -->
+        <section id="view-vuln-risk" class="view-pane">
+            <div class="breadcrumb">
+                <a onclick="switchView('view-live-soc')">Home</a> <span>/</span> <span>Vulnerability and Risk Dashboard</span>
+            </div>
+
+            <!-- Top Row: Node Count Tiles, Donut Chart, Continuous Risk Gauge -->
+            <div class="vuln-top-row">
+                <!-- 1. Node Count Highlight Metric Tiles -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" data-i18n="card_node_count">Node Count by Vulnerability</div>
+                    </div>
+                    <div class="node-count-tiles">
+                        <div class="tile-block tile-block-neutral">
+                            <div class="tile-block-label" data-i18n="tile_monitored_nodes">Monitored</div>
+                            <div class="tile-block-number" id="tileTotalNodes">0</div>
+                        </div>
+                        <div class="tile-block tile-block-critical">
+                            <div class="tile-block-label" data-i18n="tile_critical">Critical</div>
+                            <div class="tile-block-number" id="tileCriticalNodes">0</div>
+                        </div>
+                        <div class="tile-block tile-block-high">
+                            <div class="tile-block-label" data-i18n="tile_high">High</div>
+                            <div class="tile-block-number" id="tileHighNodes">0</div>
+                        </div>
+                        <div class="tile-block tile-block-medium">
+                            <div class="tile-block-label" data-i18n="tile_medium">Medium</div>
+                            <div class="tile-block-number" id="tileMediumNodes">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Interactive Severity Donut Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" data-i18n="card_vuln_count">Threat Count by Severity</div>
+                    </div>
+                    <div class="donut-chart-wrapper">
+                        <div class="donut-svg-container">
+                            <svg width="140" height="140" viewBox="0 0 140 140" id="vulnDonutSvg">
+                                <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(148, 163, 184, 0.15)" stroke-width="16"/>
+                                <circle id="donutSegCrit" cx="70" cy="70" r="54" fill="none" stroke="#dc2626" stroke-width="16" stroke-dasharray="0 340" stroke-dashoffset="0"/>
+                                <circle id="donutSegHigh" cx="70" cy="70" r="54" fill="none" stroke="#ea580c" stroke-width="16" stroke-dasharray="0 340" stroke-dashoffset="0"/>
+                                <circle id="donutSegMed" cx="70" cy="70" r="54" fill="none" stroke="#eab308" stroke-width="16" stroke-dasharray="0 340" stroke-dashoffset="0"/>
+                                <circle id="donutSegLow" cx="70" cy="70" r="54" fill="none" stroke="#0284c7" stroke-width="16" stroke-dasharray="0 340" stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="donut-center-label">
+                                <div class="donut-center-num" id="donutTotalCount">0</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Total</div>
+                            </div>
+                        </div>
+                        <div class="donut-legend">
+                            <div class="legend-row">
+                                <span class="legend-badge" style="background: #dc2626;" id="legendCritCount">0</span>
+                                <span style="color: var(--text-secondary);">Critical</span>
+                            </div>
+                            <div class="legend-row">
+                                <span class="legend-badge" style="background: #ea580c;" id="legendHighCount">0</span>
+                                <span style="color: var(--text-secondary);">High</span>
+                            </div>
+                            <div class="legend-row">
+                                <span class="legend-badge" style="background: #eab308;" id="legendMedCount">0</span>
+                                <span style="color: var(--text-secondary);">Medium</span>
+                            </div>
+                            <div class="legend-row">
+                                <span class="legend-badge" style="background: #0284c7;" id="legendLowCount">0</span>
+                                <span style="color: var(--text-secondary);">Low</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Combined Continuous Risk Score Gauge -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" data-i18n="card_risk_score">Risk Score</div>
+                    </div>
+                    <div class="risk-gauge-container">
+                        <div class="gauge-bar-outer">
+                            <div class="gauge-gradient-bar"></div>
+                            <div id="riskGaugePointer" class="gauge-pointer" style="left: 4%;"></div>
+                        </div>
+                        <div class="gauge-caption" data-i18n="gauge_caption">
+                            Weighted arithmetic mean of host vulnerability scores.<br>
+                            Weights: Critical=5, High=3, Medium=1, Low=0.5
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Row: Full-width Detailed Incident & Vulnerability Forensics Stream -->
+            <div class="vuln-mid-row">
+                <div class="card" style="width: 100%;">
+                    <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+                        <div class="card-title">
+                            🔬 <span data-i18n="title_detailed_forensics">Live Threat & Vulnerability Forensics</span>
+                            <span id="detailedVulnCountBadge" class="badge" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; margin-left: 0.5rem; border: 1px solid rgba(56, 189, 248, 0.3);">0 Live Detections</span>
+                        </div>
+                        <div class="card-actions" style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                            <select id="detailedVulnSevFilter" style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.3rem 0.6rem; font-size: 0.78rem; outline: none; cursor: pointer;">
+                                <option value="ALL">All Severities</option>
+                                <option value="CRITICAL">Critical Only</option>
+                                <option value="HIGH">High Only</option>
+                                <option value="MEDIUM">Medium Only</option>
+                                <option value="LOW">Low Only</option>
+                            </select>
+                            <input type="text" id="detailedVulnSearch" placeholder="Filter by IP, threat vector, engine..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.3rem 0.75rem; font-size: 0.78rem; min-width: 230px; outline: none;">
+                        </div>
+                    </div>
+                    <div class="table-container detailed-table-container" style="max-height: 520px; overflow-y: auto; overflow-x: hidden;">
+                        <table class="enterprise-table detailed-table" id="detailedVulnTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 75px;">Severity</th>
+                                    <th style="width: 100px;">Incident & Time</th>
+                                    <th style="width: 135px;">Threat Classification</th>
+                                    <th style="width: 110px;">Attacker (Src)</th>
+                                    <th style="width: 110px;">Target (Dst)</th>
+                                    <th style="width: 75px;">Engine</th>
+                                    <th style="width: 75px;">Confidence</th>
+                                    <th>Forensic Evidence & Payload Telemetry</th>
+                                    <th style="width: 85px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailedVulnTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.85rem;">
+                                        🛡️ No security incidents or vulnerabilities detected yet. Listening for network traffic...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             VIEW 3: NODE & HOST INVENTORY (FACETED SIDEBAR & DETAILED TABLE)
+             ====================================================================== -->
+        <section id="view-nodes" class="view-pane">
+            <div class="breadcrumb">
+                <a onclick="switchView('view-vuln-risk')">Vulnerability and Risk Dashboard</a> <span>/</span> <span>Nodes</span>
+            </div>
+
+            <div class="nodes-layout">
+                <!-- Left Faceted Filter Sidebar -->
+                <aside class="filter-sidebar">
+                    <div class="filter-group">
+                        <div class="filter-group-header">
+                            <span>❤️</span> <span data-i18n="filter_health">Health</span>
+                        </div>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" checked onchange="filterNodes()"> Critical</span>
+                            <span class="filter-count-badge">2</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> High</span>
+                            <span class="filter-count-badge">51</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> None / Secure</span>
+                            <span class="filter-count-badge">15</span>
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-header">
+                            <span>🕒</span> <span data-i18n="filter_tracked">Tracked In</span>
+                        </div>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" checked onchange="filterNodes()"> Last 7 days</span>
+                            <span class="filter-count-badge">2</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> Older than 30 days</span>
+                            <span class="filter-count-badge">66</span>
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-header">
+                            <span>💻</span> <span data-i18n="filter_os">OS / Device Family</span>
+                        </div>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> Cisco</span>
+                            <span class="filter-count-badge">44</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> Linux Ubuntu/Debian</span>
+                            <span class="filter-count-badge">5</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> Fortinet Inc.</span>
+                            <span class="filter-count-badge">3</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> VMware Inc.</span>
+                            <span class="filter-count-badge">8</span>
+                        </label>
+                        <label class="filter-checkbox-item">
+                            <span><input type="checkbox" onchange="filterNodes()"> Windows Server</span>
+                            <span class="filter-count-badge">1</span>
+                        </label>
+                    </div>
+                </aside>
+
+                <!-- Right Table Area -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🖥️ <span data-i18n="title_node_inventory">List of Monitored Nodes</span></div>
+                        <div class="card-actions">
+                            <input type="text" id="nodeSearchInput" oninput="filterNodes()" placeholder="Search node, IP or OS..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 220px;">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="enterprise-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Node / Host</th>
+                                    <th>Device / OS</th>
+                                    <th>Firmware / Role</th>
+                                    <th>Tracked In</th>
+                                    <th>Risk Gauge</th>
+                                    <th>Total</th>
+                                    <th>Active Severity Breakdown</th>
+                                </tr>
+                            </thead>
+                            <tbody id="nodesTableBody">
+                                <!-- Populated dynamically by app.js with hover inspectors -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--card-border-subtle); font-size: 0.78rem; color: var(--text-muted);">
+                        <div>Showing 1–12 of 68 Monitored Nodes</div>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <button class="btn" style="padding: 0.2rem 0.6rem;">&lt;</button>
+                            <button class="btn btn-live" style="padding: 0.2rem 0.6rem;">1</button>
+                            <button class="btn" style="padding: 0.2rem 0.6rem;">2</button>
+                            <button class="btn" style="padding: 0.2rem 0.6rem;">3</button>
+                            <button class="btn" style="padding: 0.2rem 0.6rem;">4</button>
+                            <button class="btn" style="padding: 0.2rem 0.6rem;">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             VIEW 4: THREAT SIGNATURE REGISTRY & CVE DRILLDOWN
+             ====================================================================== -->
+        <section id="view-signatures" class="view-pane">
+            <div class="breadcrumb">
+                <a onclick="switchView('view-live-soc')">Alerts & Activity</a> <span>/</span> <span>Threat Signatures & Attack Vectors</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📜 <span data-i18n="title_sig_registry">Known Threat Signatures & Attack Vectors</span></div>
+                    <div class="card-actions">
+                        <input type="text" id="sigSearchInput" oninput="filterSignatures()" placeholder="Search signature or CVE..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 240px;">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Identifier</th>
+                                <th>Target Protocol</th>
+                                <th>Signature Title & Threat Description</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="signaturesTableBody">
+                            <!-- Populated dynamically by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             VIEW 5: GLOBAL WORLD THREAT MAP & WAN TELEMETRY
+             ====================================================================== -->
+        <section id="view-threat-map" class="view-pane">
+            <div class="breadcrumb">
+                <a onclick="switchView('view-live-soc')">Home</a> <span>/</span> <span>Global Threat Map & Telemetry</span>
+            </div>
+
+            <!-- Global World Threat Map SVG -->
+            <div class="card map-card">
+                <div class="card-header">
+                    <div class="card-title">🌍 <span data-i18n="title_threat_map">Interactive Worldwide Threat Map</span></div>
+                    <div class="card-actions">
+                        <span class="badge badge-normal" style="font-size: 0.72rem;">6 MONITORED REGIONS</span>
+                    </div>
+                </div>
+
+                <div style="position: relative; background: rgba(2, 6, 23, 0.6); border-radius: 10px; padding: 1.5rem; text-align: center;">
+                    <svg class="world-map-svg" viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Stylized World Map Continents Outline -->
+                        <path d="M150,120 Q180,80 260,110 Q320,130 310,210 Q280,260 210,240 Q160,200 150,120 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+                        <path d="M220,260 Q270,270 290,340 Q280,430 230,450 Q200,380 220,260 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+                        <path d="M460,90 Q540,70 560,130 Q530,190 480,180 Q450,140 460,90 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+                        <path d="M460,190 Q550,210 560,320 Q500,410 460,340 Q430,260 460,190 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+                        <path d="M570,80 Q780,60 880,140 Q840,260 700,240 Q620,180 570,80 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+                        <path d="M780,310 Q880,320 870,410 Q800,420 770,360 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+
+                        <!-- Threat Arcs between key regions -->
+                        <path d="M240,160 Q360,90 490,120" stroke="#f87171" stroke-width="2" stroke-dasharray="6,6" fill="none">
+                            <animate attributeName="stroke-dashoffset" values="24;0" dur="1.2s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M490,120 Q620,160 740,250" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6,6" fill="none">
+                            <animate attributeName="stroke-dashoffset" values="24;0" dur="1.5s" repeatCount="indefinite"/>
+                        </path>
+
+                        <!-- Region Beacons -->
+                        <!-- North America (Amer Region) -->
+                        <circle cx="240" cy="160" r="14" fill="rgba(239, 68, 68, 0.25)" class="map-node-pulse"/>
+                        <circle cx="240" cy="160" r="6" fill="#ef4444"/>
+                        <text x="240" y="195" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">AMER REGION (Probe Origin)</text>
+
+                        <!-- Europe (London Hub) -->
+                        <circle cx="490" cy="120" r="14" fill="rgba(245, 158, 11, 0.25)" class="map-node-pulse"/>
+                        <circle cx="490" cy="120" r="6" fill="#f59e0b"/>
+                        <text x="490" y="105" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">LONDON (Gateway)</text>
+
+                        <!-- Asia (Singapore Honeypot) -->
+                        <circle cx="740" cy="250" r="14" fill="rgba(56, 189, 248, 0.25)" class="map-node-pulse"/>
+                        <circle cx="740" cy="250" r="6" fill="#38bdf8"/>
+                        <text x="740" y="280" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">SINGAPORE (Decoy Listener)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- WAN Performance & Sensor Health Row -->
+            <div class="vuln-mid-row">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📈 <span data-i18n="title_wan_traffic">WAN Traffic Errors & Discard Telemetry</span></div>
+                    </div>
+                    <div style="padding: 1.5rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.78rem;">
+                            <span style="color: #38bdf8;">● Received Discards: <strong id="wanRxVal">0.0 pkts/s</strong></span>
+                            <span style="color: #f87171;">● Transmit Discards: <strong id="wanTxVal">0.0 pkts/s</strong></span>
+                        </div>
+                        <div style="height: 140px; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid var(--card-border-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem;">
+                            Live GigabitEthernet0/0/0 Interface Telemetry Active
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🛡️ <span data-i18n="title_sensor_health">Hardware & Sensor Health Status</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-around; padding: 1rem 0;">
+                        <svg width="120" height="120" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="24" stroke-dasharray="190 240"/>
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="24" stroke-dasharray="35 240" stroke-dashoffset="-190"/>
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#ef4444" stroke-width="24" stroke-dasharray="15 240" stroke-dashoffset="-225"/>
+                        </svg>
+                        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div><strong style="color: #10b981;">45 Nodes</strong> Up (Normal)</div>
+                            <div><strong style="color: #f59e0b;">2 Nodes</strong> Warning State</div>
+                            <div><strong style="color: #ef4444;">3 Nodes</strong> Critical Alarm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             VIEW 6: CAPABILITIES & FAQ (ZEEK & SOLARWINDS STYLES)
+             ====================================================================== -->
+        <section id="view-faq" class="view-pane">
+            <div class="breadcrumb">
+                <a onclick="switchView('view-live-soc')">Home</a> <span>/</span> <span>Capabilities & Knowledge Base</span>
+            </div>
+
+            <!-- Zeek-Style 6-Card Capabilities Section -->
+            <div class="capabilities-header">
+                <div class="capabilities-badge" data-i18n="cap_badge">PLATFORM CAPABILITIES</div>
+                <h2 class="capabilities-title" data-i18n="cap_title">Deep Network Security Insight</h2>
+                <p class="capabilities-subtitle" data-i18n="cap_subtitle">
+                    NetSentinel provides multi-layered packet inspection, signature detection, and anomaly detection to uncover what is happening across your network.
+                </p>
+            </div>
+
+            <div class="capabilities-grid">
+                <!-- Card 1 -->
+                <div class="cap-card">
+                    <div class="cap-icon">🔬</div>
+                    <div class="cap-name" data-i18n="cap_protocol_title">Protocol Analysis</div>
+                    <div class="cap-desc" data-i18n="cap_protocol_desc">
+                        Deep inspection of packet headers and transport layer sessions including TCP SYN/ACK flags, UDP datagrams, ICMP echo requests, and port multiplexing.
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="cap-card">
+                    <div class="cap-icon">🛡️</div>
+                    <div class="cap-name" data-i18n="cap_threat_title">Threat Detection</div>
+                    <div class="cap-desc" data-i18n="cap_threat_desc">
+                        Rapid correlation of attack patterns including multi-port reconnaissance sweeps, volumetric SYN flood denial-of-service, and credential brute force attempts.
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="cap-card">
+                    <div class="cap-icon">🗄️</div>
+                    <div class="cap-name" data-i18n="cap_logging_title">Comprehensive Logging</div>
+                    <div class="cap-desc" data-i18n="cap_logging_desc">
+                        Structured persistence in SQLite with Write-Ahead Logging (WAL) mode, maintaining complete forensics logs ready for SIEM reporting and timeline playback.
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="cap-card">
+                    <div class="cap-icon">🧠</div>
+                    <div class="cap-name" data-i18n="cap_engine_title">Dual-Engine Architecture</div>
+                    <div class="cap-desc" data-i18n="cap_engine_desc">
+                        Combines deterministic Snort-like signature matching (Person 2) with statistical anomaly thresholds (Person 3) for robust threat identification.
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="cap-card">
+                    <div class="cap-icon">⚡</div>
+                    <div class="cap-name" data-i18n="cap_perf_title">High Performance</div>
+                    <div class="cap-desc" data-i18n="cap_perf_desc">
+                        Engineered on Java 21 Project Loom virtual threads, allowing lightweight decoy honeypot listeners on ports 2222, 8088, 8888, and 9090 without thread starvation.
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="cap-card">
+                    <div class="cap-icon">📡</div>
+                    <div class="cap-name" data-i18n="cap_vis_title">Network Visibility</div>
+                    <div class="cap-desc" data-i18n="cap_vis_desc">
+                        Live real-time SOC monitoring with heart-rate threat rhythm waveforms, continuous risk gauges, and interactive host popovers for immediate situational awareness.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SolarWinds-Style Interactive FAQ Split-Pane -->
+            <div class="faq-split-pane">
+                <!-- Left Question List -->
+                <div class="faq-questions-list" id="faqQuestionsList">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+
+                <!-- Right Answer Details Pane -->
+                <div class="faq-answer-pane" id="faqAnswerPane">
+                    <h3 class="faq-a-title" id="faqActiveTitle">What is network security monitoring software?</h3>
+                    <div class="faq-a-content" id="faqActiveContent">
+                        <p>Network security monitoring (NSM) software is designed to detect and analyze activities that may indicate security issues, offering warnings that allow analysts to act quickly and protect infrastructure from intrusions.</p>
+                        <p>By collecting metrics on client-server communications, encrypted traffic sessions, and port operations, NSM tools help you identify potential cybersecurity threats in real-time.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================================================
+         HOVER TELEMETRY POPOVER CARD (IMAGE 9 REFERENCE)
+         ========================================================================== -->
+    <div id="nodeHoverPopover" class="node-popover">
+        <div class="popover-header">
+            <span class="status-dot status-dot-secure"></span>
+            <strong id="popoverNodeName" style="color: var(--text-primary); font-size: 0.9rem;">EAST_vMX</strong>
         </div>
-
+        <div class="popover-row">
+            <span class="popover-label">IP Address</span>
+            <span class="popover-val" id="popoverIp">10.1.21.16</span>
+        </div>
+        <div class="popover-row">
+            <span class="popover-label">Machine Type</span>
+            <span class="popover-val" id="popoverType">vMX Gateway</span>
+        </div>
+        <div class="popover-row">
+            <span class="popover-label">Avg Response</span>
+            <span class="popover-val" id="popoverPing" style="color: var(--accent-green);">2 ms</span>
+        </div>
+        <div class="popover-row">
+            <span class="popover-label">CPU Load</span>
+            <span class="popover-val" id="popoverCpu">2 %</span>
+        </div>
+        <div class="popover-row">
+            <span class="popover-label">Memory Used</span>
+            <span class="popover-val" id="popoverRam">15 %</span>
+        </div>
+        <div class="popover-row">
+            <span class="popover-label">Flow Engine</span>
+            <span class="popover-val" id="popoverFlow">NetFlow v9</span>
+        </div>
+        <div class="popover-row">
+            <span class="popover-label">Operational State</span>
+            <span class="popover-val" id="popoverStatus" style="color: var(--accent-green);">Up / Monitored</span>
+        </div>
     </div>
 
-    <!-- Clear Confirmation Modal -->
-    <div id="clearConfirmModal" class="modal-overlay" style="display: none;" onclick="handleModalBackdropClick(event)">
-        <div class="modal-box">
-            <div class="modal-icon">⚠️</div>
-            <div class="modal-title">Clear All Security Data?</div>
-            <div class="modal-desc">
-                This will permanently remove all active security alerts, reset attack summary counters, and wipe top attacking source IPs from the database.
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeClearModal()">Cancel</button>
-                <button class="btn btn-danger" onclick="executeClearAlerts()">Yes, Clear Everything</button>
+    <!-- ==========================================================================
+         MODAL 1: CLEAR ALERTS CONFIRMATION
+         ========================================================================== -->
+    <div id="clearConfirmModal" class="modal-overlay" onclick="handleModalBackdropClick(event)">
+        <div class="modal-dialog">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+            <h3 style="margin-bottom: 0.75rem; color: var(--text-primary);">Confirm Telemetry Reset</h3>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                Are you sure you want to clear all active security alerts and reset the telemetry baseline? This action will purge active detections from live view.
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button class="btn" onclick="closeClearModal()">Cancel</button>
+                <button class="btn" onclick="executeClearAlerts()" style="background: #dc2626; border-color: #b91c1c; color: #fff;">Clear All Alerts</button>
             </div>
         </div>
     </div>
 
-    <!-- Footer Note (Visible Only When Scrolled) -->
-    <footer class="footer">
-        <div class="footer-note">Academic Team Project &bull; 5-Module Security Monitor</div>
-    </footer>
+    <!-- ==========================================================================
+         MODAL 2: VULNERABILITY DRILLDOWN MODAL (IMAGE 11 REFERENCE)
+         ========================================================================== -->
+    <div id="signatureDetailModal" class="modal-overlay" onclick="if(event.target.id==='signatureDetailModal') closeSignatureModal();">
+        <div class="modal-dialog" style="max-width: 650px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                <h3 id="modalSigTitle" style="color: var(--text-primary); font-size: 1.1rem;">CVE-2021-0248 Details</h3>
+                <button class="btn" onclick="closeSignatureModal()" style="padding: 0.2rem 0.5rem;">✕</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.8rem; margin-bottom: 1rem;">
+                <div><span style="color: var(--text-muted);">CVSS Score:</span> <strong id="modalSigScore" style="color: var(--accent-red); font-size: 1.1rem;">10.0</strong></div>
+                <div><span style="color: var(--text-muted);">Severity:</span> <span id="modalSigSev" class="badge badge-critical">[CRITICAL]</span></div>
+                <div><span style="color: var(--text-muted);">Detection Method:</span> <span id="modalSigMethod" class="badge badge-method-rule">RULE ENGINE</span></div>
+                <div><span style="color: var(--text-muted);">Advisory:</span> <a href="#" target="_blank" id="modalSigLink" style="color: var(--accent-blue);">NVD NIST Reference</a></div>
+            </div>
+            <p id="modalSigSummary" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.25rem;">
+                Identified hard-coded or default authentication credentials in network infrastructure. An unauthenticated attacker can exploit this vector to execute arbitrary configuration overrides.
+            </p>
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">AFFECTED MONITORED HOSTS:</div>
+            <div id="modalSigNodes" style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border-subtle); border-radius: 8px; padding: 0.75rem; font-size: 0.78rem; font-family: var(--font-mono); color: var(--accent-blue);">
+                EAST_vMX (10.1.21.16), bas-ex2200 (10.1.21.18), WEST_vMX (10.1.21.20)
+            </div>
+        </div>
+    </div>
 
-    <!-- Script Controller -->
-    <script src="js/app.js?v=2"></script>
+    <!-- Application Controller Script -->
+    <script src="js/app.js?v=3"></script>
 </body>
 </html>

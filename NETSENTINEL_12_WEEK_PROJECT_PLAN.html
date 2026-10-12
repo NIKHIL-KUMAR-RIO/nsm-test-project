@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NetSentinel: Real-Time Network Security Monitoring & Intrusion Detection System — 12-Week Project Plan</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 14mm 12mm 14mm 12mm;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1e293b;
+            background: #ffffff;
+            line-height: 1.42;
+            font-size: 8.4pt;
+            margin: 0;
+            padding: 0;
+        }
+        .page {
+            page-break-after: always;
+            position: relative;
+            min-height: 268mm;
+            padding-bottom: 25px;
+        }
+        .page:last-child {
+            page-break-after: avoid;
+        }
+        .page-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 7.5pt;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 5px;
+        }
+        .main-title {
+            font-size: 19pt;
+            font-weight: 800;
+            color: #0f2744;
+            margin: 0 0 4px 0;
+        }
+        .main-subtitle {
+            font-size: 12.5pt;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 0 0 4px 0;
+        }
+        .track-subtitle {
+            font-size: 9.5pt;
+            color: #475569;
+            margin: 0 0 16px 0;
+            font-weight: 500;
+        }
+        .section-title {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #0f2744;
+            margin: 14px 0 8px 0;
+        }
+        .member-header-name {
+            font-size: 13pt;
+            font-weight: 800;
+            color: #0f2744;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 2px 0;
+        }
+        .member-header-module {
+            font-size: 9.5pt;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 0 0 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+            margin-bottom: 8px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 4.2px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 8.2pt;
+        }
+        .col-day {
+            width: 7.5%;
+            font-weight: 600;
+        }
+        .col-date {
+            width: 9%;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .col-work {
+            width: 83.5%;
+        }
+        .week-header-row td {
+            background-color: #dbeafe;
+            color: #1e3a8a;
+            font-weight: 800;
+            font-size: 8.3pt;
+            padding: 4px 6px;
+            border-top: 1.5px solid #93c5fd;
+            border-bottom: 1.5px solid #93c5fd;
+        }
+        .sat-row td {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+        .sat-row .col-day, .sat-row .col-date {
+            font-weight: 800;
+            color: #713f12;
+        }
+        .sat-row .col-work {
+            font-weight: 700;
+            color: #713f12;
+        }
+        .sun-row td {
+            background-color: #f8fafc;
+            color: #475569;
+        }
+        .info-bar {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 7px 10px;
+            font-size: 8.5pt;
+            color: #0369a1;
+            font-weight: 600;
+            margin-top: 12px;
+            border-radius: 2px;
+        }
+        .checklist-table th {
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: 700;
+        }
+        .checklist-table td {
+            padding: 6px 10px;
+            font-size: 8.5pt;
+        }
+    </style>
+</head>
+<body>
+
+<!-- PAGE 1: TITLE & TEAM MEMBERS -->
+<div class="page">
+    <div style="height: 12px;"></div>
+    <div class="main-title">NetSentinel: Real-Time Network Security Monitoring &amp; IDS</div>
+    <div class="main-subtitle">12-Week Project Plan (6 July – 26 September 2026)</div>
+    <div class="track-subtitle">Java PBL A.Y. 2026-27 | Network Security &amp; Systems Architecture Track</div>
+
+    <div class="section-title">Team Members</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 28%;">Name</th>
+                <th style="width: 22%;">Roll No.</th>
+                <th style="width: 50%;">Module</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Nandlal Upman</strong></td>
+                <td>24E1ARADM40P108</td>
+                <td>Packet Capture &amp; Preprocessing (Pure Java PCAP &amp; Decoys)</td>
+            </tr>
+            <tr>
+                <td><strong>Piyush Agarwal</strong></td>
+                <td>24E1ARADM40P120</td>
+                <td>Rule-Based Detection Engine (Sliding-Window ArrayDeque)</td>
+            </tr>
+            <tr>
+                <td><strong>Mayank Jangid</strong></td>
+                <td>24E1ARADM30P097</td>
+                <td>Anomaly &amp; ML Detection Engine (Shannon Entropy &amp; Flows)</td>
+            </tr>
+            <tr>
+                <td><strong>Nikhil Kumar (Team Lead)</strong></td>
+                <td>24E1ARADM30P110</td>
+                <td>Central Backend &amp; SQLite Storage (Spring Boot 3 + JDBC)</td>
+            </tr>
+            <tr>
+                <td><strong>Parikshit Vyas</strong></td>
+                <td>24E1ARADM40P119</td>
+                <td>SOC Web Dashboard &amp; Frontend (Chart.js &amp; Telemetry UI)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="info-bar">
+        Saturday = Mentor Meeting (All members attend) &nbsp;|&nbsp; Sunday = Review / Self-Study / Code Inspection
+    </div>
+
+    <div style="margin-top: 35px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 14px 18px; background: #f8fafc;">
+        <div style="font-weight: 700; color: #0f2744; font-size: 10pt; margin-bottom: 6px;">Project Architecture &amp; Execution Environment</div>
+        <div style="font-size: 8.5pt; color: #475569; line-height: 1.55;">
+            <strong>Platform:</strong> NetSentinel (Shield NSM Platform) is a zero-dependency, pure Java network intrusion detection framework engineered on Java 21 LTS, Spring Boot 3, and Project Loom Virtual Threads.<br>
+            <strong>Core Modules:</strong> Five decoupled components communicating via frozen JSON contracts: Module 1 Packet Dissection &rarr; Module 2 Deterministic Rule Engine &rarr; Module 3 Flow Anomaly Inference &rarr; Module 4 SQLite Storage Service &rarr; Module 5 Live SOC Web Dashboard.<br>
+            <strong>Duration &amp; Schedule:</strong> 12 Academic Weeks (6 July – 26 September 2026), 72 operating days, concluding with final project submission and viva defense.<br>
+            <strong>Project Guide:</strong> Er. Ram Babu Buri (Assistant Professor, Department of Computer Science &amp; IT).
+        </div>
+    </div>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 1</span>
+    </div>
+</div>
+<!-- PAGE 2: NANDLAL UPMAN -->
+<div class="page">
+    <div class="member-header-name">NANDLAL UPMAN — 24E1ARADM40P108</div>
+    <div class="member-header-module">Module: Packet Capture & Preprocessing (Person 1)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 1 — Team Formation + Abstract</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">6 Jul</td><td class="col-work">Joined the NetSentinel team. Registered team on portal under guide Er. Ram Babu Buri. Agreed on building pure Java packet capture without native WinPcap/Npcap drivers.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">7 Jul</td><td class="col-work">Studied libpcap binary file format specifications: 24-byte global file header and 16-byte packet record headers. Noted required fields.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">8 Jul</td><td class="col-work">Researched unprivileged socket listening in Java. Discovered decoy listener concept for ports 2222, 8088, 8888, and 9090 to trap attacks over physical LAN.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">9 Jul</td><td class="col-work">Drafted the Packet Capture and Preprocessing section for the abstract (about 250 words) and submitted to team lead Nikhil Kumar.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">10 Jul</td><td class="col-work">Created module-1-packet-capture folder structure with Maven pom.xml and did initial commit to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">11 Jul</td><td class="col-work">Mentor meeting. Presented packet capture architecture without C/C++ drivers. Mentor approved pure Java libpcap parser and decoy sockets.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">12 Jul</td><td class="col-work">Reviewed mentor feedback. Listed protocol header offsets for Ethernet (14 bytes), IPv4 (20 bytes), and TCP (20 bytes).</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 2 — SRS Documentation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">13 Jul</td><td class="col-work">Wrote SRS Section 1 for Module 1: functional scope of packet ingestion from binary .pcap captures and live decoy sockets.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">14 Jul</td><td class="col-work">Wrote functional requirements FR-01 (PCAP file parsing) and FR-02 (Decoy honeypot listeners on unprivileged ports 2222, 8088, 8888, 9090).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">15 Jul</td><td class="col-work">Defined non-functional requirements: minimum throughput > 1,000 pkts/sec and packet parsing latency under 0.5 ms.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">16 Jul</td><td class="col-work">Documented use cases: 'Ingest PCAP Stream' and 'Trap Incoming Honeypot Connection' with success and exception flows.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">17 Jul</td><td class="col-work">Combined Module 1 requirements into master SRS document with team. Fixed formatting and pushed updates to GitHub.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">18 Jul</td><td class="col-work">Mentor meeting. Presented Module 1 SRS requirements. Guide approved frozen JSON contract format for emitted packet events.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">19 Jul</td><td class="col-work">Incorporated mentor corrections regarding snaplen boundary handling in pcap file parsing.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 3 — UML Design</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">20 Jul</td><td class="col-work">Created UML Use Case diagram for packet capture subsystem using draw.io: parsing, frame dissection, and streaming.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">21 Jul</td><td class="col-work">Designed Class Diagram for Module 1: PcapBinaryParser, LiveDecoyProbeListener, PacketData, and PacketGenerator.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">22 Jul</td><td class="col-work">Constructed Sequence Diagram showing raw byte stream flow into ByteBuffer, frame extraction, and emit to consumer callback.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">23 Jul</td><td class="col-work">Aligned method signatures with Module 2 (RuleEngine) and Module 4 (PipelineCoordinator) interfaces to ensure consistency.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">24 Jul</td><td class="col-work">Exported high-resolution UML diagrams and committed them to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">25 Jul</td><td class="col-work">Mentor meeting. Presented Module 1 class and sequence diagrams. Mentor approved decoupling packet parser from storage.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">26 Jul</td><td class="col-work">Refined diagram notes on Project Loom Virtual Thread execution for socket listeners.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 4 — Architecture, DB Schema & Contracts</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">27 Jul</td><td class="col-work">Authored PacketData.java immutable record: timestamp, src_ip, dst_ip, src_port, dst_port, protocol, flags, length.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">28 Jul</td><td class="col-work">Created factory method PacketData.create() with defensive null handling and default values for ICMP/UDP packets.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">29 Jul</td><td class="col-work">Drafted sample pcap file with Wireshark containing synthetic TCP SYN packets to serve as test fixture.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">30 Jul</td><td class="col-work">Configured Maven pom.xml with Java 21 release flag and JUnit 5 test dependencies.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">31 Jul</td><td class="col-work">Tested compiling Module 1 skeleton with 'mvn clean compile'. Build succeeded with zero warnings.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">1 Aug</td><td class="col-work">Mentor meeting. Showed PacketData contract and Maven structure. Mentor verified field schemas match downstream requirements.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">2 Aug</td><td class="col-work">Planned binary parsing logic for Big-Endian and Little-Endian pcap magic headers.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 2</span>
+    </div>
+</div>
+<!-- PAGE 3: NANDLAL UPMAN -->
+<div class="page">
+    <div class="member-header-name">NANDLAL UPMAN — 24E1ARADM40P108</div>
+    <div class="member-header-module">Module: Packet Capture & Preprocessing (Person 1)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 5 — Module Coding Phase 1</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">3 Aug</td><td class="col-work">Created PcapBinaryParser.java. Implemented magic number detection: 0xA1B2C3D4 (Big-Endian) and 0xD4C3B2A1 (Little-Endian).</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">4 Aug</td><td class="col-work">Wrote global header reader in ByteBuffer: parsed major version, minor version, thiszone, sigfigs, and snaplen fields.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">5 Aug</td><td class="col-work">Implemented packet record loop extracting ts_sec, ts_usec, incl_len, and orig_len. Added guard against corrupted lengths.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">6 Aug</td><td class="col-work">Handled timestamp generation converting epoch seconds and microseconds into java.time.Instant with nanosecond precision.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">7 Aug</td><td class="col-work">Tested reading a 100-packet capture dump. Verified correct frame slicing and stream iteration.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">8 Aug</td><td class="col-work">Mentor meeting. Demonstrated raw pcap file reader outputting packet record timestamps. Mentor approved binary parser core.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">9 Aug</td><td class="col-work">Researched Ethernet frame slicing and EtherType offsets for IPv4 (0x0800).</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 6 — Module Coding Phase 2</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">10 Aug</td><td class="col-work">Developed dissectFrame() method: validated Ethernet header (14 bytes) and isolated IPv4 payload.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">11 Aug</td><td class="col-work">Extracted IPv4 header length (IHL), Total Length, Protocol number (6 for TCP, 17 for UDP, 1 for ICMP), and IP addresses.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">12 Aug</td><td class="col-work">Wrote formatIp() helper converting raw 4-byte arrays into standard dotted-decimal strings (e.g. 192.168.1.1).</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">13 Aug</td><td class="col-work">Implemented TCP header parser: extracted source port, destination port, sequence number, and acknowledgment number.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">14 Aug</td><td class="col-work">Implemented bitwise flag extraction for TCP flags: SYN, ACK, FIN, RST, PSH, and URG via formatTcpFlags() method.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">15 Aug</td><td class="col-work">Mentor meeting. Showed full packet dissection outputting structured PacketData. Mentor validated accuracy of TCP flag decoding.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">16 Aug</td><td class="col-work">Added support for UDP and ICMP packet extraction to provide baseline background traffic parsing.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 7 — Module Coding Phase 3</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">17 Aug</td><td class="col-work">Created LiveDecoyProbeListener.java. Implemented multi-port server socket listener on decoy ports 2222, 8088, 8888, 9090.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">18 Aug</td><td class="col-work">Integrated Java 21 Project Loom Virtual Threads (Thread.ofVirtual()) to handle incoming TCP probe connections asynchronously.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">19 Aug</td><td class="col-work">Configured socket listener to extract remote client IP and port upon connection before terminating the socket cleanly.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">20 Aug</td><td class="col-work">Synthesized PacketData records from live socket triggers and dispatched them directly into the downstream detection pipeline.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">21 Aug</td><td class="col-work">Tested live decoy probe listener by connecting via PowerShell Test-NetConnection on port 2222. Confirmed immediate packet capture.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">22 Aug</td><td class="col-work">Mentor meeting. Demonstrated live decoy probe trapping connection on port 2222 without root permissions. Mentor signed off Phase 3.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">23 Aug</td><td class="col-work">Planned synthetic attack packet generator for port scan, SYN flood, and brute force scenarios.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 8 — Module Coding Phase 4: Final</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">24 Aug</td><td class="col-work">Created PacketGenerator.java: implemented generatePortScan() creating multi-port SYN packets across port range.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">25 Aug</td><td class="col-work">Implemented generateSynFlood() producing rapid high-volume SYN packets targeting a single victim port.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">26 Aug</td><td class="col-work">Implemented generateBruteForce() generating repeated connection attempts against SSH port 22.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">27 Aug</td><td class="col-work">Wrote PacketStreamEmitter.java supporting JSON-lines (.jsonl) serialization and HTTP POST ingestion to Module 4.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">28 Aug</td><td class="col-work">Cleaned Java 21 compiler warnings on unused variables 'network' and 'origLen' in PcapBinaryParser using in-place buffer cursor positioning. Zero-warning build.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">29 Aug</td><td class="col-work">Mentor meeting. Showed all generator attack scenarios and zero-warning build. Mentor confirmed Module 1 is complete and ready for integration.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">30 Aug</td><td class="col-work">Wrote unit tests in PacketCaptureTest.java verifying pcap dissection, flag parsing, and attack generators.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 3</span>
+    </div>
+</div>
+<!-- PAGE 4: NANDLAL UPMAN -->
+<div class="page">
+    <div class="member-header-name">NANDLAL UPMAN — 24E1ARADM40P108</div>
+    <div class="member-header-module">Module: Packet Capture & Preprocessing (Person 1)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 9 — Integration + Testing</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">31 Aug</td><td class="col-work">Connected Module 1 with Piyush's RuleEngine and Mayank's AnomalyEngine inside Nikhil's NsmPipelineCoordinator.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">1 Sep</td><td class="col-work">Tested continuous streaming of 500 synthetic packets. Confirmed zero packet loss across Loom virtual thread dispatch.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">2 Sep</td><td class="col-work">Tested pcap replay endpoint (/api/attack/pcap-upload). Verified 1,000 packets replayed at 15ms intervals cleanly.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">3 Sep</td><td class="col-work">Verified decoy sockets bind 0.0.0.0 without colliding with Spring Boot port 8080.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">4 Sep</td><td class="col-work">Executed full integration test suite: 'mvn test -pl module-1-packet-capture'. All tests passed with 100% success.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">5 Sep</td><td class="col-work">Mentor meeting. Demonstrated full pipeline integration: PCAP feed flowed through rules and anomaly engine into SQLite. Mentor approved.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">6 Sep</td><td class="col-work">Prepared multi-host test scripts for live physical Wi-Fi/LAN testing.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 10 — Multi-Host Deployment & Network Simulation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">7 Sep</td><td class="col-work">Deployed NetSentinel on primary laptop over physical university Wi-Fi subnet with active decoy listeners on ports 2222, 8088, 8888, 9090.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">8 Sep</td><td class="col-work">Executed live external probes from secondary host: 'curl http://192.168.1.5:8088'. Decoy honeypot captured incoming TCP handshakes instantly via virtual threads.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">9 Sep</td><td class="col-work">Identified that localhost test probes emit IPv6 loopback addresses (0:0:0:0:0:0:0:1 / ::1), disrupting downstream IP geolocation and rule matching.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">10 Sep</td><td class="col-work">Implemented IPv6 Loopback Normalization in LiveDecoyProbeListener.java, converting 0:0:0:0:0:0:0:1 and ::1 into standard IPv4 127.0.0.1.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">11 Sep</td><td class="col-work">Tested rapid curl bursts against decoy HTTP port 8088 and SSH port 2222. Verified correct TCP socket closure and clean packet dispatch into pipeline.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">12 Sep</td><td class="col-work">Mentor meeting. Demonstrated live physical LAN decoy trapping and normalized IPv4 telemetry from external machines. Mentor approved Week 10.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">13 Sep</td><td class="col-work">Reviewed socket thread allocation metrics; confirmed virtual threads maintained sub-1% CPU utilization during multi-probe bursts.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 11 — Performance Profiling, Report + PPT + Video</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">14 Sep</td><td class="col-work">Benchmarked binary packet dissection throughput: sustained 1,450 pkts/sec throughput with mean parsing latency of 0.08 ms per packet.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">15 Sep</td><td class="col-work">Audited Maven reactor build; verified zero compiler warnings across all Module 1 classes under strict Java 21 compiler flags (-Xlint:all).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">16 Sep</td><td class="col-work">Authored Module 1 technical documentation chapter: libpcap file specification, virtual-thread socket architecture, and decoy trap mechanics.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">17 Sep</td><td class="col-work">Prepared technical presentation slides covering pure Java binary parsing without native WinPcap/Npcap C drivers.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">18 Sep</td><td class="col-work">Recorded technical demonstration video clip highlighting live decoy socket trapping and PCAP file upload. Sent clip to lead Nikhil Kumar.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">19 Sep</td><td class="col-work">Mentor meeting. Presented Module 1 documentation chapter, benchmark tables, and presentation slides. Mentor approved Week 11.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">20 Sep</td><td class="col-work">Incorporated mentor feedback regarding libpcap snaplen boundary handling in documentation.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 12 — Final Submission & Project Viva Completion</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">21 Sep</td><td class="col-work">Verified standalone PCAP upload and decoy honeypot listeners inside packaged executable Fat JAR (module-4-backend-storage-1.0.0.jar).</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">22 Sep</td><td class="col-work">Validated dual-repo mirror synchronization and SHA-256 byte-for-byte integrity for all Module 1 source files and test fixtures.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">23 Sep</td><td class="col-work">Rehearsed viva technical explanations: endianness byte flipping, TCP 3-way handshake dissection, and Virtual Thread concurrency advantages.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">24 Sep</td><td class="col-work">Participated in full team mock viva defense and end-to-end live intrusion demonstration rehearsal.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">25 Sep</td><td class="col-work">Conducted final code and documentation audit; verified all Git tags and academic deliverables.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">26 Sep</td><td class="col-work">Mentor meeting. Final Project Defense before Project Guide Er. Ram Babu Buri. Received outstanding evaluation marks; Module 1 officially signed off!</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">27 Sep</td><td class="col-work">Academic project archive verification: confirmed final grade records, repository tags, and signed documentation archived.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 4</span>
+    </div>
+</div>
+<!-- PAGE 5: PIYUSH AGARWAL -->
+<div class="page">
+    <div class="member-header-name">PIYUSH AGARWAL — 24E1ARADM40P120</div>
+    <div class="member-header-module">Module: Rule-Based Detection Engine (Person 2)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 1 — Team Formation + Abstract</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">6 Jul</td><td class="col-work">Joined NetSentinel team. Selected Module 2 (Rule-Based Detection Engine). Agreed on deterministic sliding-window architecture.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">7 Jul</td><td class="col-work">Studied sliding-window time queue algorithms for intrusion detection using in-memory Java collections.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">8 Jul</td><td class="col-work">Researched signature heuristics for horizontal port scans, TCP SYN floods, and brute force login attempts.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">9 Jul</td><td class="col-work">Wrote Module 2 scope for the project abstract: sliding time queues, threshold rules, and cooldown deduplication.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">10 Jul</td><td class="col-work">Created module-2-rule-engine directory, initialized Maven pom.xml, and performed initial commit to GitHub.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">11 Jul</td><td class="col-work">Mentor meeting. Presented rule-based detection approach. Mentor advised incorporating alert cooldown to prevent notification fatigue.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">12 Jul</td><td class="col-work">Reviewed mentor feedback. Designed sliding time-window queue data structures using ArrayDeque<Instant>.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 2 — SRS Documentation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">13 Jul</td><td class="col-work">Wrote functional requirements for port scan rule: trigger alert if unique destination ports >= 15 within 5-second window.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">14 Jul</td><td class="col-work">Wrote requirements for SYN flood rule: trigger alert if SYN packet count >= 50 within 2-second window.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">15 Jul</td><td class="col-work">Wrote requirements for brute force rule: trigger alert if connection attempts to port 22/3389 exceed 10 within 30 seconds.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">16 Jul</td><td class="col-work">Documented AlertData output contract with fields: alert_id, timestamp, attack_type, severity, src_ip, dst_ip, confidence.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">17 Jul</td><td class="col-work">Integrated Module 2 requirements into team SRS document and pushed to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">18 Jul</td><td class="col-work">Mentor meeting. Presented detection threshold parameters. Mentor approved sliding-window mathematical boundaries.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">19 Jul</td><td class="col-work">Formulated time-window eviction policy to guarantee constant O(1) memory consumption.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 3 — UML Design</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">20 Jul</td><td class="col-work">Created UML Use Case diagram for RuleEngine evaluating packets and generating security alerts.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">21 Jul</td><td class="col-work">Designed Class Diagram: RuleEngine, AlertData, sliding-window queue structures, and cooldown managers.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">22 Jul</td><td class="col-work">Constructed State Machine diagram modeling transition from Normal to Attack Detected and Cooldown state.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">23 Jul</td><td class="col-work">Created Sequence Diagram showing PacketData arriving, queue updates, threshold evaluation, and AlertData emission.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">24 Jul</td><td class="col-work">Exported all UML diagrams to high-resolution PNGs and pushed them to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">25 Jul</td><td class="col-work">Mentor meeting. Showed state machine and sequence diagrams. Mentor approved alert deduplication logic.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">26 Jul</td><td class="col-work">Reviewed thread-safety requirements for concurrent packet evaluation.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 4 — Architecture, DB Schema & Contracts</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">27 Jul</td><td class="col-work">Authored AlertData.java record matching frozen contract: alertId, timestamp, attackType, severity, srcIp, dstIp, details, confidence, detectionMethod.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">28 Jul</td><td class="col-work">Created factory method AlertData.createRuleAlert() setting detection_method to 'rule' automatically.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">29 Jul</td><td class="col-work">Set up inter-module dependency in pom.xml to import module-1-packet-capture for PacketData access.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">30 Jul</td><td class="col-work">Implemented skeleton RuleEngine.java with evaluatePacket(PacketData packet) method.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">31 Jul</td><td class="col-work">Tested compiling module-2-rule-engine against module-1-packet-capture dependency. Compilation passed.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">1 Aug</td><td class="col-work">Mentor meeting. Showed inter-module POM dependency and AlertData contract. Mentor verified schema alignment with backend.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">2 Aug</td><td class="col-work">Planned port scan sliding-window map structures using ConcurrentHashMap.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 5</span>
+    </div>
+</div>
+<!-- PAGE 6: PIYUSH AGARWAL -->
+<div class="page">
+    <div class="member-header-name">PIYUSH AGARWAL — 24E1ARADM40P120</div>
+    <div class="member-header-module">Module: Rule-Based Detection Engine (Person 2)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 5 — Module Coding Phase 1</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">3 Aug</td><td class="col-work">Implemented port scan sliding window: ConcurrentHashMap<String, Map<Integer, Instant>> tracking probed destination ports per source IP.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">4 Aug</td><td class="col-work">Wrote window eviction logic: automatically remove port timestamps older than 5 seconds (PORT_SCAN_WINDOW_SEC).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">5 Aug</td><td class="col-work">Implemented threshold check: if unique port count >= 15, generate HIGH severity port_scan alert.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">6 Aug</td><td class="col-work">Wrote automated test simulating 20 packets across ports 20-39 from 192.168.1.50. Port scan alert fired successfully.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">7 Aug</td><td class="col-work">Added unit test verifying benign traffic touching only port 80 and 443 does not trigger false positive port scan alert.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">8 Aug</td><td class="col-work">Mentor meeting. Demonstrated port scan detection rule with synthetic packets. Mentor verified zero false positives on benign web traffic.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">9 Aug</td><td class="col-work">Designed SYN flood sliding-window queue using ArrayDeque<Instant> for frequency rate evaluation.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 6 — Module Coding Phase 2</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">10 Aug</td><td class="col-work">Implemented SYN flood sliding window: ConcurrentHashMap<String, ArrayDeque<Instant>> tracking SYN arrivals per victim port.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">11 Aug</td><td class="col-work">Wrote SYN arrival rate eviction: prune timestamps older than 2 seconds (SYN_FLOOD_WINDOW_SEC).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">12 Aug</td><td class="col-work">Added SYN threshold check: if queue size >= 50, trigger CRITICAL severity syn_flood alert with confidence 0.95.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">13 Aug</td><td class="col-work">Tested SYN flood detector against burst of 60 SYN packets within 500ms. Alert fired correctly on packet 50.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">14 Aug</td><td class="col-work">Validated that non-SYN packets (ACK, FIN, UDP) are ignored by the SYN flood detector without polluting queues.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">15 Aug</td><td class="col-work">Mentor meeting. Showed SYN flood rate tracking live. Mentor validated rate threshold against burst conditions.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">16 Aug</td><td class="col-work">Planned brute force detector targeting sensitive authentication ports (21, 22, 23, 3389, 8080).</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 7 — Module Coding Phase 3</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">17 Aug</td><td class="col-work">Implemented brute force detection rule: track connection attempts to sensitive admin ports within 30-second window.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">18 Aug</td><td class="col-work">Added threshold check: if connection attempts >= 10 to same target port, fire MEDIUM severity brute_force alert.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">19 Aug</td><td class="col-work">Tested brute force detection with 12 synthetic SSH connection attempts to port 22 from 192.168.1.77. Alert fired on attempt 10.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">20 Aug</td><td class="col-work">Built Alert Deduplication and Cooldown Engine: ConcurrentHashMap<String, Instant> tracking cooldown per (src_ip, attack_type).</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">21 Aug</td><td class="col-work">Configured 5-second cooldown interval: suppressed duplicate alerts during sustained attack sweeps to eliminate alert fatigue.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">22 Aug</td><td class="col-work">Mentor meeting. Demonstrated brute force detection and alert cooldown suppressing 980 redundant alerts during 1000-packet sweep. Mentor approved.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">23 Aug</td><td class="col-work">Refactored queue cleanup routines to ensure memory boundedness during long-running execution.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 8 — Module Coding Phase 4: Final</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">24 Aug</td><td class="col-work">Added reset() method to RuleEngine clearing all tracking maps, queues, and cooldown states for instant demo resets.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">25 Aug</td><td class="col-work">Fine-tuned confidence scoring: 0.95 for SYN flood, 0.90 for port scan, and 0.85 for brute force attacks.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">26 Aug</td><td class="col-work">Benchmarked evaluation latency per packet: achieved mean latency of 0.12 ms, well within sub-millisecond requirement.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">27 Aug</td><td class="col-work">Created RuleEngineTest.java with 4 comprehensive test cases covering port scan, SYN flood, brute force, and cooldown suppression.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">28 Aug</td><td class="col-work">Executed 'mvn clean test'. All 4 unit tests passed in 0.05 seconds. Pushed final Module 2 code to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">29 Aug</td><td class="col-work">Mentor meeting. Demonstrated all unit test cases passing. Mentor signed off Module 2 as complete.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">30 Aug</td><td class="col-work">Prepared integration test plan with Module 1 packet emitter and Module 4 backend.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 6</span>
+    </div>
+</div>
+<!-- PAGE 7: PIYUSH AGARWAL -->
+<div class="page">
+    <div class="member-header-name">PIYUSH AGARWAL — 24E1ARADM40P120</div>
+    <div class="member-header-module">Module: Rule-Based Detection Engine (Person 2)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 9 — Integration + Testing</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">31 Aug</td><td class="col-work">Integrated RuleEngine into Nikhil's NsmPipelineCoordinator. Verified incoming PacketData records trigger alert callbacks.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">1 Sep</td><td class="col-work">Tested concurrent packet evaluation: verified RuleEngine and AnomalyEngine process packets simultaneously without thread locking.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">2 Sep</td><td class="col-work">Validated reset endpoint (/api/alerts/clear): confirmed coordinator resets RuleEngine state and clears active cooldowns.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">3 Sep</td><td class="col-work">Tested continuous 1,000 packet ingestion: verified 100% detection rate on multi-port sweeps with zero duplicate alerts.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">4 Sep</td><td class="col-work">Verified generated AlertData records successfully persist into SQLite database via AlertRepository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">5 Sep</td><td class="col-work">Mentor meeting. Demonstrated integrated pipeline with RuleEngine alerts showing in SQLite and on frontend dashboard. Mentor approved.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">6 Sep</td><td class="col-work">Configured multi-host test scenarios with Nmap, hping3, and Hydra.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 10 — Multi-Host Deployment & Network Simulation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">7 Sep</td><td class="col-work">Participated in live multi-host network deployment over physical university Wi-Fi subnet.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">8 Sep</td><td class="col-work">Tested rule engine response against external curl and nmap probes directed at decoy ports 2222 and 8088.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">9 Sep</td><td class="col-work">Verified honeypot trap rule correctly flagged external LAN probe as CRITICAL intrusion with confidence 0.95.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">10 Sep</td><td class="col-work">Analyzed TCP connection retries from external clients; tuned cooldown window to prevent alert log spam while ensuring re-probes trigger alerts.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">11 Sep</td><td class="col-work">Validated seamless handling of normalized IPv4 addresses (127.0.0.1) without breaking source IP tracking hash maps.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">12 Sep</td><td class="col-work">Mentor meeting. Demonstrated live physical LAN attack detection with 100% accuracy and zero false positives. Mentor approved Week 10.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">13 Sep</td><td class="col-work">Compiled detection latency benchmarks: mean rule evaluation latency measured at 0.12 ms per packet.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 11 — Performance Profiling, Report + PPT + Video</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">14 Sep</td><td class="col-work">Profiled memory footprint under sustained 6-hour burn-in load; verified memory bounded under 25MB for rule tracking maps.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">15 Sep</td><td class="col-work">Collaborated with Parikshit to map rule signatures to enterprise MITRE ATTACK techniques (T1046 Scanning, T1499 DoS, T1110 Brute Force).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">16 Sep</td><td class="col-work">Authored Module 2 report chapter: sliding time-window queue mathematics, deterministic eviction algorithms, and deduplication logic.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">17 Sep</td><td class="col-work">Prepared presentation slides covering time complexity analysis (O(1) amortized eviction) and rule benchmarks.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">18 Sep</td><td class="col-work">Recorded video demonstration showing real-time sliding-window rate tracking during live SYN flood simulation. Sent to lead Nikhil Kumar.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">19 Sep</td><td class="col-work">Mentor meeting. Submitted Module 2 report draft and presentation slides. Mentor verified detection accuracy tables.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">20 Sep</td><td class="col-work">Polished report chapter based on mentor feedback. Checked GitHub commit log.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 12 — Final Submission & Project Viva Completion</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">21 Sep</td><td class="col-work">Validated rule engine execution inside standalone Fat JAR launcher (run.bat) on isolated offline test laptop.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">22 Sep</td><td class="col-work">Audited Module 2 source code and verified 100% SHA-256 match across both mirrored Git repositories.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">23 Sep</td><td class="col-work">Rehearsed viva technical questions on sliding-window memory safety, amortized O(1) deque operations, and false-positive suppression.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">24 Sep</td><td class="col-work">Participated in full team dry-run presentation and live intrusion simulation demonstration.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">25 Sep</td><td class="col-work">Performed final documentation check and confirmed all Module 2 test deliverables in Git repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">26 Sep</td><td class="col-work">Mentor meeting. Successfully defended Module 2 before Project Guide Er. Ram Babu Buri. Received highest grade; Module 2 officially signed off!</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">27 Sep</td><td class="col-work">Academic project archive verification: confirmed final grade records, repository tags, and signed documentation archived.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 7</span>
+    </div>
+</div>
+<!-- PAGE 8: MAYANK JANGID -->
+<div class="page">
+    <div class="member-header-name">MAYANK JANGID — 24E1ARADM30P097</div>
+    <div class="member-header-module">Module: Anomaly & ML Detection Engine (Person 3)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 1 — Team Formation + Abstract</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">6 Jul</td><td class="col-work">Joined NetSentinel team. Assigned Module 3 (Anomaly & ML Detection Engine). Focused on behavioral statistical modeling.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">7 Jul</td><td class="col-work">Researched statistical anomaly detection techniques in network traffic: Shannon entropy, flow feature aggregation, and SYN-to-ACK ratios.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">8 Jul</td><td class="col-work">Studied Shannon Port Entropy formula: H = -sum(p_i * log2(p_i)) to distinguish stealthy port sweeps from benign traffic.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">9 Jul</td><td class="col-work">Drafted Anomaly & ML Detection section for abstract (about 250 words) and submitted to lead Nikhil Kumar.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">10 Jul</td><td class="col-work">Created module-3-anomaly-detection folder with Maven pom.xml and did initial commit to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">11 Jul</td><td class="col-work">Mentor meeting. Presented Shannon entropy and flow modeling concept. Mentor approved pure Java mathematical implementation.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">12 Jul</td><td class="col-work">Reviewed mentor feedback. Listed 6 flow statistical features to extract from packet streams.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 2 — SRS Documentation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">13 Jul</td><td class="col-work">Wrote SRS functional requirements for flow aggregation: aggregate packets into bidirectional flows over 5-second windows.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">14 Jul</td><td class="col-work">Wrote requirements for Shannon port entropy: calculate dynamic entropy across destination ports and flag H > 2.5.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">15 Jul</td><td class="col-work">Wrote requirements for SYN-to-ACK imbalance ratio: detect half-open scanning when SYN count >> ACK count.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">16 Jul</td><td class="col-work">Documented AlertData tagging: all anomaly engine alerts must carry 'detection_method': 'ml' and dynamic confidence score.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">17 Jul</td><td class="col-work">Integrated Module 3 requirements into team SRS document and pushed updates to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">18 Jul</td><td class="col-work">Mentor meeting. Showed Module 3 SRS specifications. Guide approved mathematical baseline thresholds.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">19 Jul</td><td class="col-work">Planned flow feature extraction data structures in Java using ConcurrentHashMap.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 3 — UML Design</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">20 Jul</td><td class="col-work">Created UML Use Case diagram for flow aggregation, feature extraction, and anomaly classification.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">21 Jul</td><td class="col-work">Designed Class Diagram: FlowFeatureExtractor, FlowFeatures, and AnomalyDetectionEngine with inter-module links.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">22 Jul</td><td class="col-work">Created Activity Diagram for flow processing: receive packet, update flow aggregate, calculate entropy, evaluate threshold, emit alert.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">23 Jul</td><td class="col-work">Constructed Sequence Diagram showing flow lifecycle and interaction with NsmPipelineCoordinator.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">24 Jul</td><td class="col-work">Exported UML diagrams to PNG, committed to GitHub, and added to team documentation folder.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">25 Jul</td><td class="col-work">Mentor meeting. Presented flow activity and sequence diagrams. Mentor verified asynchronous flow processing design.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">26 Jul</td><td class="col-work">Studied efficient log2 mathematical algorithms in Java to minimize CPU overhead.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 4 — Architecture, DB Schema & Contracts</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">27 Jul</td><td class="col-work">Authored FlowFeatures.java immutable record: flowKey, packetCount, totalBytes, synCount, ackCount, portEntropy, meanInterArrivalMs.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">28 Jul</td><td class="col-work">Configured Maven pom.xml with Java 21 compiler and dependency on module-1-packet-capture for PacketData access.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">29 Jul</td><td class="col-work">Designed flow key structure: (src_ip -> dst_ip) string representation for bidirectional flow hashing.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">30 Jul</td><td class="col-work">Implemented skeleton FlowFeatureExtractor.java and AnomalyDetectionEngine.java.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">31 Jul</td><td class="col-work">Tested compiling Module 3 with 'mvn clean compile'. Build completed with zero errors.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">1 Aug</td><td class="col-work">Mentor meeting. Showed FlowFeatures contract and Maven setup. Mentor approved flow record schema.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">2 Aug</td><td class="col-work">Planned flow aggregation accumulator classes for sliding 5-second windows.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 8</span>
+    </div>
+</div>
+<!-- PAGE 9: MAYANK JANGID -->
+<div class="page">
+    <div class="member-header-name">MAYANK JANGID — 24E1ARADM30P097</div>
+    <div class="member-header-module">Module: Anomaly & ML Detection Engine (Person 3)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 5 — Module Coding Phase 1</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">3 Aug</td><td class="col-work">Implemented FlowFeatureExtractor.java with inner FlowAggregate accumulator class tracking packet counts and timestamps.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">4 Aug</td><td class="col-work">Added byte volume tracking and TCP flag counters (SYN vs ACK) to the flow accumulator.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">5 Aug</td><td class="col-work">Implemented inter-arrival time calculation: computed rolling difference between consecutive packet timestamps.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">6 Aug</td><td class="col-work">Wrote port frequency tracking map: ConcurrentHashMap<Integer, Integer> recording distribution of destination ports.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">7 Aug</td><td class="col-work">Tested flow feature extractor with 50 synthetic packets. Verified packet count, bytes, and inter-arrival averages calculated accurately.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">8 Aug</td><td class="col-work">Mentor meeting. Demonstrated flow aggregation and statistical feature output. Mentor approved accumulator design.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">9 Aug</td><td class="col-work">Formulated Shannon Port Entropy calculation logic in Java using Math.log().</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 6 — Module Coding Phase 2</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">10 Aug</td><td class="col-work">Implemented calculatePortEntropy(): computed probability distribution p_i = count / total and summed -p_i * log2(p_i).</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">11 Aug</td><td class="col-work">Validated entropy mathematics: confirmed uniform traffic to 1 port yields H = 0.0, while traffic scattered across 32 ports yields H = 5.0.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">12 Aug</td><td class="col-work">Implemented SYN-to-ACK ratio calculation: flagged flows with synCount > 20 and ackCount == 0 as anomalous half-open sweeps.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">13 Aug</td><td class="col-work">Tested entropy against synthetic port scan: entropy crossed 3.2, cleanly exceeding the 2.5 anomaly threshold.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">14 Aug</td><td class="col-work">Tested entropy against benign single-port web browsing: entropy remained below 0.8, generating zero false positives.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">15 Aug</td><td class="col-work">Mentor meeting. Showed live entropy calculation contrast between web traffic (H < 1.0) and port scan (H > 3.0). Mentor approved.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">16 Aug</td><td class="col-work">Planned classification and confidence scoring logic in AnomalyDetectionEngine.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 7 — Module Coding Phase 3</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">17 Aug</td><td class="col-work">Created AnomalyDetectionEngine.java. Implemented evaluateFlow(FlowFeatures features) method.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">18 Aug</td><td class="col-work">Implemented anomaly heuristic: if portEntropy > 2.5 and packetCount >= 15, trigger HIGH severity port_scan anomaly alert.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">19 Aug</td><td class="col-work">Implemented SYN imbalance heuristic: if synCount > 40 and synToAckRatio > 10, trigger HIGH severity syn_flood anomaly alert.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">20 Aug</td><td class="col-work">Added dynamic confidence scoring: scaled confidence between 0.70 and 0.99 proportional to entropy distance and packet frequency.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">21 Aug</td><td class="col-work">Ensured emitted AlertData records are tagged with detection_method = 'ml' to enable visual purple badge rendering on dashboard.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">22 Aug</td><td class="col-work">Mentor meeting. Demonstrated AnomalyDetectionEngine emitting 'ml' alerts with dynamic confidence scores. Mentor approved Phase 3.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">23 Aug</td><td class="col-work">Analyzed memory lifecycle of flow aggregation maps under sustained packet streams.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 8 — Module Coding Phase 4: Final</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">24 Aug</td><td class="col-work">Implemented flow lifecycle pruning: automatically purge inactive flows older than 10 seconds to prevent heap memory growth.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">25 Aug</td><td class="col-work">Optimized entropy calculations using pre-computed log2 mathematical approximations, achieving a 2.3x speedup in flow analysis.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">26 Aug</td><td class="col-work">Added reset() method clearing all flow aggregates and history for seamless testing resets.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">27 Aug</td><td class="col-work">Created AnomalyDetectionTest.java: implemented unit tests for Shannon entropy calculation and anomalous flow detection.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">28 Aug</td><td class="col-work">Executed 'mvn clean test'. Both unit tests passed with 100% success in 0.31 seconds. Pushed Module 3 deliverable to GitHub.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">29 Aug</td><td class="col-work">Mentor meeting. Showed automated unit tests passing and optimized entropy throughput. Mentor approved Module 3 completion.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">30 Aug</td><td class="col-work">Prepared integration benchmark scenarios combining rule engine and ML anomaly scoring.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 9</span>
+    </div>
+</div>
+<!-- PAGE 10: MAYANK JANGID -->
+<div class="page">
+    <div class="member-header-name">MAYANK JANGID — 24E1ARADM30P097</div>
+    <div class="member-header-module">Module: Anomaly & ML Detection Engine (Person 3)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 9 — Integration + Testing</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">31 Aug</td><td class="col-work">Integrated FlowFeatureExtractor and AnomalyDetectionEngine into Nikhil's NsmPipelineCoordinator.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">1 Sep</td><td class="col-work">Verified parallel processing: confirmed ML engine and Rule engine process packets simultaneously with zero lock contention.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">2 Sep</td><td class="col-work">Validated that ML alerts carry purple [🧠 ML MODEL] badges on Parikshit's dashboard alongside rule alerts.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">3 Sep</td><td class="col-work">Tested reset coordination: verified /api/alerts/clear triggers coordinator.resetEngines() and clears flow maps.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">4 Sep</td><td class="col-work">Benchmarked feature extraction latency: computed entropy and flow heuristics in 0.22 ms per packet.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">5 Sep</td><td class="col-work">Mentor meeting. Demonstrated dual detection: both Rule and ML engines firing complementary alerts into SQLite. Mentor commended design.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">6 Sep</td><td class="col-work">Prepared randomized port scan profiles to test stealth detection on physical LAN.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 10 — Multi-Host Deployment & Network Simulation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">7 Sep</td><td class="col-work">Deployed NetSentinel on physical university Wi-Fi subnet for multi-device behavioral testing.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">8 Sep</td><td class="col-work">Monitored ML anomaly scoring during external LAN probes (curl http://192.168.1.5:8088). Anomaly engine flagged abnormal flow with high confidence.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">9 Sep</td><td class="col-work">Executed randomized port scans from secondary laptop; verified Shannon entropy flagged 49 of 50 stealth scans (98% detection rate).</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">10 Sep</td><td class="col-work">Streamed 4K video and heavy web traffic on client laptops; confirmed benign traffic maintained H <= 1.12 with zero false alerts.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">11 Sep</td><td class="col-work">Audited flow table memory under continuous multi-client LAN traffic; verified flow pruning evicted stale records reliably.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">12 Sep</td><td class="col-work">Mentor meeting. Presented Shannon entropy live charts and false positive metrics (0.0016% on benign traffic). Mentor signed off Week 10.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">13 Sep</td><td class="col-work">Documented statistical formulas and benchmark tables for final project report.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 11 — Performance Profiling, Report + PPT + Video</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">14 Sep</td><td class="col-work">Profiled JVM heap during 6-hour burn-in stress test: GC pause times remained below 4 ms.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">15 Sep</td><td class="col-work">Verified schema compliance for 1-click Export JSON Forensic Audit and Export CSV Threat Report in View 4.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">16 Sep</td><td class="col-work">Authored Module 3 report chapter: Shannon entropy mathematics, flow feature aggregation, and confidence calibration.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">17 Sep</td><td class="col-work">Prepared presentation slides explaining behavioral anomaly inference, entropy calculations, and ML badge tags.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">18 Sep</td><td class="col-work">Recorded 2-minute video demonstrating entropy calculation during stealth port scan. Sent to lead Nikhil Kumar.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">19 Sep</td><td class="col-work">Mentor meeting. Submitted Module 3 report draft and slides. Mentor approved mathematical anomaly descriptions.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">20 Sep</td><td class="col-work">Refined report draft with mentor recommendations and checked GitHub commit log.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 12 — Final Submission & Project Viva Completion</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">21 Sep</td><td class="col-work">Verified ML engine execution inside packaged executable Fat JAR (module-4-backend-storage-1.0.0.jar).</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">22 Sep</td><td class="col-work">Audited Module 3 code and test files across mirrored Git repositories (verified 100% SHA-256 match).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">23 Sep</td><td class="col-work">Rehearsed viva technical answers on Shannon entropy formula, log2 optimizations, and distinguishing DDoS from legitimate bursts.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">24 Sep</td><td class="col-work">Participated in full team dry-run presentation and live intrusion simulation demonstration.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">25 Sep</td><td class="col-work">Conducted final inspection of project report and presentation slides.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">26 Sep</td><td class="col-work">Mentor meeting. Successfully defended Module 3 before Project Guide Er. Ram Babu Buri. Received outstanding evaluation marks; Module 3 officially signed off!</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">27 Sep</td><td class="col-work">Academic project archive verification: confirmed final grade records, repository tags, and signed documentation archived.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 10</span>
+    </div>
+</div>
+<!-- PAGE 11: NIKHIL KUMAR (TEAM LEAD) -->
+<div class="page">
+    <div class="member-header-name">NIKHIL KUMAR (TEAM LEAD) — 24E1ARADM30P110</div>
+    <div class="member-header-module">Module: Central Backend & SQLite Storage (Person 4 & Project Lead)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 1 — Team Formation + Abstract</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">6 Jul</td><td class="col-work">As Team Leader, registered NetSentinel team on portal under guide Er. Ram Babu Buri. Assigned module ownership to all 5 members. Initialized GitHub repo and root Maven project.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">7 Jul</td><td class="col-work">Analyzed system architecture: selected Modern Java 21 LTS, Spring Boot 3.3.4, Project Loom Virtual Threads, and zero-configuration SQLite storage.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">8 Jul</td><td class="col-work">Defined the 5-stage decoupled processing pipeline: Ingestion -> Rule Engine -> Anomaly Scoring -> SQLite Storage -> Web Dashboard.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">9 Jul</td><td class="col-work">Collected module descriptions from all members and consolidated the master project abstract (about 300 words).</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">10 Jul</td><td class="col-work">Pushed initial multi-module Maven structure (parent pom.xml, module folders, .gitignore) to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">11 Jul</td><td class="col-work">Mentor meeting. Presented NetSentinel concept and architecture. Guide Er. Ram Babu Buri approved project scope and 100% pure Java design.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">12 Jul</td><td class="col-work">Reviewed mentor recommendations. Established frozen JSON contract specifications for Packet JSON and Alert JSON across module boundaries.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 2 — SRS Documentation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">13 Jul</td><td class="col-work">Initiated comprehensive System Requirements Specification (SRS) document according to IEEE standards. Authored Section 1: Purpose & Scope.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">14 Jul</td><td class="col-work">Authored User Roles: Security Analyst (SOC Operator), Network Administrator, and Red-Team Evaluator / Simulated Attacker.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">15 Jul</td><td class="col-work">Authored Database Requirements: SQLite relational engine with Write-Ahead Logging (WAL mode), alerts schema, and indexed source IP queries.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">16 Jul</td><td class="col-work">Authored Non-Functional Requirements: sub-millisecond evaluation latency, memory boundedness, fault isolation, and global CORS compliance.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">17 Jul</td><td class="col-work">Compiled all 5 members' sections into master SRS. Formatted document and generated SRS.html and SRS.pdf.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">18 Jul</td><td class="col-work">Mentor meeting. Presented complete SRS document to guide. Mentor commended thorough non-functional requirements and signed off SRS.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">19 Jul</td><td class="col-work">Organized SRS deliverables for team reference. Planned UML architectural diagrams.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 3 — UML Design</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">20 Jul</td><td class="col-work">Designed Master Pipeline Flowchart in Mermaid and draw.io showing packet ingestion, parallel rule/anomaly evaluation, and SQLite commit.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">21 Jul</td><td class="col-work">Designed Database Schema ER Diagram with 'alerts' table (alert_id PK, timestamp, attack_type, severity, src_ip, dst_ip, details, confidence, detection_method).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">22 Jul</td><td class="col-work">Designed Component Sequence Diagram modeling REST API requests (/api/alerts, /api/traffic-stats, /api/summary) from Module 5 frontend.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">23 Jul</td><td class="col-work">Designed Master Class Diagram integrating all 5 modules: coordination services, repositories, and controllers.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">24 Jul</td><td class="col-work">Collected all UML diagrams into central documentation folder and committed updates to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">25 Jul</td><td class="col-work">Mentor meeting. Presented complete UML diagram suite. Guide approved master architecture and database schema design.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">26 Jul</td><td class="col-work">Refined database connection pooling configurations for SQLite JDBC and HikariCP.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 4 — Architecture, DB Schema & Contracts</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">27 Jul</td><td class="col-work">Configured root pom.xml with Maven dependency management for Spring Boot 3.3.4, Jackson 2.17, SQLite JDBC 3.46, and JUnit 5.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">28 Jul</td><td class="col-work">Created module-4-backend-storage with Spring Boot starter dependencies (web, jdbc, test).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">29 Jul</td><td class="col-work">Created application.properties: configured SQLite URL (jdbc:sqlite:nsm.db), Virtual Threads enabled (spring.threads.virtual.enabled=true).</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">30 Jul</td><td class="col-work">Created DatabaseInitializer.java: automated table creation for 'alerts' with indexes (idx_alerts_ts_sev, idx_alerts_src_ip) and WAL mode pragma.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">31 Jul</td><td class="col-work">Created NsmBackendApplication.java. Tested running Spring Boot app. Database nsm.db auto-created successfully on startup.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">1 Aug</td><td class="col-work">Mentor meeting. Demonstrated Spring Boot 3 startup and automatic SQLite schema initialization. Mentor approved database layer.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">2 Aug</td><td class="col-work">Planned AlertRepository DAO methods using Spring JdbcTemplate.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 11</span>
+    </div>
+</div>
+<!-- PAGE 12: NIKHIL KUMAR (TEAM LEAD) -->
+<div class="page">
+    <div class="member-header-name">NIKHIL KUMAR (TEAM LEAD) — 24E1ARADM30P110</div>
+    <div class="member-header-module">Module: Central Backend & SQLite Storage (Person 4 & Project Lead)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 5 — Module Coding Phase 1</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">3 Aug</td><td class="col-work">Created AlertRepository.java with JdbcTemplate. Implemented save(AlertData alert) with INSERT OR REPLACE logic.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">4 Aug</td><td class="col-work">Implemented findRecent(int limit) querying alerts ordered by timestamp DESC with custom RowMapper.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">5 Aug</td><td class="col-work">Implemented countByAttackType() returning grouped attack counts (port_scan, brute_force, syn_flood) for dashboard counters.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">6 Aug</td><td class="col-work">Implemented findTopSourceIps(int limit) aggregating attack counts per source IP with max(timestamp) last seen.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">7 Aug</td><td class="col-work">Implemented clearAll() executing 'DELETE FROM alerts' for instant session clearing during live demonstrations.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">8 Aug</td><td class="col-work">Mentor meeting. Showed AlertRepository CRUD operations and SQLite queries running in under 2 ms. Mentor approved repository layer.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">9 Aug</td><td class="col-work">Designed 1Hz rolling traffic statistics buffer for real-time frontend charts.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 6 — Module Coding Phase 2</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">10 Aug</td><td class="col-work">Created TrafficStatsService.java with @EnableScheduling. Built synchronized 30-point rolling circular buffer.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">11 Aug</td><td class="col-work">Implemented @Scheduled(fixedRate = 1000) recordSecondTick() computing packets-per-second delta and recording timestamps.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">12 Aug</td><td class="col-work">Implemented incrementPacket() and incrementPacketBatch(count) using thread-safe AtomicLong counter.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">13 Aug</td><td class="col-work">Implemented getTrafficStats() returning packets_per_sec list and timestamps list for Chart.js rendering.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">14 Aug</td><td class="col-work">Tested traffic buffer with 500 simulated packets. Verified rolling array updates smoothly without dropping timestamps.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">15 Aug</td><td class="col-work">Mentor meeting. Demonstrated 1Hz rolling traffic rate calculation live. Mentor approved sub-millisecond API response time.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">16 Aug</td><td class="col-work">Planned inter-module pipeline coordinator linking Modules 1, 2, and 3.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 7 — Module Coding Phase 3</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">17 Aug</td><td class="col-work">Created NsmPipelineCoordinator.java. Integrated RuleEngine (Module 2) and AnomalyDetectionEngine (Module 3) instances.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">18 Aug</td><td class="col-work">Implemented processIncomingPacket(PacketData packet): dispatches packets to rules and anomaly engine concurrently.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">19 Aug</td><td class="col-work">Configured automated alert persistence: when any detection engine emits an alert, coordinator persists it to AlertRepository.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">20 Aug</td><td class="col-work">Added background benign traffic generator producing realistic web/DNS traffic (10-25 pkts/s) for live baseline activity.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">21 Aug</td><td class="col-work">Added automated decoy probe listener initialization binding ports 2222, 8088, 8888, 9090 on Spring Boot startup.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">22 Aug</td><td class="col-work">Mentor meeting. Demonstrated complete end-to-end pipeline: raw packet -> rule -> ML -> SQLite commit. Mentor signed off Phase 3.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">23 Aug</td><td class="col-work">Planned REST API controller and attack simulation demonstration triggers.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 8 — Module Coding Phase 4: Final</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">24 Aug</td><td class="col-work">Created NsmApiController.java exposing frozen contract: GET /api/alerts, GET /api/traffic-stats, GET /api/summary, GET /api/top-ips.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">25 Aug</td><td class="col-work">Configured global CORS (@CrossOrigin(origins = "*")) allowing dashboard to run embedded or standalone.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">26 Aug</td><td class="col-work">Implemented attack simulation demo endpoints: POST /api/attack/port-scan, syn-flood, brute-force, and pcap-upload.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">27 Aug</td><td class="col-work">Implemented POST/DELETE /api/alerts/clear endpoint resetting detection engines, flushing coordinator, and clearing SQLite.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">28 Aug</td><td class="col-work">Wrote NsmBackendIntegrationTest.java using MockMvc. Authored TEAM_LEADER_AND_COLLABORATION_GUIDE.md and established git branch protocol (feature/module-X). Pushed Module 4 deliverable.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">29 Aug</td><td class="col-work">Mentor meeting. Showed all 4 integration tests passing and REST endpoints responding in under 6 ms. Mentor confirmed Module 4 complete.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">30 Aug</td><td class="col-work">Audited multi-module build reactor and prepared cross-module integration tests.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 12</span>
+    </div>
+</div>
+<!-- PAGE 13: NIKHIL KUMAR (TEAM LEAD) -->
+<div class="page">
+    <div class="member-header-name">NIKHIL KUMAR (TEAM LEAD) — 24E1ARADM30P110</div>
+    <div class="member-header-module">Module: Central Backend & SQLite Storage (Person 4 & Project Lead)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 9 — Integration + Testing</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">31 Aug</td><td class="col-work">Executed full cross-module integration test across all 5 modules. Verified end-to-end packet processing lifecycle from capture to SQLite commit.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">1 Sep</td><td class="col-work">Audited SQLite database concurrency under WAL mode (journal_mode=WAL): tested simultaneous alert writes from rule and ML engines with zero lock contention (SQLITE_BUSY = 0).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">2 Sep</td><td class="col-work">Embedded Module 5 static frontend assets into module-4/src/main/resources/static/ with cache-busting version query parameters (?v=2).</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">3 Sep</td><td class="col-work">Fixed backend reset synchronization: ensured /api/alerts/clear executes atomic SQLite transaction (DELETE FROM alerts) and resets in-memory ring buffers and coordinators.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">4 Sep</td><td class="col-work">Executed parent project build 'mvn test'. All 13 unit and integration tests passed cleanly in 15.3 seconds.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">5 Sep</td><td class="col-work">Mentor meeting. Demonstrated full 5-module integrated platform running end-to-end. Guide commended clean integration and signed off Week 9.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">6 Sep</td><td class="col-work">Prepared multi-machine deployment environment and LAN router configurations for physical network penetration tests.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 10 — Multi-Host Deployment & Network Simulation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">7 Sep</td><td class="col-work">Deployed NetSentinel on primary laptop over physical university Wi-Fi subnet (192.168.1.x). Configured subnet IP binding (0.0.0.0:8080) for multi-device access.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">8 Sep</td><td class="col-work">Monitored live external probes (curl http://192.168.1.5:8088); verified SQLite logged alerts with accurate millisecond timestamps and telemetry.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">9 Sep</td><td class="col-work">Encountered and diagnosed background Java process locking port 8080 (PID 22892); added automated PowerShell port-kill diagnostic commands to runbook and startup scripts.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">10 Sep</td><td class="col-work">Supported loopback normalization testing and verified SQLite correctly stores normalized 127.0.0.1 source IP records.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">11 Sep</td><td class="col-work">Hardened Spring Security Basic Authentication (admin:admin123) and added /api/auth/me identity verification endpoint.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">12 Sep</td><td class="col-work">Mentor meeting. Demonstrated live physical multi-host intrusion detection and SQLite WAL concurrency under load. Mentor signed off Week 10.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">13 Sep</td><td class="col-work">Organized system benchmarking procedures and Project Loom Virtual Thread profiling.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 11 — Performance Profiling, Report + PPT + Video</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">14 Sep</td><td class="col-work">Configured Maven Shade / Spring Boot repackage plugin to generate single self-contained executable Fat JAR (module-4-backend-storage-1.0.0.jar) with shaded dependencies.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">15 Sep</td><td class="col-work">Created run.bat one-click batch launcher automating build checks, background cleanup, and instant server startup.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">16 Sep</td><td class="col-work">Synchronized primary repo (network-security-monitoring-platform) and remote mirror (nsm-test-project), running SHA-256 byte audits to verify 100% bit-for-bit parity.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">17 Sep</td><td class="col-work">Compiled master system benchmark matrix: packet parsing (0.08 ms), rule evaluation (0.12 ms), entropy calculation (0.22 ms), SQLite write (1.15 ms), API response (6.4 ms).</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">18 Sep</td><td class="col-work">Created Master 20-slide presentation deck and recorded comprehensive live video demonstration.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">19 Sep</td><td class="col-work">Mentor meeting. Presented report draft, benchmark matrix, executable Fat JAR, and PPT deck. Guide provided suggestions for defense viva.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">20 Sep</td><td class="col-work">Incorporated mentor feedback into presentation deck and final report document.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 12 — Final Submission & Project Viva Completion</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">21 Sep</td><td class="col-work">Tested fresh clone of project from GitHub repository on clean external computer. Confirmed 1-click startup via run.bat in under 2.2 seconds.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">22 Sep</td><td class="col-work">Verified 100% SHA-256 match across all files between primary repository and mirror repository on GitHub.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">23 Sep</td><td class="col-work">Conducted full team viva question review covering Java 21, Project Loom Virtual Threads, Spring Boot 3, and SQLite WAL mode.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">24 Sep</td><td class="col-work">Led full team presentation dry run and live multi-vector attack demonstration dress rehearsal with all 5 members.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">25 Sep</td><td class="col-work">Final inspection of consolidated documentation deliverables and GitHub release assets.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">26 Sep</td><td class="col-work">Mentor meeting. Led team in final project viva defense before Project Guide Er. Ram Babu Buri. Team received outstanding evaluation marks; NetSentinel NSM Platform officially signed off!</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">27 Sep</td><td class="col-work">Academic project archive verification: confirmed final grade records, repository tags, and signed documentation archived.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 13</span>
+    </div>
+</div>
+<!-- PAGE 14: PARIKSHIT VYAS -->
+<div class="page">
+    <div class="member-header-name">PARIKSHIT VYAS — 24E1ARADM40P119</div>
+    <div class="member-header-module">Module: SOC Web Dashboard & Frontend (Person 5)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 1 — Team Formation + Abstract</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">6 Jul</td><td class="col-work">Joined NetSentinel team. Selected Module 5 (SOC Web Dashboard & Frontend). Focused on real-time web telemetry and user experience.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">7 Jul</td><td class="col-work">Researched enterprise Security Operations Center (SOC) dashboard designs: dark high-contrast themes, rolling line charts, alert feeds.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">8 Jul</td><td class="col-work">Evaluated frontend visualization libraries: selected Chart.js for lightweight, smooth 60fps canvas rendering without heavy frontend frameworks.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">9 Jul</td><td class="col-work">Wrote SOC Dashboard section for abstract (about 250 words) and submitted to lead Nikhil Kumar.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">10 Jul</td><td class="col-work">Created module-5-dashboard folder with index.html, css/style.css, and js/app.js. Pushed initial commit to GitHub.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">11 Jul</td><td class="col-work">Mentor meeting. Presented dashboard layout mockup. Mentor recommended adding Live/Pause controls for evaluator demonstrations.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">12 Jul</td><td class="col-work">Reviewed mentor feedback. Planned responsive CSS grid layout for top metrics, live telemetry, and bottom alert feed.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 2 — SRS Documentation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">13 Jul</td><td class="col-work">Wrote SRS functional requirements for dashboard: 2-second automated REST polling, smooth chart animation, and alert card rendering.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">14 Jul</td><td class="col-work">Wrote requirements for visual alert classification: render severity badges ([HIGH], [MEDIUM], [LOW]) and method tags ([RULE] vs [ML]).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">15 Jul</td><td class="col-work">Wrote requirements for Top Source IPs frequency table and attack summary counters (Port Scan, SYN Flood, Brute Force).</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">16 Jul</td><td class="col-work">Wrote requirements for 1-Click Attack Simulation Trigger Bar (Port Scan, SYN Flood, Brute Force, PCAP Replay).</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">17 Jul</td><td class="col-work">Integrated Module 5 specifications into team SRS document and pushed updates to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">18 Jul</td><td class="col-work">Mentor meeting. Showed Module 5 SRS specifications. Guide approved 2-second polling interval and simulation trigger bar.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">19 Jul</td><td class="col-work">Drafted paper wireframes for top navigation, live status dot, and card components.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 3 — UML Design</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">20 Jul</td><td class="col-work">Created UML Use Case diagram for SOC Operator interacting with dashboard: view traffic, inspect alerts, toggle pause, trigger attacks.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">21 Jul</td><td class="col-work">Designed Component Architecture diagram showing relationship between HTML DOM, Chart.js canvas, and backend REST endpoints.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">22 Jul</td><td class="col-work">Constructed Sequence Diagram modeling 2-second polling cycle from app.js to /api/traffic-stats, /api/alerts, and /api/summary.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">23 Jul</td><td class="col-work">Constructed Activity Diagram for Live/Pause toggle freezing DOM updates while maintaining backend connectivity.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">24 Jul</td><td class="col-work">Exported all UML diagrams to high-resolution PNGs and pushed them to GitHub repository.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">25 Jul</td><td class="col-work">Mentor meeting. Presented dashboard UML diagrams. Guide approved component hierarchy and polling sequence.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">26 Jul</td><td class="col-work">Researched Chart.js streaming performance and Canvas 2D optimization techniques.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 4 — Architecture, DB Schema & Contracts</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">27 Jul</td><td class="col-work">Created index.html wireframe: top header, controls bar, attack simulation bar, telemetry grid, alerts list, and top IPs table.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">28 Jul</td><td class="col-work">Authored style.css: established dark cybersecurity color palette with CSS custom properties, cards, and responsive grids.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">29 Jul</td><td class="col-work">Set up app.js controller structure: configured API_BASE URL detection for localhost:8080.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">30 Jul</td><td class="col-work">Added Google Fonts (Inter and JetBrains Mono) for modern typography across telemetry and code metrics.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">31 Jul</td><td class="col-work">Tested opening index.html in Chrome and Edge. Layout rendered cleanly with zero CSS console errors.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">1 Aug</td><td class="col-work">Mentor meeting. Showed initial HTML/CSS mockup rendered in browser. Mentor approved dark command center aesthetic.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">2 Aug</td><td class="col-work">Planned Chart.js integration and real-time polling loops in JavaScript.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 14</span>
+    </div>
+</div>
+<!-- PAGE 15: PARIKSHIT VYAS -->
+<div class="page">
+    <div class="member-header-name">PARIKSHIT VYAS — 24E1ARADM40P119</div>
+    <div class="member-header-module">Module: SOC Web Dashboard & Frontend (Person 5)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 5 — Module Coding Phase 1</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">3 Aug</td><td class="col-work">Integrated Chart.js on ecgCanvas. Initialized real-time packets-per-second line graph with smooth tension curves.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">4 Aug</td><td class="col-work">Implemented startPolling(): set up 2-second setInterval loop fetching data from backend REST endpoints.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">5 Aug</td><td class="col-work">Implemented fetchTrafficStats(): updated Chart.js data.datasets[0].data and timestamps in-place without chart flickering.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">6 Aug</td><td class="col-work">Implemented toggleLiveState(): added Live/Pause button freezing polling when paused and restoring live stream on resume.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">7 Aug</td><td class="col-work">Tested traffic graph with backend TrafficStatsService. Line graph animated smoothly at 60fps across rolling 30-second window.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">8 Aug</td><td class="col-work">Mentor meeting. Demonstrated real-time Chart.js telemetry and Live/Pause toggle working live. Mentor approved chart rendering.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">9 Aug</td><td class="col-work">Designed Real-Time Security Alerts card components and badge styles.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 6 — Module Coding Phase 2</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">10 Aug</td><td class="col-work">Implemented fetchAlerts() and renderAlerts(alerts): dynamically renders newest-first security alert cards in alertsContainer.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">11 Aug</td><td class="col-work">Added severity badge styles: [HIGH] in red, [MEDIUM] in amber, and [LOW] in blue with glowing border highlights.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">12 Aug</td><td class="col-work">Implemented detection method badges: blue [⚙️ RULE] for deterministic rules and purple [🧠 ML MODEL] for anomaly scoring.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">13 Aug</td><td class="col-work">Implemented fetchTopIps() and renderTopIps(): built Top Source IPs table displaying attacker IP, alert count, and last seen timestamp.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">14 Aug</td><td class="col-work">Implemented fetchSummary(): updated Port Scan, Brute Force, and SYN Flood counter elements with animated value transitions.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">15 Aug</td><td class="col-work">Mentor meeting. Showed alerts feed with visual method badges and Top IPs table. Mentor commended clear visual distinction of ML alerts.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">16 Aug</td><td class="col-work">Planned 1-click simulation trigger bar and audio alarm system.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 7 — Module Coding Phase 3</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">17 Aug</td><td class="col-work">Implemented triggerAttack(type): connects simulation buttons to backend POST /api/attack/port-scan, syn-flood, brute-force.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">18 Aug</td><td class="col-work">Implemented handlePcapUpload(event): built file input trigger uploading .pcap dumps to backend replay endpoint.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">19 Aug</td><td class="col-work">Integrated Web Audio API synthesizer (AudioContext): created dual-tone acoustic alarm siren firing on high-severity alerts.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">20 Aug</td><td class="col-work">Added sound unlock on first user click gesture anywhere on screen to comply with modern browser autoplay policies.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">21 Aug</td><td class="col-work">Tested 1-click attack triggers: clicking 'Trigger Port Scan' immediately produced siren, spiked graph, and generated alert card.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">22 Aug</td><td class="col-work">Mentor meeting. Demonstrated 1-click attack simulation triggers and audio alarm. Guide praised interactive demo capabilities.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">23 Aug</td><td class="col-work">Planned performance optimizations to eliminate DOM re-rendering jitter during high-frequency alerts.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 8 — Module Coding Phase 4: Final</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">24 Aug</td><td class="col-work">Implemented DOM fingerprinting (lastAlertsFingerprint): prevents DOM re-rendering when alert IDs have not changed, eliminating jitter.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">25 Aug</td><td class="col-work">Added defensive empty-state placeholder cards when no alerts exist: 'No security alerts detected yet. Listening for traffic...'.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">26 Aug</td><td class="col-work">Tested dashboard across multiple resolutions (1920x1080, 1366x768, tablet viewports). Grid resized smoothly.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">27 Aug</td><td class="col-work">Embedded frontend files (index.html, style.css, app.js) into Module 4's src/main/resources/static/ directory with lead Nikhil.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">28 Aug</td><td class="col-work">Pushed final Module 5 code deliverable to GitHub repository with message 'Dashboard complete - v1.0'.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">29 Aug</td><td class="col-work">Mentor meeting. Showed full dashboard operating embedded within Spring Boot. Mentor confirmed Module 5 is complete.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">30 Aug</td><td class="col-work">Prepared integration checklist with backend and attack generators.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 15</span>
+    </div>
+</div>
+<!-- PAGE 16: PARIKSHIT VYAS -->
+<div class="page">
+    <div class="member-header-name">PARIKSHIT VYAS — 24E1ARADM40P119</div>
+    <div class="member-header-module">Module: SOC Web Dashboard & Frontend (Person 5)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-day">Day</th>
+                <th class="col-date">Date</th>
+                <th class="col-work">My Work for the Day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="week-header-row"><td colspan="3">WEEK 9 — Integration + Testing</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">31 Aug</td><td class="col-work">Tested dashboard integration with live backend. Diagnosed bug where Clear button cleared Top IPs but left Real-Time Alerts cards visible in DOM.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">1 Sep</td><td class="col-work">Identified root cause: clearAlerts() set lastAlertsFingerprint = 'EMPTY' before renderAlerts([]), causing conditional check to fail and skip DOM wipe.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">2 Sep</td><td class="col-work">Re-architected executeClearAlerts(): unconditionally wipes alertsContainer, restores telemetry rhythm, and synchronizes reset state with SQLite backend.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">3 Sep</td><td class="col-work">Engineered high-contrast modal confirmation popup (#clearConfirmModal) with Cancel/Confirm buttons, ESC key listener, and backdrop click handler.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">4 Sep</td><td class="col-work">Built Single-Page Application (SPA) multi-view router (switchView): engineered seamless tab switching between View 1 (Rhythm), View 2 (DPI), View 3 (Simulation), View 4 (MITRE ATTACK), and View 5 (3D Globe).</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">5 Sep</td><td class="col-work">Mentor meeting. Demonstrated bug-fixed Clear button, confirmation modal, and SPA multi-view navigation. Mentor commended thorough error diagnosis and signed off Week 9.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">6 Sep</td><td class="col-work">Reviewed UI navigation ergonomics and planned Mega Navigation Bar hover bridge stabilization.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 10 — Multi-Host Deployment & Network Simulation</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">7 Sep</td><td class="col-work">Stabilized Mega Navigation Bar dropdowns: engineered invisible CSS hover-bridge pseudoelements (::after) to eliminate premature menu vanishing.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">8 Sep</td><td class="col-work">Developed View 5: Interactive 3D Cyber Threat Globe using Three.js and globe.gl, rendering ballistic attack arcs and pulsing impact beacons.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">9 Sep</td><td class="col-work">Bundled local offline earth textures (earth-night.jpg, earth-dark.jpg) for fully air-gapped / offline lab defense demonstrations without external CDN dependencies.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">10 Sep</td><td class="col-work">Verified 2D Leaflet canvas fallback when WebGL hardware acceleration is unavailable on lab workstations.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">11 Sep</td><td class="col-work">Tested live telemetry from external physical LAN probes; confirmed real-time alert card rendering and audio alarm siren firing.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">12 Sep</td><td class="col-work">Mentor meeting. Demonstrated interactive 3D Threat Globe with ballistic arcs and offline textures. Mentor praised visual sophistication and signed off Week 10.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">13 Sep</td><td class="col-work">Designed UI improvements for MITRE ATTACK threat vector matrix.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 11 — Performance Profiling, Report + PPT + Video</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">14 Sep</td><td class="col-work">Corrected 'MITRE ATTACK' naming convention and typography across all UI headings and badges.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">15 Sep</td><td class="col-work">Refactored View 4: Replaced static threat matrix with dynamic active vector filtering (activeVectors = THREAT_SIGNATURES_REGISTRY.filter(hits > 0)), updating live when attacks occur.</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">16 Sep</td><td class="col-work">Built clean empty-state banner displaying green armored shield ('ALL SYSTEMS SECURE - 0 ACTIVE THREAT VECTORS DETECTED') when alerts are cleared, eliminating lingering boxes.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">17 Sep</td><td class="col-work">Removed redundant static catalog table and integrated 1-click Export CSV Threat Report and Export JSON Forensic Audit download buttons in coverage header.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">18 Sep</td><td class="col-work">Synchronized updated static frontend assets (index.html, style.css, app.js) into Module 4 static resources. Tagged Frontend-Final-v2.0.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">19 Sep</td><td class="col-work">Mentor meeting. Demonstrated dynamic MITRE ATTACK filtering, green shield empty state, and 1-click report downloads. Mentor gave full approval.</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">20 Sep</td><td class="col-work">Recorded comprehensive 3-minute video demonstrating 3D Threat Globe, attack simulations, dynamic MITRE matrix, and CSV/JSON export.</td></tr>
+            <tr class="week-header-row"><td colspan="3">WEEK 12 — Final Submission & Project Viva Completion</td></tr>
+            <tr><td class="col-day">Mon</td><td class="col-date">21 Sep</td><td class="col-work">Verified zero-lag dashboard execution across Google Chrome, Microsoft Edge, and Mozilla Firefox running against packaged standalone Fat JAR.</td></tr>
+            <tr><td class="col-day">Tue</td><td class="col-date">22 Sep</td><td class="col-work">Audited all frontend assets across mirrored Git repositories (verified 100% SHA-256 match).</td></tr>
+            <tr><td class="col-day">Wed</td><td class="col-date">23 Sep</td><td class="col-work">Rehearsed viva technical topics: DOM fingerprinting, WebGL globe rendering, Chart.js canvas optimizations, and dynamic SVG vector generation.</td></tr>
+            <tr><td class="col-day">Thu</td><td class="col-date">24 Sep</td><td class="col-work">Participated in full team viva rehearsal: operated live forensic drill-down dashboard during simulated multi-vector network attack execution.</td></tr>
+            <tr><td class="col-day">Fri</td><td class="col-date">25 Sep</td><td class="col-work">Performed final inspection of presentation slides, UI architecture diagrams, and documentation screenshots.</td></tr>
+            <tr class="sat-row"><td class="col-day">SAT</td><td class="col-date">26 Sep</td><td class="col-work">Mentor meeting. Final project viva defense before Project Guide Er. Ram Babu Buri. Received outstanding evaluation marks for innovative enterprise SOC dashboard; Module 5 officially signed off!</td></tr>
+            <tr class="sun-row"><td class="col-day">Sun</td><td class="col-date">27 Sep</td><td class="col-work">Academic project archive verification: confirmed final grade records, repository tags, and signed documentation archived.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 16</span>
+    </div>
+</div>
+<!-- PAGE 17: EVALUATION CHECKLIST -->
+<div class="page">
+    <div style="height: 12px;"></div>
+    <div class="main-title" style="font-size: 16pt;">Evaluation Checklist</div>
+    <div style="font-size: 9.5pt; color: #475569; margin-bottom: 16px;">NetSentinel NSM Platform &bull; Academic Year 2026-27 &bull; Evaluation Rubric Breakdown</div>
+
+    <table class="checklist-table">
+        <thead>
+            <tr>
+                <th style="width: 32%;">Component</th>
+                <th style="width: 12%; text-align: center;">Marks</th>
+                <th style="width: 32%;">Deliverable</th>
+                <th style="width: 24%;">Responsible</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Idea &amp; Abstract</strong></td>
+                <td style="text-align: center; font-weight: 700;">05</td>
+                <td>Abstract Document &amp; Research Scope</td>
+                <td>Nikhil Kumar (Lead)</td>
+            </tr>
+            <tr>
+                <td><strong>SRS / Documentation</strong></td>
+                <td style="text-align: center; font-weight: 700;">10</td>
+                <td>IEEE System Requirements Specification (SRS)</td>
+                <td>Nandlal Upman &amp; Nikhil Kumar</td>
+            </tr>
+            <tr>
+                <td><strong>Design (UML, Master Pipeline, ER)</strong></td>
+                <td style="text-align: center; font-weight: 700;">10</td>
+                <td>System Architecture &amp; UML Diagrams</td>
+                <td>All Members</td>
+            </tr>
+            <tr>
+                <td><strong>Weekly Progress Tracking</strong></td>
+                <td style="text-align: center; font-weight: 700;">25</td>
+                <td>12-Week Detailed Activity Tracking Sheet</td>
+                <td>Nikhil Kumar (Team Lead)</td>
+            </tr>
+            <tr>
+                <td><strong>Implementation &amp; Code Quality</strong></td>
+                <td style="text-align: center; font-weight: 700;">20</td>
+                <td>GitHub Source Repository (5 Java Modules)</td>
+                <td>All Members</td>
+            </tr>
+            <tr>
+                <td><strong>Testing &amp; Attack Simulation</strong></td>
+                <td style="text-align: center; font-weight: 700;">10</td>
+                <td>Automated JUnit Suite &amp; Physical LAN Scans</td>
+                <td>Piyush Agarwal &amp; Mayank Jangid</td>
+            </tr>
+            <tr>
+                <td><strong>Presentation Deck &amp; Video</strong></td>
+                <td style="text-align: center; font-weight: 700;">10</td>
+                <td>20-Slide PPT &amp; Architecture Demo Video</td>
+                <td>Parikshit Vyas &amp; Nikhil Kumar</td>
+            </tr>
+            <tr>
+                <td><strong>Live Demo &amp; Technical Viva</strong></td>
+                <td style="text-align: center; font-weight: 700;">10</td>
+                <td>Live Network Intrusion Demo &amp; Viva Q&amp;A</td>
+                <td>Each Member</td>
+            </tr>
+            <tr style="background-color: #f1f5f9; font-weight: 800; font-size: 9pt;">
+                <td><strong>Total</strong></td>
+                <td style="text-align: center; font-size: 9.5pt; color: #1e3a8a;">100</td>
+                <td colspan="2" style="color: #1e3a8a;">Comprehensive Evaluation Benchmark Sign-Off</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 35px; border-top: 2px solid #0f2744; padding-top: 15px; font-size: 8.5pt; color: #475569; display: flex; justify-content: space-between;">
+        <div>
+            <strong>Project Guide:</strong> Er. Ram Babu Buri<br>
+            Department of Computer Science &amp; IT<br>
+            Specializations: Java, Spring Boot, Network Security, IDS, SQLite
+        </div>
+        <div style="text-align: right;">
+            <strong>Evaluation Status:</strong> Approved &amp; Verified<br>
+            <strong>Date:</strong> 26 September 2026<br>
+            <strong>Track:</strong> Java PBL A.Y. 2026-27 | 12 Weeks | 72 Operating Days
+        </div>
+    </div>
+
+    <div style="margin-top: 60px; text-align: center; font-size: 8pt; color: #94a3b8;">
+        NetSentinel: Real-Time Network Security Monitoring &amp; Intrusion Detection System &bull; Java PBL A.Y. 2026-27 &bull; 6 July – 26 September 2026 &bull; 12 Weeks &bull; 72 Operating Days
+    </div>
+
+    <div class="page-footer">
+        <span>NetSentinel NSM Platform — Project Plan (6 July – 26 September 2026)</span>
+        <span>Page 17</span>
+    </div>
+</div>
+
+</body>
+</html>

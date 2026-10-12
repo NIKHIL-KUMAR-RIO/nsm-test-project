@@ -1,0 +1,23 @@
+# ==============================================================================
+# GitHub Linguist Overrides - NetSentinel Network Security Platform
+# Ensures Java is detected as the dominant core project language
+# ==============================================================================
+
+# Embedded Spring Boot web assets (compiled/served static dashboard)
+module-4-backend-storage/src/main/resources/static/** linguist-vendored
+module-4-backend-storage/src/main/resources/static/** linguist-detectable=false
+
+# Frontend Dashboard module (UI client assets)
+module-5-dashboard/** linguist-vendored
+module-5-dashboard/** linguist-detectable=false
+
+# Exclude web scripts, styles, and markup from repository language stats
+*.js linguist-vendored
+*.js linguist-detectable=false
+*.css linguist-vendored
+*.css linguist-detectable=false
+*.html linguist-documentation
+*.html linguist-detectable=false
+
+# Highlight Java as primary source code
+*.java linguist-detectable=true

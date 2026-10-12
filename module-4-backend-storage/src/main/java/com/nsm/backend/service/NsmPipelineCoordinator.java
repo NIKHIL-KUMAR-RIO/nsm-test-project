@@ -120,36 +120,27 @@ public class NsmPipelineCoordinator {
     // --- Attack Simulation Triggers (Single-Laptop Mode) ---
 
     public void triggerPortScan(String attackerIp, String victimIp, int startPort, int endPort) {
-        Thread.ofVirtual().start(() -> {
-            log.info("Launching simulated Port Scan from {} targeting ports {}-{}", attackerIp, startPort, endPort);
-            List<PacketData> packets = packetGenerator.generatePortScan(attackerIp, victimIp, startPort, endPort);
-            for (PacketData p : packets) {
-                processIncomingPacket(p);
-                try { Thread.sleep(30); } catch (InterruptedException ignored) {}
-            }
-        });
+        log.info("Launching simulated Port Scan from {} targeting ports {}-{}", attackerIp, startPort, endPort);
+        List<PacketData> packets = packetGenerator.generatePortScan(attackerIp, victimIp, startPort, endPort);
+        for (PacketData p : packets) {
+            processIncomingPacket(p);
+        }
     }
 
     public void triggerSynFlood(String attackerIp, String victimIp, int targetPort, int count) {
-        Thread.ofVirtual().start(() -> {
-            log.info("Launching simulated SYN Flood ({} packets) from {} -> Port {}", count, attackerIp, targetPort);
-            List<PacketData> packets = packetGenerator.generateSynFlood(attackerIp, victimIp, targetPort, count);
-            for (PacketData p : packets) {
-                processIncomingPacket(p);
-                try { Thread.sleep(5); } catch (InterruptedException ignored) {}
-            }
-        });
+        log.info("Launching simulated SYN Flood ({} packets) from {} -> Port {}", count, attackerIp, targetPort);
+        List<PacketData> packets = packetGenerator.generateSynFlood(attackerIp, victimIp, targetPort, count);
+        for (PacketData p : packets) {
+            processIncomingPacket(p);
+        }
     }
 
     public void triggerBruteForce(String attackerIp, String victimIp, int servicePort, int attempts) {
-        Thread.ofVirtual().start(() -> {
-            log.info("Launching simulated Brute Force ({} attempts) from {} -> Port {}", attempts, attackerIp, servicePort);
-            List<PacketData> packets = packetGenerator.generateBruteForce(attackerIp, victimIp, servicePort, attempts);
-            for (PacketData p : packets) {
-                processIncomingPacket(p);
-                try { Thread.sleep(150); } catch (InterruptedException ignored) {}
-            }
-        });
+        log.info("Launching simulated Brute Force ({} attempts) from {} -> Port {}", attempts, attackerIp, servicePort);
+        List<PacketData> packets = packetGenerator.generateBruteForce(attackerIp, victimIp, servicePort, attempts);
+        for (PacketData p : packets) {
+            processIncomingPacket(p);
+        }
     }
 
     public int replayPcapStream(InputStream in) throws Exception {

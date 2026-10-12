@@ -456,6 +456,35 @@ function switchView(viewId) {
         setTimeout(resizeCanvas, 50);
     }
 
+    if (viewId === 'view-signatures') {
+        syncSignaturesWithAlerts(cachedAlerts);
+    }
+
+    if (viewId === 'view-threat-map') {
+        if (currentMapMode === 'globe') {
+            if (!threatGlobe) {
+                initGlobeMap();
+            } else {
+                setTimeout(() => {
+                    const c = document.getElementById('globeThreatMap');
+                    if (c && c.clientWidth > 0 && threatGlobe) threatGlobe.width(c.clientWidth);
+                    renderThreatGlobeData();
+                }, 80);
+            }
+        } else {
+            if (!leafletThreatMap) {
+                initLeafletMap();
+            } else {
+                setTimeout(() => {
+                    try { leafletThreatMap.invalidateSize(); } catch (e) {}
+                    renderThreatMap();
+                }, 80);
+            }
+        }
+        initWanCanvas();
+        updateSensorHealthDonut();
+    }
+
     // Close any open navigation dropdowns
     closeAllDropdowns();
 }
@@ -615,25 +644,8 @@ function generateWaveSample(state, tick) {
     const baseline = Math.round(h * 0.5); // TRUE EXACT VERTICAL CENTER
 
     if (state === 'normal') {
-        // Authentic ECG rhythm pulse (P-Q-R-S-T)
-        const period = 52;
-        const pos = tick % period;
-        let offset = 0;
-        if (pos === 10) offset = -6;        // P wave
-        else if (pos === 11) offset = -10;
-        else if (pos === 12) offset = -5;
-        else if (pos === 15) offset = 7;     // Q dip
-        else if (pos === 16) offset = -50;   // R sharp upward peak
-        else if (pos === 17) offset = 26;    // S downward rebound
-        else if (pos === 18) offset = 0;
-        else if (pos === 23) offset = -12;   // T gentle dome
-        else if (pos === 24) offset = -16;
-        else if (pos === 25) offset = -11;
-        else if (pos === 26) offset = -3;
-        else {
-            offset = Math.sin(tick * 0.12) * 1.5; // subtle ambient network hum
-        }
-        return baseline + offset;
+        // Steady calm single line when no active alert is present
+        return baseline;
     } else if (state === 'syn_flood') {
         // Massive high-frequency packet surge, strictly balanced around baseline (no baseline jump)
         const sin1 = Math.sin(tick * 0.55) * 34;
@@ -852,6 +864,7 @@ async function fetchTrafficStats() {
             if (wanRx) wanRx.textContent = `${(currentPps * 1.8).toFixed(1)} pkts/s`;
             if (wanTx) wanTx.textContent = `${(currentPps * 0.4).toFixed(1)} pkts/s`;
         }
+        updateWanStats();
     } catch (e) {}
 }
 
@@ -869,6 +882,10 @@ async function fetchAlerts() {
         renderAlerts(cachedAlerts);
         renderDetailedVulnTable(cachedAlerts);
         updateVulnDashboardWidgets(cachedAlerts);
+        syncNodesWithAlerts(cachedAlerts);
+        renderThreatMap();
+        updateSensorHealthDonut();
+        syncSignaturesWithAlerts(cachedAlerts);
 
         if (cachedAlerts && cachedAlerts.length > 0) {
             const newest = cachedAlerts[0];
@@ -878,7 +895,11 @@ async function fetchAlerts() {
                 if (newest.attack_type === 'syn_flood') setAttackState('syn_flood');
                 else if (newest.attack_type === 'port_scan') setAttackState('port_scan');
                 else if (newest.attack_type === 'brute_force') setAttackState('brute_force');
+            } else {
+                setAttackState('normal');
             }
+        } else {
+            setAttackState('normal');
         }
     } catch (e) {}
 }
@@ -1169,6 +1190,7 @@ function renderDetailedVulnTable(alerts = cachedAlerts) {
         const safeDst = escapeHtml(a.dst_ip || '0.0.0.0');
         const safeDetails = escapeHtml(a.details || 'Suspicious network behavior identified.');
         const confPct = Math.round((a.confidence || 0.95) * 100);
+        const fullThreatTitle = `${typeLabel} — ${typeCategory}`;
 
         const methodBadge = (a.detection_method || '').toLowerCase() === 'ml'
             ? `<span class="badge badge-method-ml" title="Unsupervised Isolation Forest Engine">🧠 ML</span>`
@@ -1177,18 +1199,18 @@ function renderDetailedVulnTable(alerts = cachedAlerts) {
         return `
             <tr>
                 <td>
-                    <div style="display: flex; align-items: center; gap: 0.35rem;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
                         <span class="status-dot status-dot-${safeSev}"></span>
-                        <span class="badge badge-${safeSev}">[${safeSev.toUpperCase()}]</span>
+                        <span class="badge badge-${safeSev}" style="font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.45rem;">${safeSev.toUpperCase()}</span>
                     </div>
                 </td>
                 <td>
                     <div style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary); font-size: 0.76rem;">#${safeId}</div>
-                    <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono);">${timeFormatted}</div>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">${timeFormatted}</div>
                 </td>
                 <td>
-                    <div style="font-weight: 700; color: var(--text-primary); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 135px;">${typeLabel}</div>
-                    <div style="font-size: 0.66rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);">${typeCategory}</div>
+                    <div class="threat-classification-title" title="${escapeHtml(fullThreatTitle)}" style="font-weight: 700; color: var(--text-primary); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; cursor: help;">${typeLabel}</div>
+                    <div style="font-size: 0.66rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono); margin-top: 2px;">${typeCategory}</div>
                 </td>
                 <td>
                     <div style="font-family: var(--font-mono); font-weight: 600; color: #f87171; font-size: 0.78rem;">${safeSrc}</div>
@@ -1198,22 +1220,24 @@ function renderDetailedVulnTable(alerts = cachedAlerts) {
                     <div style="font-family: var(--font-mono); font-weight: 600; color: var(--accent-blue); font-size: 0.78rem;">${safeDst}</div>
                     <div style="font-size: 0.66rem; color: var(--text-muted);">Target</div>
                 </td>
-                <td>${methodBadge}</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 0.3rem;">
+                <td style="text-align: center;">${methodBadge}</td>
+                <td style="text-align: center;">
+                    <div style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: center;">
                         <span style="font-family: var(--font-mono); font-weight: 700; font-size: 0.76rem; color: var(--accent-blue);">${confPct}%</span>
-                        <div style="width: 24px; height: 4px; background: rgba(148, 163, 184, 0.2); border-radius: 2px; overflow: hidden;">
+                        <div style="width: 22px; height: 4px; background: rgba(148, 163, 184, 0.2); border-radius: 2px; overflow: hidden;">
                             <div style="width: ${confPct}%; height: 100%; background: var(--accent-blue);"></div>
                         </div>
                     </div>
                 </td>
                 <td>
-                    <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.35; word-break: break-word;">
+                    <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.4; word-break: break-word;">
                         ${safeDetails}
                     </div>
                 </td>
-                <td>
-                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.68rem; white-space: nowrap;">🛡️ MITIGATED</span>
+                <td style="text-align: center;">
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.3rem;" title="Threat quarantined and mitigated by NetSentinel IDS engine">
+                        <span style="font-size: 0.72rem;">🛡️</span> Mitigated
+                    </span>
                 </td>
             </tr>`;
     }).join('');
@@ -1233,70 +1257,366 @@ function initDetailedVulnFilters() {
 // ==========================================
 // VIEW 3: NODE INVENTORY & HOVER POPOVER
 // ==========================================
-const MOCK_NODES = [
-    { name: 'Aruba_3810M-stack', ip: '10.1.21.10', os: 'HPE', role: 'Aruba JL074A Switch', tracked: 'Last 7 days', risk: 85, total: 2, crit: 1, high: 1, med: 0, low: 0, none: 0 },
-    { name: 'FortiSwitch-248E', ip: '10.1.21.12', os: 'Fortinet, Inc.', role: 'FSW_248E-F FPOE v7.2', tracked: 'Last 7 days', risk: 85, total: 2, crit: 1, high: 1, med: 0, low: 0, none: 0 },
-    { name: 'EASTUBNT01v', ip: '10.1.21.14', os: 'Linux', role: 'Ubuntu Server 22.04 LTS', tracked: 'Older than 30 days', risk: 78, total: 36, crit: 6, high: 22, med: 8, low: 0, none: 0 },
-    { name: 'DEN-PA100VM-A', ip: '10.1.21.15', os: 'Palo Alto Networks', role: 'PA-VM 7.1.0 Gateway', tracked: 'Older than 30 days', risk: 90, total: 69, crit: 10, high: 28, med: 30, low: 1, none: 0 },
-    { name: 'EAST_vMX', ip: '10.1.21.16', os: 'Juniper Networks', role: 'vMX Core Router NetFlow', tracked: 'Older than 30 days', risk: 92, total: 69, crit: 10, high: 28, med: 30, low: 1, none: 0 },
-    { name: 'LON-FortiFirewall-01', ip: '10.1.21.22', os: 'Fortinet, Inc.', role: 'FFW_VM64KVM Enterprise', tracked: 'Older than 30 days', risk: 65, total: 12, crit: 2, high: 4, med: 6, low: 0, none: 0 },
-    { name: 'SIN-FortiFirewall-01', ip: '10.1.21.24', os: 'Fortinet, Inc.', role: 'FFW_VM64KVM Decoy Hub', tracked: 'Older than 30 days', risk: 65, total: 12, crit: 2, high: 4, med: 6, low: 0, none: 0 },
-    { name: 'EAST-9300-1stFl', ip: '10.1.21.30', os: 'Cisco', role: 'Catalyst 9300 Switch', tracked: 'Older than 30 days', risk: 70, total: 18, crit: 2, high: 10, med: 6, low: 0, none: 0 },
-    { name: 'EAST-FW-A', ip: '10.1.21.32', os: 'Cisco', role: 'Cisco ASA 5510SC Gateway', tracked: 'Older than 30 days', risk: 75, total: 54, crit: 4, high: 26, med: 23, low: 1, none: 0 },
-    { name: 'DEN-7200-1A.demo.lab', ip: '10.1.21.40', os: 'Cisco', role: 'Cisco 7206 VXR Core', tracked: 'Older than 30 days', risk: 82, total: 199, crit: 2, high: 47, med: 19, low: 0, none: 0 },
-    { name: 'DEN-3560-ASFlr1A', ip: '10.1.21.55', os: 'Cisco', role: 'Catalyst 3560X Distribution', tracked: 'Older than 30 days', risk: 80, total: 121, crit: 1, high: 59, med: 14, low: 0, none: 0 },
-    { name: 'HONEYPOT-DECOY-01', ip: '192.168.1.90', os: 'Linux', role: 'Java 21 Project Loom Decoy', tracked: 'Last 24 hours', risk: 95, total: 42, crit: 18, high: 14, med: 10, low: 0, none: 0 }
-];
+const KNOWN_HOST_METADATA = {
+    '192.168.1.1': { name: 'GATEWAY-CORE-01', os: 'Cisco IOS-XE / 802.11ax', role: 'Perimeter Gateway Router' },
+    '192.168.1.100': { name: 'SRV-WEB-PROD-01', os: 'Ubuntu Linux 22.04 LTS', role: 'Primary Web & API Application Server' },
+    '192.168.1.90': { name: 'HONEYPOT-DECOY-01', os: 'NetSentinel Trap Engine', role: 'Java 21 Project Loom Decoy' },
+    '192.168.1.150': { name: 'SRV-DB-SQLITE-01', os: 'Debian 12 Bookworm', role: 'SQLite WAL Cluster / Audit Storage' },
+    '192.168.1.10': { name: 'DC-DNS-AUTH-01', os: 'Windows Server 2022', role: 'Active Directory / DNS Authority' },
+    '192.168.1.25': { name: 'SEC-MAIL-PROXY-01', os: 'Fortinet FortiOS 7.4', role: 'Mail Security Gateway & Reverse Proxy' },
+    '192.168.1.45': { name: 'SW-DIST-FLOOR-1', os: 'Aruba 3810M SwitchOS', role: 'VLAN Access Layer Distribution' },
+    '192.168.1.8': { name: 'SOC-ADMIN-TERM-01', os: 'macOS Sonoma (Darwin)', role: 'Administrative SOC Workstation' }
+};
 
-function renderNodesTable(nodes = MOCK_NODES) {
+let currentNodesList = [];
+let lastFilteredNodes = [];
+let nodeCurrentPage = 1;
+const nodePageSize = 6;
+
+function syncNodesWithAlerts(alerts = cachedAlerts) {
+    const nodeMap = new Map();
+
+    // Derive inventory EXCLUSIVELY from active alerts (no static/secured placeholder nodes)
+
+    // 2. Aggregate real live alerts to affected hosts
+    (alerts || []).forEach(alert => {
+        const dstIp = alert.dst_ip || alert.destIp;
+        const srcIp = alert.src_ip || alert.sourceIp;
+        const sev = (alert.severity || 'low').toLowerCase();
+
+        // Register destination / target host
+        if (dstIp) {
+            if (!nodeMap.has(dstIp)) {
+                const meta = KNOWN_HOST_METADATA[dstIp] || {
+                    name: `HOST-${dstIp}`,
+                    os: dstIp.startsWith('192.168.') ? 'Internal Monitored Node' : 'External Target Host',
+                    role: 'Target Node / Destination'
+                };
+                nodeMap.set(dstIp, {
+                    id: `node-${dstIp.replace(/[^a-zA-Z0-9]/g, '-')}`,
+                    name: meta.name,
+                    ip: dstIp,
+                    os: meta.os,
+                    role: meta.role,
+                    crit: 0, high: 0, med: 0, low: 0, total: 0, alerts: [], lastSeen: null
+                });
+            }
+            const node = nodeMap.get(dstIp);
+            node.total++;
+            if (sev === 'critical') node.crit++;
+            else if (sev === 'high') node.high++;
+            else if (sev === 'medium') node.med++;
+            else node.low++;
+            node.alerts.push(alert);
+            if (!node.lastSeen || new Date(alert.timestamp) > new Date(node.lastSeen)) {
+                node.lastSeen = alert.timestamp;
+            }
+        }
+
+        // Register source / attacker host
+        if (srcIp && srcIp !== '0.0.0.0') {
+            if (!nodeMap.has(srcIp)) {
+                const isLocal = srcIp.startsWith('192.168.') || srcIp.startsWith('10.');
+                const meta = KNOWN_HOST_METADATA[srcIp] || {
+                    name: isLocal ? `INTRUDER-${srcIp}` : `EXT-ATTACKER-${srcIp}`,
+                    os: isLocal ? 'Compromised LAN Endpoint' : 'External WAN Ingress',
+                    role: isLocal ? 'Internal Threat Vector' : 'External Adversary IP'
+                };
+                nodeMap.set(srcIp, {
+                    id: `node-${srcIp.replace(/[^a-zA-Z0-9]/g, '-')}`,
+                    name: meta.name,
+                    ip: srcIp,
+                    os: meta.os,
+                    role: meta.role,
+                    crit: 0, high: 0, med: 0, low: 0, total: 0, alerts: [], lastSeen: null
+                });
+            }
+            const srcNode = nodeMap.get(srcIp);
+            srcNode.total++;
+            if (sev === 'critical') srcNode.crit++;
+            else if (sev === 'high') srcNode.high++;
+            else if (sev === 'medium') srcNode.med++;
+            else srcNode.low++;
+            srcNode.alerts.push(alert);
+            if (!srcNode.lastSeen || new Date(alert.timestamp) > new Date(srcNode.lastSeen)) {
+                srcNode.lastSeen = alert.timestamp;
+            }
+        }
+    });
+
+    // 3. Compute health, risk score, and tracking category
+    const now = Date.now();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+    nodeMap.forEach(n => {
+        // Health state: dynamically determined by real alert severity
+        if (n.crit > 0) {
+            n.health = 'critical';
+            n.statusDot = 'critical';
+        } else if (n.high > 0) {
+            n.health = 'high';
+            n.statusDot = 'high';
+        } else {
+            n.health = 'medium';
+            n.statusDot = 'medium';
+        }
+
+        // Risk score (0 - 100)
+        const calculated = Math.round(n.crit * 28 + n.high * 16 + n.med * 9 + n.low * 3);
+        n.risk = Math.min(100, Math.max(12, calculated));
+
+        // Tracking category (Last 7 days vs Older)
+        if (n.lastSeen) {
+            const diff = now - new Date(n.lastSeen).getTime();
+            if (diff <= sevenDaysMs) {
+                n.tracked = 'Last 7 days';
+                n.trackingCategory = 'last_7_days';
+            } else {
+                n.tracked = 'Older than 7 days';
+                n.trackingCategory = 'older';
+            }
+        } else {
+            n.tracked = 'Last 7 days';
+            n.trackingCategory = 'last_7_days';
+        }
+    });
+
+    currentNodesList = Array.from(nodeMap.values());
+
+    // 4. Update sidebar filter count badges
+    updateNodeFilterBadges();
+
+    // 5. Apply filters, sorting, and pagination
+    filterNodes();
+}
+
+function updateNodeFilterBadges() {
+    let critCount = 0, highCount = 0, medCount = 0;
+    let last7Count = 0, olderCount = 0;
+
+    currentNodesList.forEach(n => {
+        if (n.health === 'critical') critCount++;
+        else if (n.health === 'high') highCount++;
+        else if (n.health === 'medium') medCount++;
+
+        if (n.trackingCategory === 'last_7_days') last7Count++;
+        else olderCount++;
+    });
+
+    const bCrit = document.getElementById('badgeHealthCritical');
+    const bHigh = document.getElementById('badgeHealthHigh');
+    const bMed = document.getElementById('badgeHealthMedium');
+    const b7 = document.getElementById('badgeTracked7Days');
+    const bOld = document.getElementById('badgeTrackedOlder');
+
+    if (bCrit) bCrit.textContent = critCount;
+    if (bHigh) bHigh.textContent = highCount;
+    if (bMed) bMed.textContent = medCount;
+    if (b7) b7.textContent = last7Count;
+    if (bOld) bOld.textContent = olderCount;
+}
+
+function filterNodes() {
+    const query = (document.getElementById('nodeSearchInput')?.value || '').toLowerCase().trim();
+
+    // Read Health filters
+    const chkCrit = document.getElementById('filterHealthCritical')?.checked || false;
+    const chkHigh = document.getElementById('filterHealthHigh')?.checked || false;
+    const chkMed = document.getElementById('filterHealthMedium')?.checked || false;
+    const anyHealthFiltered = chkCrit || chkHigh || chkMed;
+
+    // Read Tracking filters
+    const chk7 = document.getElementById('filterTracked7Days')?.checked || false;
+    const chkOld = document.getElementById('filterTrackedOlder')?.checked || false;
+    const anyTrackFiltered = chk7 || chkOld;
+
+    // Filter array
+    let filtered = currentNodesList.filter(n => {
+        // Health matching
+        if (anyHealthFiltered) {
+            const matchesHealth = (chkCrit && n.health === 'critical') ||
+                                  (chkHigh && n.health === 'high') ||
+                                  (chkMed && n.health === 'medium');
+            if (!matchesHealth) return false;
+        }
+
+        // Tracking matching
+        if (anyTrackFiltered) {
+            const matchesTracking = (chk7 && n.trackingCategory === 'last_7_days') ||
+                                    (chkOld && n.trackingCategory === 'older');
+            if (!matchesTracking) return false;
+        }
+
+        // Search query matching
+        if (query) {
+            const matchesQuery = n.name.toLowerCase().includes(query) ||
+                                 n.ip.toLowerCase().includes(query) ||
+                                 n.os.toLowerCase().includes(query) ||
+                                 n.role.toLowerCase().includes(query);
+            if (!matchesQuery) return false;
+        }
+
+        return true;
+    });
+
+    // Sorting:
+    // Health sorting order: Critical (1) > High (2) > Medium (3)
+    const healthRank = { 'critical': 1, 'high': 2, 'medium': 3, 'low': 4 };
+    const trackRank = { 'last_7_days': 1, 'older': 2 };
+
+    filtered.sort((a, b) => {
+        if (anyHealthFiltered) {
+            const diffH = (healthRank[a.health] || 99) - (healthRank[b.health] || 99);
+            if (diffH !== 0) return diffH;
+        }
+        if (anyTrackFiltered) {
+            const diffT = (trackRank[a.trackingCategory] || 99) - (trackRank[b.trackingCategory] || 99);
+            if (diffT !== 0) return diffT;
+        }
+        // Secondary sort: highest risk score first, then highest total alerts
+        if (b.risk !== a.risk) return b.risk - a.risk;
+        return b.total - a.total;
+    });
+
+    renderNodesTable(filtered);
+}
+
+function renderNodesTable(nodes = currentNodesList) {
+    lastFilteredNodes = nodes;
+    const totalNodes = nodes.length;
+    const totalPages = Math.max(1, Math.ceil(totalNodes / nodePageSize));
+
+    // Clamp current page
+    if (nodeCurrentPage > totalPages) nodeCurrentPage = totalPages;
+    if (nodeCurrentPage < 1) nodeCurrentPage = 1;
+
+    const startIdx = totalNodes === 0 ? 0 : (nodeCurrentPage - 1) * nodePageSize;
+    const endIdx = Math.min(startIdx + nodePageSize, totalNodes);
+    const pageSlice = nodes.slice(startIdx, endIdx);
+
     const tbody = document.getElementById('nodesTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = nodes.map(n => `
-        <tr>
-            <td><span class="status-dot status-dot-critical"></span></td>
-            <td>
-                <span class="node-interactive-link" onmouseenter="showNodePopover(event, '${n.name}')" onmouseleave="hideNodePopover()">
-                    ${n.name}
-                </span>
-            </td>
-            <td>${n.os}</td>
-            <td style="color: var(--text-secondary); font-size: 0.76rem;">${n.role}</td>
-            <td style="color: var(--text-muted); font-size: 0.74rem;">${n.tracked}</td>
-            <td>
-                <div class="mini-risk-bar">
-                    <div class="mini-risk-indicator" style="left: ${n.risk}%;"></div>
-                </div>
-            </td>
-            <td><strong style="color: var(--text-primary); font-family: var(--font-mono);">${n.total}</strong></td>
-            <td>
-                <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.74rem; font-family: var(--font-mono);">
-                    <span style="color: #ef4444;">● ${n.crit}</span>
-                    <span style="color: #ea580c;">● ${n.high}</span>
-                    <span style="color: #eab308;">● ${n.med}</span>
-                    <span style="color: #0284c7;">● ${n.low}</span>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+    if (pageSlice.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem;">
+                    🛡️ No monitored threat nodes detected. Inventory populates dynamically as network alerts occur.
+                </td>
+            </tr>`;
+    } else {
+        tbody.innerHTML = pageSlice.map(n => {
+            const safeName = escapeHtml(n.name);
+            const safeIp = escapeHtml(n.ip);
+            const safeOs = escapeHtml(n.os);
+            const safeRole = escapeHtml(n.role);
+            const safeTracked = escapeHtml(n.tracked);
+            const healthUpper = escapeHtml(n.health.toUpperCase());
+
+            return `
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <span class="status-dot status-dot-${n.statusDot}"></span>
+                        <span class="badge badge-${n.health}" style="font-size: 0.68rem; font-weight: 700;">${healthUpper}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="node-interactive-link" onmouseenter="showNodePopover(event, '${safeName}')" onmouseleave="hideNodePopover()">
+                        ${safeName}
+                    </span>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">${safeIp}</div>
+                </td>
+                <td style="color: var(--text-secondary); font-size: 0.76rem;">
+                    <div style="font-weight: 600; color: var(--text-primary);">${safeOs}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">${safeRole}</div>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.74rem; font-family: var(--font-mono); white-space: nowrap;">
+                    📅 ${safeTracked}
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                        <div class="mini-risk-bar" title="Calculated Risk: ${n.risk}%">
+                            <div class="mini-risk-indicator" style="left: ${n.risk}%;"></div>
+                        </div>
+                        <span style="font-size: 0.74rem; font-weight: 800; font-family: var(--font-mono); color: ${n.risk >= 70 ? '#ef4444' : (n.risk >= 40 ? '#f59e0b' : '#10b981')};">${n.risk}%</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge" style="font-family: var(--font-mono); font-weight: 800; font-size: 0.76rem; background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); padding: 0.15rem 0.5rem;">${n.total}</span>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; font-family: var(--font-mono);">
+                        <span style="color: #ef4444; font-weight: 700;" title="Critical Incidents">● ${n.crit}</span>
+                        <span style="color: #ea580c; font-weight: 700;" title="High Severity">● ${n.high}</span>
+                        <span style="color: #eab308; font-weight: 700;" title="Medium Severity">● ${n.med}</span>
+                        <span style="color: #0284c7; font-weight: 700;" title="Low / Informational">● ${n.low}</span>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    // Update Pagination Controls
+    const infoEl = document.getElementById('nodesPaginationInfo');
+    if (infoEl) {
+        infoEl.textContent = totalNodes === 0
+            ? 'Showing 0–0 of 0 Monitored Nodes'
+            : `Showing ${startIdx + 1}–${endIdx} of ${totalNodes} Monitored Nodes`;
+    }
+
+    const btnsContainer = document.getElementById('nodesPaginationBtns');
+    if (btnsContainer) {
+        if (totalNodes === 0) {
+            btnsContainer.innerHTML = '';
+        } else {
+            let buttonsHtml = '';
+
+            // Prev Button
+            buttonsHtml += `<button class="btn" style="padding: 0.2rem 0.6rem; ${nodeCurrentPage <= 1 ? 'opacity: 0.4; cursor: not-allowed;' : ''}" ${nodeCurrentPage <= 1 ? 'disabled' : ''} onclick="changeNodePage(${nodeCurrentPage - 1})">&lt;</button>`;
+
+            // Numbered page buttons
+            for (let p = 1; p <= totalPages; p++) {
+                const isActive = p === nodeCurrentPage;
+                buttonsHtml += `<button class="btn ${isActive ? 'btn-live' : ''}" style="padding: 0.2rem 0.6rem; min-width: 28px;" onclick="changeNodePage(${p})">${p}</button>`;
+            }
+
+            // Next Button
+            buttonsHtml += `<button class="btn" style="padding: 0.2rem 0.6rem; ${nodeCurrentPage >= totalPages ? 'opacity: 0.4; cursor: not-allowed;' : ''}" ${nodeCurrentPage >= totalPages ? 'disabled' : ''} onclick="changeNodePage(${nodeCurrentPage + 1})">&gt;</button>`;
+
+            btnsContainer.innerHTML = buttonsHtml;
+        }
+    }
+}
+
+function changeNodePage(page) {
+    nodeCurrentPage = page;
+    renderNodesTable(lastFilteredNodes);
 }
 
 function showNodePopover(event, nodeName) {
     const pop = document.getElementById('nodeHoverPopover');
     if (!pop) return;
 
-    const node = MOCK_NODES.find(n => n.name === nodeName) || {
-        name: nodeName,
-        ip: '10.1.21.16',
-        os: 'vMX Gateway',
-        role: 'NetFlow v9'
-    };
+    const node = currentNodesList.find(n => n.name === nodeName || n.ip === nodeName);
+    if (!node) return;
 
-    document.getElementById('popoverNodeName').textContent = node.name;
-    document.getElementById('popoverIp').textContent = node.ip;
-    document.getElementById('popoverType').textContent = node.os;
+    const elName = document.getElementById('popoverNodeName');
+    const elIp = document.getElementById('popoverIp');
+    const elType = document.getElementById('popoverType');
+    const elPing = document.getElementById('popoverPing');
+    const elCpu = document.getElementById('popoverCpu');
+    const elRam = document.getElementById('popoverRam');
+    const elFlow = document.getElementById('popoverFlow');
 
-    // Position popover near mouse
+    if (elName) elName.textContent = node.name;
+    if (elIp) elIp.textContent = node.ip;
+    if (elType) elType.textContent = `${node.os} — ${node.role}`;
+    if (elPing) elPing.textContent = `${Math.max(1, Math.round(node.risk / 12))} ms`;
+    if (elCpu) elCpu.textContent = `${Math.min(99, Math.max(4, Math.round(node.risk * 0.95)))} %`;
+    if (elRam) elRam.textContent = `${Math.min(95, Math.max(18, Math.round(node.risk * 0.8 + 20)))} %`;
+    if (elFlow) elFlow.textContent = node.total > 0 ? `${node.total} real-time security alerts` : 'Healthy baseline telemetry';
+
     pop.style.left = `${event.clientX + 16}px`;
     pop.style.top = `${event.clientY - 30}px`;
     pop.classList.add('visible');
@@ -1307,46 +1627,326 @@ function hideNodePopover() {
     if (pop) pop.classList.remove('visible');
 }
 
-function filterNodes() {
-    const query = (document.getElementById('nodeSearchInput')?.value || '').toLowerCase();
-    const filtered = MOCK_NODES.filter(n =>
-        n.name.toLowerCase().includes(query) ||
-        n.ip.toLowerCase().includes(query) ||
-        n.os.toLowerCase().includes(query)
-    );
-    renderNodesTable(filtered);
-}
-
 // ==========================================
 // VIEW 4: THREAT SIGNATURE REGISTRY & MODAL
 // ==========================================
-function renderSignaturesTable() {
+const THREAT_SIGNATURES_REGISTRY = [
+    {
+        id: 'SIG-1001',
+        cve: 'CVE-2023-48795',
+        mitre: 'T1110.001',
+        name: 'SSH Automated Brute Force Intrusion',
+        desc: 'Rapid sequence of authentication attempts against SSH daemon (Port 22) exceeding threshold, indicating automated credential dictionary brute-forcing.',
+        proto: 'TCP/22',
+        engine: 'Module 2 (Heuristic Rule Engine)',
+        score: 8.8,
+        sev: 'critical',
+        status: 'Active (Armored)',
+        ruleLogic: 'alert tcp any any -> $HOME_NET 22 (msg:"NETSENTINEL SSH Brute Force Detected"; flow:to_server; flags:S; threshold:type threshold, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:1001; rev:2;)',
+        nodes: '192.168.1.77 (Attacker IP) ➔ 10.0.0.1:22 (SSH Gateway Node)',
+        simType: 'brute-force',
+        advisory: 'https://nvd.nist.gov/vuln/detail/CVE-2023-48795'
+    },
+    {
+        id: 'SIG-1002',
+        cve: 'CWE-400',
+        mitre: 'T1498.001',
+        name: 'TCP SYN Flood Volumetric Denial-of-Service',
+        desc: 'High-frequency burst of half-open TCP SYN frames targeting HTTP/HTTPS ports without completing the 3-way handshake, exhausting connection state tables.',
+        proto: 'TCP/80,443',
+        engine: 'Module 2 (Heuristic Rule Engine)',
+        score: 9.3,
+        sev: 'critical',
+        status: 'Active (Armored)',
+        ruleLogic: 'alert tcp any any -> $HOME_NET [80,443] (msg:"NETSENTINEL Volumetric SYN Flood Surge"; flags:S,12; threshold:type threshold, track by_dst, count 50, seconds 2; classtype:denial-of-service; sid:1002; rev:1;)',
+        nodes: '192.168.1.99 (Attacker IP) ➔ 10.0.0.1:80 (Web Cluster Ingress)',
+        simType: 'syn-flood',
+        advisory: 'https://cwe.mitre.org/data/definitions/400.html'
+    },
+    {
+        id: 'SIG-1003',
+        cve: 'CWE-200',
+        mitre: 'T1046',
+        name: 'TCP Multi-Port Reconnaissance Sweep',
+        desc: 'Sequential connection probing across 15+ destination ports within a 5-second interval, indicative of active Nmap reconnaissance scanning.',
+        proto: 'TCP/Multi',
+        engine: 'Module 2 (Heuristic Rule Engine)',
+        score: 7.5,
+        sev: 'high',
+        status: 'Active (Armored)',
+        ruleLogic: 'alert tcp any any -> $HOME_NET any (msg:"NETSENTINEL Horizontal Port Scan Sweep"; flow:to_server; detection_filter:track by_src, count 15, seconds 5; classtype:network-scan; sid:1003; rev:3;)',
+        nodes: '192.168.1.50 (Attacker IP) ➔ 10.0.0.1:20-45 (Monitored Subnet)',
+        simType: 'port-scan',
+        advisory: 'https://attack.mitre.org/techniques/T1046/'
+    },
+    {
+        id: 'SIG-1004',
+        cve: 'LOOM-DECOY-01',
+        mitre: 'T1046',
+        name: 'Java 21 Loom Decoy Honeypot Trap',
+        desc: 'Direct connection probe on lightweight unadvertised zero-interaction decoy honeypot ports (2222, 8088, 8888, 9090) powered by virtual threads.',
+        proto: 'TCP/2222,8088,8888,9090',
+        engine: 'Module 2 & Project Loom Honeypot',
+        score: 9.0,
+        sev: 'critical',
+        status: 'Active (Armored)',
+        ruleLogic: 'alert tcp any any -> $HOME_NET [2222,8088,8888,9090] (msg:"NETSENTINEL Virtual Decoy Honeypot Trap Triggered"; flow:to_server; classtype:unauthorized-access-attempt; sid:1004; rev:1;)',
+        nodes: '0.0.0.0:2222, 0.0.0.0:8088, 0.0.0.0:8888, 0.0.0.0:9090 (Virtual Decoys)',
+        simType: null,
+        advisory: 'https://attack.mitre.org/techniques/T1046/'
+    },
+    {
+        id: 'SIG-1005',
+        cve: 'ML-ISOFOREST-01',
+        mitre: 'T1071',
+        name: 'Isolation Forest Flow Entropy & Volumetric Anomaly',
+        desc: 'Statistical packet size variance and flow volume deviation detected by unsupervised Isolation Forest ML model, identifying zero-day anomalous traffic.',
+        proto: 'IP/Flow',
+        engine: 'Module 3 (Isolation Forest ML Engine)',
+        score: 7.8,
+        sev: 'medium',
+        status: 'Active (Armored)',
+        ruleLogic: 'anomaly_model: IsolationForest(contamination=0.01, n_estimators=100); features: [packet_rate, byte_rate, syn_ratio, entropy_deviation]; score_threshold: -0.15; sid:1005;',
+        nodes: 'All Ingress/Egress Flows (Statistical Feature Baseline)',
+        simType: null,
+        advisory: 'https://attack.mitre.org/techniques/T1071/'
+    }
+];
+
+function getAlertsForSignature(sig, alerts) {
+    if (!alerts || alerts.length === 0) return [];
+    return alerts.filter(a => {
+        const type = (a.attack_type || '').toLowerCase();
+        const ruleName = (a.ruleName || a.alertType || '').toLowerCase();
+        const desc = (a.description || a.details || '').toLowerCase();
+        const dstPort = parseInt(a.dst_port || a.destPort || 0);
+
+        if (sig.id === 'SIG-1001') {
+            return type === 'brute_force' || ruleName.includes('brute') || desc.includes('brute') || dstPort === 22;
+        }
+        if (sig.id === 'SIG-1002') {
+            return type === 'syn_flood' || ruleName.includes('syn') || desc.includes('syn') || dstPort === 80;
+        }
+        if (sig.id === 'SIG-1003') {
+            return type === 'port_scan' || ruleName.includes('scan') || desc.includes('scan');
+        }
+        if (sig.id === 'SIG-1004') {
+            return type === 'decoy' || ruleName.includes('decoy') || ruleName.includes('honeypot') || [2222, 8088, 8888, 9090].includes(dstPort);
+        }
+        if (sig.id === 'SIG-1005') {
+            return type === 'anomaly' || ruleName.includes('isolation') || ruleName.includes('anomaly') || (a.detectionMethod && a.detectionMethod.includes('ML'));
+        }
+        return false;
+    });
+}
+
+function syncSignaturesWithAlerts(alerts = cachedAlerts) {
+    renderSignaturesTable(alerts);
+    renderMitreVectorsGrid(alerts);
+    updateSignaturesKpis(alerts);
+}
+
+function updateSignaturesKpis(alerts = cachedAlerts) {
+    const totalHitsEl = document.getElementById('sigTotalHits');
+    const triggeredVectorsEl = document.getElementById('sigTriggeredVectors');
+    const vectorsCaptionEl = document.getElementById('sigVectorsCaption');
+    const liveBadgeEl = document.getElementById('sigLiveBadge');
+
+    let totalHits = 0;
+    let triggeredCount = 0;
+
+    THREAT_SIGNATURES_REGISTRY.forEach(sig => {
+        const matches = getAlertsForSignature(sig, alerts);
+        if (matches.length > 0) {
+            triggeredCount++;
+            totalHits += matches.length;
+        }
+    });
+
+    if (totalHitsEl) totalHitsEl.textContent = totalHits;
+    if (triggeredVectorsEl) triggeredVectorsEl.textContent = triggeredCount;
+    if (vectorsCaptionEl) {
+        vectorsCaptionEl.textContent = triggeredCount > 0 
+            ? `${triggeredCount} attack vector${triggeredCount > 1 ? 's' : ''} currently intercepted` 
+            : 'All attack vectors idle';
+        vectorsCaptionEl.style.color = triggeredCount > 0 ? '#ef4444' : 'var(--text-secondary)';
+    }
+
+    if (liveBadgeEl) {
+        if (triggeredCount > 0) {
+            liveBadgeEl.className = 'badge badge-critical';
+            liveBadgeEl.textContent = `🚨 ${triggeredCount} ACTIVE ATTACK VECTORS • ${totalHits} INTERCEPTS`;
+        } else {
+            liveBadgeEl.className = 'badge badge-normal';
+            liveBadgeEl.textContent = '● 5 SIGNATURES ARMORED • SYSTEM SECURE';
+        }
+    }
+}
+
+function renderMitreVectorsGrid(alerts = cachedAlerts) {
+    const grid = document.getElementById('sigVectorsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = THREAT_SIGNATURES_REGISTRY.map(v => {
+        const matches = getAlertsForSignature(v, alerts);
+        const hits = matches.length;
+        const isTriggered = hits > 0;
+        const lastAlert = matches[0];
+        const lastAttacker = lastAlert ? (lastAlert.src_ip || lastAlert.sourceIp || '192.168.1.77') : null;
+
+        let tactic = 'Initial Access';
+        let icon = '🛡️';
+        if (v.id === 'SIG-1001') { tactic = 'Credential Access'; icon = '🔑'; }
+        else if (v.id === 'SIG-1002') { tactic = 'Impact / Denial of Service'; icon = '💥'; }
+        else if (v.id === 'SIG-1003') { tactic = 'Reconnaissance'; icon = '🔍'; }
+        else if (v.id === 'SIG-1004') { tactic = 'Defense Deception'; icon = '🪤'; }
+        else if (v.id === 'SIG-1005') { tactic = 'C2 / Flow Entropy Anomaly'; icon = '🧠'; }
+
+        return `
+            <div class="sig-vector-card ${isTriggered ? 'active-attack' : ''}">
+                <div class="sig-vector-header">
+                    <div>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${icon} ${tactic}</span>
+                        <div class="sig-vector-title">${escapeHtml(v.name)}</div>
+                        <div class="sig-vector-meta">${escapeHtml(v.id)} • ${escapeHtml(v.mitre)} • ${escapeHtml(v.cve)}</div>
+                    </div>
+                    <span class="badge badge-${v.sev}" style="font-size: 0.68rem;">[${v.sev.toUpperCase()}]</span>
+                </div>
+                <div class="sig-vector-body">
+                    ${escapeHtml(v.desc)}
+                </div>
+                <div style="font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 5px 8px; border-radius: 4px;">
+                    <span style="color: var(--text-muted);">Active Ingress:</span>
+                    <strong style="color: ${isTriggered ? '#ef4444' : '#10b981'};">
+                        ${isTriggered ? `🚨 ${hits} Intercepts (${lastAttacker})` : '● 0 Hits (Idle)'}
+                    </strong>
+                </div>
+                <div class="sig-vector-footer">
+                    <span class="badge ${v.engine.includes('ML') ? 'badge-method-ml' : 'badge-method-rule'}" style="font-size: 0.68rem;">${escapeHtml(v.engine)}</span>
+                    <div>
+                        <button class="btn" onclick="openSignatureModal('${v.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Inspect</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderSignaturesTableWithData(dataList, alerts = cachedAlerts) {
     const tbody = document.getElementById('signaturesTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = MOCK_VULNS.map(v => `
-        <tr>
-            <td><span class="badge badge-${v.sev}">[${v.sev.toUpperCase()}]</span></td>
-            <td><strong style="color: var(--accent-blue); font-family: var(--font-mono);">${v.cve}</strong></td>
-            <td><span class="badge badge-low">${v.proto}</span></td>
-            <td>${v.desc}</td>
-            <td><strong style="color: ${v.score >= 10 ? '#ef4444' : '#f59e0b'}; font-family: var(--font-mono);">${v.score}</strong></td>
-            <td><span style="color: var(--accent-green); font-size: 0.76rem;">● Active</span></td>
-            <td>
-                <button class="btn" onclick="openSignatureModal('${v.cve}')" style="padding: 0.2rem 0.6rem; font-size: 0.72rem;">Inspect</button>
-            </td>
-        </tr>
-    `).join('');
+    if (!dataList || dataList.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2.5rem 0; font-size: 0.85rem;">
+                    No signatures matching the search query.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    tbody.innerHTML = dataList.map(v => {
+        const matches = getAlertsForSignature(v, alerts);
+        const hits = matches.length;
+        const isTriggered = hits > 0;
+        const lastAlert = matches[0];
+        const lastAttacker = lastAlert ? (lastAlert.src_ip || lastAlert.sourceIp || '192.168.1.77') : null;
+        const lastTime = lastAlert && lastAlert.timestamp ? new Date(lastAlert.timestamp).toLocaleTimeString() : 'Just now';
+
+        return `
+            <tr>
+                <td><span class="badge badge-${v.sev}">[${v.sev.toUpperCase()}]</span></td>
+                <td>
+                    <strong style="color: var(--accent-blue); font-family: var(--font-mono); font-size: 0.82rem;">${escapeHtml(v.id)}</strong>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">${escapeHtml(v.cve)} • ${escapeHtml(v.mitre)}</div>
+                </td>
+                <td><span class="badge badge-low">${escapeHtml(v.proto)}</span></td>
+                <td>
+                    <strong style="color: var(--text-primary); font-size: 0.84rem;">${escapeHtml(v.name)}</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">${escapeHtml(v.desc)}</div>
+                </td>
+                <td><span class="badge ${v.engine.includes('ML') ? 'badge-method-ml' : 'badge-method-rule'}" style="font-size: 0.7rem;">${escapeHtml(v.engine)}</span></td>
+                <td><strong style="color: ${v.score >= 9.0 ? '#ef4444' : (v.score >= 7.5 ? '#f59e0b' : '#38bdf8')}; font-family: var(--font-mono); font-size: 0.95rem;">${v.score.toFixed(1)}</strong></td>
+                <td>
+                    ${isTriggered 
+                        ? `<span class="badge badge-critical" style="animation: mapPulse 1.5s infinite;">🚨 TRIGGERED (${hits} hits)</span>` 
+                        : `<span style="color: #10b981; font-size: 0.76rem; font-weight: 600;">● Armed (0 hits)</span>`}
+                </td>
+                <td>
+                    ${isTriggered 
+                        ? `<div><strong style="color: #ef4444; font-family: var(--font-mono); font-size: 0.76rem;">${escapeHtml(lastAttacker)}</strong><div style="font-size: 0.68rem; color: var(--text-muted);">${escapeHtml(lastTime)}</div></div>` 
+                        : `<span style="color: var(--text-muted); font-size: 0.72rem;">None (Idle)</span>`}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <button class="btn" onclick="openSignatureModal('${v.id}')" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;">Inspect</button>
+                        ${v.simType ? `<button class="btn btn-live" onclick="simulateFromRegistry('${v.simType}')" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Simulate this attack vector live">⚡ Test</button>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
-function openSignatureModal(cveId) {
-    const v = MOCK_VULNS.find(x => x.cve === cveId) || MOCK_VULNS[0];
-    document.getElementById('modalSigTitle').textContent = `${v.cve} Vulnerability Summary`;
-    document.getElementById('modalSigScore').textContent = v.score.toFixed(1);
-    document.getElementById('modalSigSev').textContent = `[${v.sev.toUpperCase()}]`;
-    document.getElementById('modalSigSummary').textContent = v.desc;
-    document.getElementById('modalSigLink').href = `https://nvd.nist.gov/vuln/detail/${v.cve}`;
-    document.getElementById('signatureDetailModal').style.display = 'flex';
+function renderSignaturesTable(alerts = cachedAlerts) {
+    const query = (document.getElementById('sigSearchInput')?.value || '').toLowerCase();
+    let list = THREAT_SIGNATURES_REGISTRY;
+    if (query) {
+        list = THREAT_SIGNATURES_REGISTRY.filter(v =>
+            v.id.toLowerCase().includes(query) ||
+            v.cve.toLowerCase().includes(query) ||
+            v.mitre.toLowerCase().includes(query) ||
+            v.name.toLowerCase().includes(query) ||
+            v.desc.toLowerCase().includes(query) ||
+            v.proto.toLowerCase().includes(query) ||
+            v.engine.toLowerCase().includes(query)
+        );
+    }
+    renderSignaturesTableWithData(list, alerts);
+}
+
+function filterSignatures() {
+    renderSignaturesTable(cachedAlerts);
+}
+
+function openSignatureModal(sigId) {
+    const v = THREAT_SIGNATURES_REGISTRY.find(x => x.id === sigId || x.cve === sigId) || THREAT_SIGNATURES_REGISTRY[0];
+    const modalTitle = document.getElementById('modalSigTitle');
+    const modalScore = document.getElementById('modalSigScore');
+    const modalSev = document.getElementById('modalSigSev');
+    const modalMethod = document.getElementById('modalSigMethod');
+    const modalLink = document.getElementById('modalSigLink');
+    const modalSummary = document.getElementById('modalSigSummary');
+    const modalRuleLogic = document.getElementById('modalSigRuleLogic');
+    const modalNodes = document.getElementById('modalSigNodes');
+
+    if (modalTitle) modalTitle.textContent = `${v.id} • ${v.name}`;
+    if (modalScore) modalScore.textContent = v.score.toFixed(1);
+    if (modalSev) {
+        modalSev.className = `badge badge-${v.sev}`;
+        modalSev.textContent = `[${v.sev.toUpperCase()}]`;
+    }
+    if (modalMethod) {
+        modalMethod.textContent = v.engine;
+        modalMethod.className = `badge ${v.engine.includes('ML') ? 'badge-method-ml' : 'badge-method-rule'}`;
+    }
+    if (modalLink) {
+        modalLink.href = v.advisory;
+        modalLink.textContent = `${v.cve} (${v.mitre}) Reference ↗`;
+    }
+    if (modalSummary) {
+        modalSummary.textContent = v.desc;
+    }
+    if (modalRuleLogic) {
+        modalRuleLogic.textContent = v.ruleLogic;
+    }
+    if (modalNodes) {
+        modalNodes.textContent = v.nodes;
+    }
+
+    const modal = document.getElementById('signatureDetailModal');
+    if (modal) modal.style.display = 'flex';
 }
 
 function closeSignatureModal() {
@@ -1354,29 +1954,918 @@ function closeSignatureModal() {
     if (modal) modal.style.display = 'none';
 }
 
-function filterSignatures() {
-    const query = (document.getElementById('sigSearchInput')?.value || '').toLowerCase();
-    const filtered = MOCK_VULNS.filter(v =>
-        v.cve.toLowerCase().includes(query) ||
-        v.desc.toLowerCase().includes(query) ||
-        v.proto.toLowerCase().includes(query)
-    );
-    const tbody = document.getElementById('signaturesTableBody');
-    if (!tbody) return;
+async function simulateFromRegistry(type) {
+    if (!type) return;
+    switchView('view-live-soc');
+    await triggerAttack(type);
+}
 
-    tbody.innerHTML = filtered.map(v => `
-        <tr>
-            <td><span class="badge badge-${v.sev}">[${v.sev.toUpperCase()}]</span></td>
-            <td><strong style="color: var(--accent-blue); font-family: var(--font-mono);">${v.cve}</strong></td>
-            <td><span class="badge badge-low">${v.proto}</span></td>
-            <td>${v.desc}</td>
-            <td><strong style="color: ${v.score >= 10 ? '#ef4444' : '#f59e0b'}; font-family: var(--font-mono);">${v.score}</strong></td>
-            <td><span style="color: var(--accent-green); font-size: 0.76rem;">● Active</span></td>
-            <td>
-                <button class="btn" onclick="openSignatureModal('${v.cve}')" style="padding: 0.2rem 0.6rem; font-size: 0.72rem;">Inspect</button>
-            </td>
-        </tr>
-    `).join('');
+function downloadThreatReportCSV() {
+    const alerts = cachedAlerts || [];
+    const headers = [
+        "Signature ID",
+        "CVE / Reference",
+        "MITRE Technique",
+        "Attack Vector Title",
+        "Target Protocol",
+        "Detection Engine",
+        "CVSS Score",
+        "Severity",
+        "Active Hits",
+        "Status",
+        "Last Attacker IP",
+        "Target Asset",
+        "Detection Rule Logic"
+    ];
+
+    const rows = THREAT_SIGNATURES_REGISTRY.map(sig => {
+        const matches = getAlertsForSignature(sig, alerts);
+        const hits = matches.length;
+        const lastAlert = matches[0];
+        const lastIp = lastAlert ? (lastAlert.src_ip || lastAlert.sourceIp || 'N/A') : 'None';
+        const target = lastAlert ? (lastAlert.dst_ip || '10.0.0.1') : (sig.nodes.split('➔')[1] || sig.nodes).trim();
+        const status = hits > 0 ? `TRIGGERED (${hits} hits)` : 'ARMED (0 hits)';
+
+        return [
+            `"${sig.id}"`,
+            `"${sig.cve}"`,
+            `"${sig.mitre}"`,
+            `"${sig.name.replace(/"/g, '""')}"`,
+            `"${sig.proto}"`,
+            `"${sig.engine}"`,
+            `"${sig.score}"`,
+            `"${sig.sev.toUpperCase()}"`,
+            `"${hits}"`,
+            `"${status}"`,
+            `"${lastIp}"`,
+            `"${target.replace(/"/g, '""')}"`,
+            `"${sig.ruleLogic.replace(/"/g, '""')}"`
+        ].join(',');
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `NetSentinel_Threat_Signatures_Report_${timestamp}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function downloadThreatReportJSON() {
+    const alerts = cachedAlerts || [];
+    const report = {
+        platform: "NetSentinel NSM Platform",
+        reportType: "Threat Signatures & Attack Vectors Audit Report",
+        generatedAt: new Date().toISOString(),
+        auditor: "NetSentinel SOC Administrator",
+        summary: {
+            totalRegisteredSignatures: THREAT_SIGNATURES_REGISTRY.length,
+            activeTriggeredVectors: THREAT_SIGNATURES_REGISTRY.filter(s => getAlertsForSignature(s, alerts).length > 0).length,
+            totalInterceptions: alerts.length,
+            overallStatus: alerts.length > 0 ? "ELEVATED_THREAT_ACTIVITY" : "ALL_SECURE"
+        },
+        signatures: THREAT_SIGNATURES_REGISTRY.map(sig => {
+            const matches = getAlertsForSignature(sig, alerts);
+            return {
+                id: sig.id,
+                cve: sig.cve,
+                mitreTechnique: sig.mitre,
+                name: sig.name,
+                description: sig.desc,
+                protocol: sig.proto,
+                engine: sig.engine,
+                cvssScore: sig.score,
+                severity: sig.sev,
+                activeHits: matches.length,
+                status: matches.length > 0 ? "TRIGGERED" : "ARMED",
+                lastDetectedAlert: matches[0] || null,
+                ruleLogic: sig.ruleLogic,
+                advisory: sig.advisory
+            };
+        })
+    };
+
+    const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
+    const link = document.createElement("a");
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    link.setAttribute("href", jsonStr);
+    link.setAttribute("download", `NetSentinel_Threat_Audit_Report_${timestamp}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ==========================================
+// VIEW 5: OFFICIAL LEAFLET WORLD THREAT MAP & TELEMETRY
+// ==========================================
+let threatMapFilter = 'ALL';
+let wanTelemetryHistory = [];
+let wanCanvasAnimId = null;
+
+let leafletThreatMap = null;
+let leafletMarkersLayer = null;
+let leafletArcsLayer = null;
+
+const SENSOR_GATEWAYS = [
+    { id: 'gw-us-east', name: 'US-East Core Gateway', ip: '10.0.0.1', lat: 38.9072, lng: -77.0369, region: 'North America (Washington DC)', role: 'Enterprise Core Transit' },
+    { id: 'gw-london', name: 'London Edge Proxy', ip: '10.0.0.2', lat: 51.5074, lng: -0.1278, region: 'Europe (London)', role: 'WAN Ingress Proxy' },
+    { id: 'gw-frankfurt', name: 'Frankfurt Datacenter', ip: '10.0.0.3', lat: 50.1109, lng: 8.6821, region: 'Europe (Frankfurt)', role: 'Security Gateway' },
+    { id: 'gw-singapore', name: 'Singapore Honeypot', ip: '10.0.0.4', lat: 1.3521, lng: 103.8198, region: 'Asia-Pacific (Singapore)', role: 'Loom Decoy Listener (Ports 2222, 8088)' },
+    { id: 'gw-tokyo', name: 'Tokyo Monitoring Sensor', ip: '10.0.0.5', lat: 35.6762, lng: 139.6503, region: 'Asia-Pacific (Tokyo)', role: 'Sensor Hub' },
+    { id: 'gw-sydney', name: 'Sydney Branch Node', ip: '10.0.0.6', lat: -33.8688, lng: 151.2093, region: 'Oceania (Sydney)', role: 'Branch Edge Node' }
+];
+
+const ADVERSARY_ORIGIN_MAP = {
+    '192.168.1.77': { lat: 40.7128, lng: -74.0060, location: 'North America (New York Edge)', flag: '🇺🇸', asn: 'AS16509 AWS Ingress' },
+    '192.168.1.99': { lat: 37.5665, lng: 126.9780, location: 'East Asia (Seoul Transit)', flag: '🇰🇷', asn: 'AS24940 Edge Transit' },
+    '192.168.1.50': { lat: 52.5200, lng: 13.4050, location: 'Western Europe (Berlin IX)', flag: '🇩🇪', asn: 'AS13335 CDN Ingress' },
+    '0.0.0.0': { lat: 30.0444, lng: 31.2357, location: 'Simulated WAN Decoy Stream', flag: '🌐', asn: 'AS-DECOY-LOCAL' }
+};
+
+let threatGlobe = null;
+let currentMapMode = 'globe'; // 'globe' (3D WebGL) or '2d' (Leaflet)
+let isGlobeAutoRotating = true;
+
+function initGlobeMap() {
+    if (threatGlobe || typeof Globe === 'undefined') return;
+
+    const mapContainer = document.getElementById('globeThreatMap');
+    if (!mapContainer) return;
+
+    try {
+        const width = mapContainer.clientWidth || 600;
+        const height = 440;
+
+        threatGlobe = Globe()(mapContainer)
+            .globeImageUrl('img/earth-night.jpg')
+            .backgroundColor('rgba(0, 0, 0, 0)')
+            .showAtmosphere(true)
+            .atmosphereColor('#38bdf8')
+            .atmosphereAltitude(0.18)
+            .width(width)
+            .height(height);
+
+        const controls = threatGlobe.controls();
+        if (controls) {
+            controls.autoRotate = isGlobeAutoRotating;
+            controls.autoRotateSpeed = 0.55;
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.minDistance = 140;
+            controls.maxDistance = 550;
+        }
+
+        // Default perspective viewing global continents
+        threatGlobe.pointOfView({ lat: 22, lng: 12, altitude: 2.2 });
+
+        renderThreatGlobeData();
+    } catch (e) {
+        console.error('Failed to initialize Globe.gl:', e);
+    }
+}
+
+function initLeafletMap() {
+    if (leafletThreatMap || typeof L === 'undefined') return;
+
+    const mapContainer = document.getElementById('leafletThreatMap');
+    if (!mapContainer) return;
+
+    try {
+        leafletThreatMap = L.map('leafletThreatMap', {
+            center: [25, 12],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 8,
+            maxBounds: [[-85, -180], [85, 180]],
+            maxBoundsViscosity: 1.0,
+            worldCopyJump: false,
+            zoomControl: true,
+            attributionControl: true
+        });
+
+        // Esri World Dark Gray Canvas (official enterprise SOC dark cartography with noWrap)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            maxZoom: 16,
+            noWrap: true,
+            bounds: [[-85, -180], [85, 180]]
+        }).addTo(leafletThreatMap);
+
+        // Esri World Dark Gray Reference (subtle dark borders & labels)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 16,
+            noWrap: true,
+            bounds: [[-85, -180], [85, 180]]
+        }).addTo(leafletThreatMap);
+
+        leafletArcsLayer = L.layerGroup().addTo(leafletThreatMap);
+        leafletMarkersLayer = L.layerGroup().addTo(leafletThreatMap);
+
+        renderThreatMap();
+    } catch (e) {
+        console.error('Failed to initialize Leaflet map:', e);
+    }
+}
+
+function getCurvedPoints(lat1, lng1, lat2, lng2) {
+    const points = [];
+    const numPoints = 25;
+    const midLat = (lat1 + lat2) / 2;
+    const midLng = (lng1 + lng2) / 2;
+
+    const dLat = lat2 - lat1;
+    const dLng = lng2 - lng1;
+    const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+    const bulge = Math.min(22, Math.max(8, dist * 0.22));
+
+    const ctrlLat = midLat + bulge;
+    const ctrlLng = midLng;
+
+    for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints;
+        const lat = Math.pow(1 - t, 2) * lat1 + 2 * (1 - t) * t * ctrlLat + Math.pow(t, 2) * lat2;
+        const lng = Math.pow(1 - t, 2) * lng1 + 2 * (1 - t) * t * ctrlLng + Math.pow(t, 2) * lng2;
+        points.push([lat, lng]);
+    }
+    return points;
+}
+
+function setThreatMapFilter(filter) {
+    threatMapFilter = filter;
+    const group = document.getElementById('threatMapFilterGroup');
+    if (group) {
+        group.querySelectorAll('.threat-filter-btn').forEach(btn => {
+            const isMatch = (filter === 'ALL' && btn.textContent.includes('ALL')) ||
+                            (filter === 'port_scan' && btn.textContent.includes('RECONNAISSANCE')) ||
+                            (filter === 'syn_flood' && btn.textContent.includes('DOS')) ||
+                            (filter === 'brute_force' && btn.textContent.includes('BRUTE'));
+            btn.classList.toggle('active', isMatch);
+        });
+    }
+    renderThreatMap();
+}
+
+function renderThreatMap() {
+    const liveBadge = document.getElementById('threatMapLiveBadge');
+    const interceptCount = document.getElementById('mapInterceptCount');
+    const interceptList = document.getElementById('mapInterceptList');
+    const regionalDensity = document.getElementById('mapRegionalDensity');
+
+    // Ensure active map initialized based on current projection mode
+    if (currentMapMode === 'globe') {
+        if (!threatGlobe && typeof Globe !== 'undefined') {
+            initGlobeMap();
+        } else if (threatGlobe) {
+            renderThreatGlobeData();
+        }
+    } else {
+        if (!leafletThreatMap && typeof L !== 'undefined') {
+            initLeafletMap();
+        }
+    }
+
+    // Filter active alerts
+    let activeAlerts = (cachedAlerts || []).slice(0, 15);
+    if (threatMapFilter !== 'ALL') {
+        activeAlerts = activeAlerts.filter(a => (a.attack_type || '').toLowerCase() === threatMapFilter.toLowerCase());
+    }
+
+    // If Leaflet is active in 2D mode, render markers & curved trajectories
+    if (currentMapMode === '2d' && leafletThreatMap && leafletMarkersLayer && leafletArcsLayer) {
+        leafletMarkersLayer.clearLayers();
+        leafletArcsLayer.clearLayers();
+
+        const attackedGateways = new Set();
+        activeAlerts.forEach(a => {
+            const dst = a.dst_ip || a.destIp || '10.0.0.1';
+            if (dst.startsWith('10.0.0.')) attackedGateways.add(dst);
+            else attackedGateways.add('10.0.0.1');
+        });
+
+        // 1. Render Monitored Sensor Gateways
+        SENSOR_GATEWAYS.forEach(gw => {
+            const isTargeted = attackedGateways.has(gw.ip) || (attackedGateways.size > 0 && gw.ip === '10.0.0.1');
+            const color = isTargeted ? '#ef4444' : '#10b981';
+            const pulseColor = isTargeted ? 'rgba(239, 68, 68, 0.45)' : 'rgba(16, 185, 129, 0.35)';
+
+            const icon = L.divIcon({
+                className: 'custom-map-beacon',
+                html: `
+                    <div style="position: relative; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">
+                        <div style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: ${pulseColor}; animation: mapPulse 2s infinite;"></div>
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: ${color}; border: 2px solid #ffffff; box-shadow: 0 0 10px ${color};"></div>
+                    </div>
+                `,
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+
+            const marker = L.marker([gw.lat, gw.lng], { icon: icon });
+            marker.bindPopup(`
+                <div style="font-family: var(--font-sans); color: #f8fafc; font-size: 0.8rem; line-height: 1.45;">
+                    <strong style="color: #38bdf8; font-size: 0.86rem;">${escapeHtml(gw.name)}</strong><br>
+                    <span style="color: #94a3b8; font-family: var(--font-mono); font-size: 0.72rem;">IP: ${escapeHtml(gw.ip)} (${escapeHtml(gw.region)})</span><br>
+                    <span style="color: #cbd5e1; font-size: 0.74rem;">Role: ${escapeHtml(gw.role)}</span><br>
+                    <div style="margin-top: 4px; font-weight: 700; color: ${isTargeted ? '#ef4444' : '#10b981'};">
+                        ${isTargeted ? '🚨 ACTIVE INGRESS TARGET' : '● OPERATIONAL • ALL SECURE'}
+                    </div>
+                </div>
+            `);
+            marker.addTo(leafletMarkersLayer);
+        });
+
+        // 2. Render Trajectories and Attacker Origin Markers
+        const renderedOrigins = new Set();
+        activeAlerts.forEach(a => {
+            const srcIp = a.src_ip || a.sourceIp || '192.168.1.77';
+            const origin = ADVERSARY_ORIGIN_MAP[srcIp] || {
+                lat: 25.0 + (((srcIp.split('.').reduce((acc, v) => acc + parseInt(v || 0), 0) * 17) % 60) - 30),
+                lng: ((srcIp.split('.').reduce((acc, v) => acc + parseInt(v || 0), 0) * 31) % 320) - 160,
+                location: 'External Ingress',
+                flag: '🌐',
+                asn: 'AS-Transit'
+            };
+
+            const targetGw = SENSOR_GATEWAYS[0]; // Primary Gateway (US-East Core)
+            const attackType = (a.attack_type || '').toLowerCase();
+            let strokeColor = '#ef4444'; // Red for Brute Force
+            if (attackType === 'syn_flood') strokeColor = '#f59e0b'; // Amber for SYN Flood
+            else if (attackType === 'port_scan') strokeColor = '#06b6d4'; // Cyan for Port Scan
+
+            // Curved trajectory points
+            const curvePoints = getCurvedPoints(origin.lat, origin.lng, targetGw.lat, targetGw.lng);
+            const polyline = L.polyline(curvePoints, {
+                color: strokeColor,
+                weight: 2.8,
+                dashArray: '8, 8',
+                opacity: 0.9,
+                className: 'leaflet-attack-arc'
+            });
+            polyline.bindPopup(`
+                <div style="font-size: 0.78rem;">
+                    <strong style="color: ${strokeColor};">${attackType.toUpperCase().replace('_', ' ')}</strong><br>
+                    <span>${escapeHtml(srcIp)} ➔ ${escapeHtml(targetGw.ip)}</span>
+                </div>
+            `);
+            polyline.addTo(leafletArcsLayer);
+
+            // Attacker origin marker (render once per attacker)
+            if (!renderedOrigins.has(srcIp)) {
+                renderedOrigins.add(srcIp);
+                const advIcon = L.divIcon({
+                    className: 'custom-adv-beacon',
+                    html: `
+                        <div style="position: relative; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+                            <div style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: ${strokeColor}; opacity: 0.5; animation: mapPulse 1.5s infinite;"></div>
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: ${strokeColor}; border: 2px solid #ffffff;"></div>
+                        </div>
+                    `,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                const advMarker = L.marker([origin.lat, origin.lng], { icon: advIcon });
+                advMarker.bindPopup(`
+                    <div style="font-size: 0.8rem; line-height: 1.4;">
+                        <strong>${origin.flag} ${escapeHtml(origin.location)}</strong><br>
+                        <span style="font-family: var(--font-mono); color: #ef4444;">IP: ${escapeHtml(srcIp)}</span><br>
+                        <span style="color: #94a3b8; font-size: 0.72rem;">ASN: ${escapeHtml(origin.asn)}</span>
+                    </div>
+                `);
+                advMarker.addTo(leafletMarkersLayer);
+            }
+        });
+    }
+
+    // Update Live Status Badge
+    if (liveBadge) {
+        if (activeAlerts.length > 0) {
+            liveBadge.className = 'badge badge-critical';
+            liveBadge.textContent = `🚨 ${activeAlerts.length} ACTIVE INGRESS INTERCEPTS`;
+        } else {
+            liveBadge.className = 'badge badge-normal';
+            liveBadge.textContent = '● 6 SENSORS ACTIVE • ALL SECURE';
+        }
+    }
+
+    // Update Sidebar Intercepts List
+    if (interceptCount && interceptList) {
+        if (activeAlerts.length === 0) {
+            interceptCount.textContent = '0 Active';
+            interceptCount.className = 'badge badge-normal';
+            interceptList.innerHTML = `
+                <div style="text-align: center; color: var(--text-muted); padding: 3rem 0.5rem; font-size: 0.8rem; line-height: 1.5;">
+                    🛡️ No anomalous ingress vectors detected across global sensors. System operational.
+                </div>`;
+        } else {
+            interceptCount.textContent = `${activeAlerts.length} Active`;
+            interceptCount.className = 'badge badge-critical';
+            interceptList.innerHTML = activeAlerts.slice(0, 6).map(a => {
+                const src = a.src_ip || a.sourceIp || '192.168.1.77';
+                const meta = ADVERSARY_ORIGIN_MAP[src] || { location: 'External Ingress', flag: '🌐', asn: 'AS-Transit', lat: 25, lng: -40 };
+                const at = (a.attack_type || 'ANOMALY').toUpperCase().replace('_', ' ');
+                const time = a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : 'Just now';
+                const sev = (a.severity || 'low').toLowerCase();
+                return `
+                    <div class="threat-map-intercept-item" style="cursor: pointer;" onclick="focusLeafletThreat('${src}')" title="Click to locate on world map">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                            <strong>${meta.flag} ${escapeHtml(meta.location)}</strong>
+                            <span class="badge badge-${sev}">[${sev.toUpperCase()}]</span>
+                        </div>
+                        <div style="font-family: var(--font-mono); font-size: 0.73rem; color: var(--accent-blue);">
+                            ${escapeHtml(src)} ➔ ${escapeHtml(a.dst_ip || '10.0.0.1')}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 3px; font-size: 0.68rem; color: var(--text-muted);">
+                            <span>${escapeHtml(at)}</span>
+                            <span>${escapeHtml(time)}</span>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+    }
+
+    // Update Regional Density Breakdown
+    if (regionalDensity) {
+        if (activeAlerts.length === 0) {
+            regionalDensity.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>North America (US-East)</span>
+                    <span style="color: #10b981;">● Optimal (0 threats)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Europe (London/Frankfurt)</span>
+                    <span style="color: #10b981;">● Optimal (0 threats)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Asia-Pacific (Singapore)</span>
+                    <span style="color: #10b981;">● Decoy Armed (0 threats)</span>
+                </div>`;
+        } else {
+            regionalDensity.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>North America (US-East)</span>
+                    <span style="color: #ef4444; font-weight: 700;">● Active Threat Vector</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Western Europe</span>
+                    <span style="color: #f59e0b; font-weight: 700;">● Ingress Telemetry Active</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Asia-Pacific (Singapore)</span>
+                    <span style="color: #38bdf8;">● Decoy Listeners Ready</span>
+                </div>`;
+        }
+    }
+}
+
+function renderThreatGlobeData() {
+    if (!threatGlobe) return;
+
+    // Filter active alerts
+    let activeAlerts = (cachedAlerts || []).slice(0, 15);
+    if (threatMapFilter !== 'ALL') {
+        activeAlerts = activeAlerts.filter(a => (a.attack_type || '').toLowerCase() === threatMapFilter.toLowerCase());
+    }
+
+    const attackedGateways = new Set();
+    activeAlerts.forEach(a => {
+        const dst = a.dst_ip || a.destIp || '10.0.0.1';
+        if (dst.startsWith('10.0.0.')) attackedGateways.add(dst);
+        else attackedGateways.add('10.0.0.1');
+    });
+
+    // 1. Build Sensor Hub Labels
+    const labels = [];
+    SENSOR_GATEWAYS.forEach(gw => {
+        const isTargeted = attackedGateways.has(gw.ip) || (attackedGateways.size > 0 && gw.ip === '10.0.0.1');
+        labels.push({
+            lat: gw.lat,
+            lng: gw.lng,
+            text: gw.name.split(' ')[0],
+            color: isTargeted ? '#ef4444' : '#38bdf8',
+            size: 1.1,
+            dotRadius: 0.55,
+            tooltip: `
+                <div style="font-family: var(--font-sans); color: #f8fafc; font-size: 0.78rem; line-height: 1.45;">
+                    <strong style="color: #38bdf8; font-size: 0.84rem;">${escapeHtml(gw.name)}</strong><br>
+                    <span style="color: #94a3b8; font-family: var(--font-mono); font-size: 0.7rem;">IP: ${escapeHtml(gw.ip)} (${escapeHtml(gw.region)})</span><br>
+                    <span style="color: #cbd5e1; font-size: 0.72rem;">Role: ${escapeHtml(gw.role)}</span><br>
+                    <div style="margin-top: 4px; font-weight: 700; color: ${isTargeted ? '#ef4444' : '#10b981'};">
+                        ${isTargeted ? '🚨 ACTIVE INGRESS TARGET' : '● OPERATIONAL • ALL SECURE'}
+                    </div>
+                </div>
+            `
+        });
+    });
+
+    // 2. Build 3D Arcs & Adversary Origin Labels
+    const arcs = [];
+    const renderedOrigins = new Set();
+    const primaryGw = SENSOR_GATEWAYS[0];
+
+    activeAlerts.forEach((a, idx) => {
+        const srcIp = a.src_ip || a.sourceIp || '192.168.1.77';
+        const origin = ADVERSARY_ORIGIN_MAP[srcIp] || {
+            lat: 25.0 + (((srcIp.split('.').reduce((acc, v) => acc + parseInt(v || 0), 0) * 17) % 60) - 30),
+            lng: ((srcIp.split('.').reduce((acc, v) => acc + parseInt(v || 0), 0) * 31) % 320) - 160,
+            location: 'External Ingress',
+            flag: '🌐',
+            asn: 'AS-Transit'
+        };
+
+        const attackType = (a.attack_type || 'anomaly').toLowerCase();
+        let arcColors = ['#ef4444', '#f59e0b'];
+        if (attackType === 'syn_flood') arcColors = ['#f59e0b', '#fbbf24'];
+        else if (attackType === 'port_scan') arcColors = ['#06b6d4', '#38bdf8'];
+
+        arcs.push({
+            startLat: origin.lat,
+            startLng: origin.lng,
+            endLat: primaryGw.lat,
+            endLng: primaryGw.lng,
+            color: arcColors,
+            altitude: 0.22 + (idx % 3) * 0.08,
+            stroke: 1.6,
+            dashLength: 0.45,
+            dashGap: 2.2,
+            initialGap: idx * 0.35,
+            label: `
+                <div style="font-family: var(--font-sans); color: #f8fafc; font-size: 0.75rem;">
+                    <strong style="color: ${arcColors[0]};">${attackType.toUpperCase().replace('_', ' ')}</strong><br>
+                    <span>${escapeHtml(srcIp)} (${origin.location}) ➔ ${escapeHtml(primaryGw.ip)}</span>
+                </div>
+            `
+        });
+
+        if (!renderedOrigins.has(srcIp)) {
+            renderedOrigins.add(srcIp);
+            labels.push({
+                lat: origin.lat,
+                lng: origin.lng,
+                text: srcIp,
+                color: '#ef4444',
+                size: 0.95,
+                dotRadius: 0.5,
+                tooltip: `
+                    <div style="font-family: var(--font-sans); color: #f8fafc; font-size: 0.78rem; line-height: 1.4;">
+                        <strong>${origin.flag} ${escapeHtml(origin.location)}</strong><br>
+                        <span style="font-family: var(--font-mono); color: #ef4444; font-size: 0.72rem;">IP: ${escapeHtml(srcIp)}</span><br>
+                        <span style="color: #94a3b8; font-size: 0.7rem;">ASN: ${escapeHtml(origin.asn)}</span>
+                    </div>
+                `
+            });
+        }
+    });
+
+    // 3. Build Pulsing Target Rings
+    const rings = [];
+    SENSOR_GATEWAYS.forEach(gw => {
+        const isTargeted = attackedGateways.has(gw.ip) || (attackedGateways.size > 0 && gw.ip === '10.0.0.1');
+        if (isTargeted) {
+            rings.push({
+                lat: gw.lat,
+                lng: gw.lng,
+                color: '#ef4444',
+                maxRadius: 5.5,
+                propagationSpeed: 2.2,
+                repeatPeriod: 750
+            });
+        }
+    });
+
+    // Apply layers to 3D Globe
+    threatGlobe
+        .labelsData(labels)
+        .labelLat(d => d.lat)
+        .labelLng(d => d.lng)
+        .labelText(d => d.text)
+        .labelSize(d => d.size)
+        .labelDotRadius(d => d.dotRadius)
+        .labelColor(d => d.color)
+        .labelResolution(2)
+        .labelAltitude(0.015)
+        .labelLabel(d => d.tooltip)
+        .arcsData(arcs)
+        .arcStartLat(d => d.startLat)
+        .arcStartLng(d => d.startLng)
+        .arcEndLat(d => d.endLat)
+        .arcEndLng(d => d.endLng)
+        .arcColor(d => d.color)
+        .arcAltitude(d => d.altitude)
+        .arcStroke(d => d.stroke)
+        .arcDashLength(d => d.dashLength)
+        .arcDashGap(d => d.dashGap)
+        .arcDashInitialGap(d => d.initialGap)
+        .arcDashAnimateTime(1800)
+        .arcLabel(d => d.label)
+        .ringsData(rings)
+        .ringLat(d => d.lat)
+        .ringLng(d => d.lng)
+        .ringColor(d => d.color)
+        .ringMaxRadius(d => d.maxRadius)
+        .ringPropagationSpeed(d => d.propagationSpeed)
+        .ringRepeatPeriod(d => d.repeatPeriod);
+}
+
+function setMapDisplayMode(mode) {
+    currentMapMode = mode;
+    const globeEl = document.getElementById('globeThreatMap');
+    const leafletEl = document.getElementById('leafletThreatMap');
+    const hud = document.getElementById('globeHudOverlay');
+    const btnGlobe = document.getElementById('btnMapGlobe');
+    const btnFlat = document.getElementById('btnMapFlat');
+
+    if (btnGlobe) btnGlobe.classList.toggle('active', mode === 'globe');
+    if (btnFlat) btnFlat.classList.toggle('active', mode === '2d');
+
+    if (mode === 'globe') {
+        if (globeEl) globeEl.style.display = 'block';
+        if (leafletEl) leafletEl.style.display = 'none';
+        if (hud) hud.style.display = 'flex';
+        if (!threatGlobe) {
+            initGlobeMap();
+        } else {
+            const w = globeEl ? globeEl.clientWidth : 600;
+            if (w > 0) threatGlobe.width(w);
+            renderThreatGlobeData();
+        }
+    } else {
+        if (globeEl) globeEl.style.display = 'none';
+        if (leafletEl) leafletEl.style.display = 'block';
+        if (hud) hud.style.display = 'none';
+        if (!leafletThreatMap) {
+            initLeafletMap();
+        } else {
+            setTimeout(() => {
+                try { leafletThreatMap.invalidateSize(); } catch (e) {}
+                renderThreatMap();
+            }, 60);
+        }
+    }
+}
+
+function updateGlobeSpinButton(isSpinning) {
+    isGlobeAutoRotating = isSpinning;
+    const btn = document.getElementById('btnGlobeRotate');
+    const icon = document.getElementById('globeRotateIcon');
+    if (btn) btn.classList.toggle('active', isSpinning);
+    if (icon) icon.textContent = isSpinning ? '⏸' : '▶';
+}
+
+function toggleGlobeAutoRotate() {
+    if (!threatGlobe || !threatGlobe.controls()) return;
+    const nextState = !threatGlobe.controls().autoRotate;
+    threatGlobe.controls().autoRotate = nextState;
+    updateGlobeSpinButton(nextState);
+}
+
+function resetGlobeCamera() {
+    if (threatGlobe) {
+        threatGlobe.pointOfView({ lat: 22, lng: 12, altitude: 2.2 }, 1000);
+    }
+}
+
+function focusThreatOnMap(srcIp) {
+    const origin = ADVERSARY_ORIGIN_MAP[srcIp];
+    if (!origin) return;
+
+    if (currentMapMode === 'globe' && threatGlobe) {
+        if (threatGlobe.controls()) {
+            threatGlobe.controls().autoRotate = false;
+            updateGlobeSpinButton(false);
+        }
+        threatGlobe.pointOfView({
+            lat: origin.lat,
+            lng: origin.lng,
+            altitude: 1.55
+        }, 1200);
+    } else if (leafletThreatMap) {
+        leafletThreatMap.flyTo([origin.lat, origin.lng], 4, { duration: 1.2 });
+    }
+}
+
+function focusLeafletThreat(srcIp) {
+    focusThreatOnMap(srcIp);
+}
+
+window.addEventListener('resize', () => {
+    if (threatGlobe && currentMapMode === 'globe') {
+        const c = document.getElementById('globeThreatMap');
+        if (c && c.clientWidth > 0) threatGlobe.width(c.clientWidth);
+    }
+});
+
+// ------------------------------------------
+// LIVE ROLLING WAN INTERFACE CANVAS TELEMETRY
+// ------------------------------------------
+function initWanCanvas() {
+    const canvas = document.getElementById('wanTelemetryCanvas');
+    if (!canvas) return;
+
+    // Initialize 35 history slots with base throughput
+    if (wanTelemetryHistory.length === 0) {
+        for (let i = 0; i < 35; i++) {
+            wanTelemetryHistory.push({ pps: 2.0 + Math.random() * 1.5, discards: 0 });
+        }
+    }
+
+    if (!wanCanvasAnimId) {
+        renderWanTelemetryFrame();
+    }
+}
+
+function renderWanTelemetryFrame() {
+    const canvas = document.getElementById('wanTelemetryCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+
+    if (w <= 0 || h <= 0) {
+        wanCanvasAnimId = requestAnimationFrame(renderWanTelemetryFrame);
+        return;
+    }
+
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+    }
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    // Dark screen background
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle Grid Lines
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
+    ctx.lineWidth = 1;
+    for (let y = 25; y < h; y += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+    }
+
+    const data = wanTelemetryHistory;
+    const len = data.length;
+    if (len >= 2) {
+        // Find max PPS to dynamically scale
+        const maxPps = Math.max(25, ...data.map(d => d.pps));
+
+        // 1. Throughput Gradient Area Chart (Cyan)
+        ctx.beginPath();
+        const step = w / (len - 1);
+        ctx.moveTo(0, h);
+        for (let i = 0; i < len; i++) {
+            const val = data[i].pps;
+            const y = h - (val / maxPps) * (h - 20) - 10;
+            ctx.lineTo(i * step, y);
+        }
+        ctx.lineTo(w, h);
+        ctx.closePath();
+
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
+        grad.addColorStop(1, 'rgba(6, 182, 212, 0.02)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Throughput Stroke Line
+        ctx.beginPath();
+        for (let i = 0; i < len; i++) {
+            const val = data[i].pps;
+            const y = h - (val / maxPps) * (h - 20) - 10;
+            if (i === 0) ctx.moveTo(0, y);
+            else ctx.lineTo(i * step, y);
+        }
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 2. Discards Spike Line (Red)
+        ctx.beginPath();
+        for (let i = 0; i < len; i++) {
+            const discards = data[i].discards;
+            const y = h - (discards / 15) * (h * 0.45) - 6;
+            if (i === 0) ctx.moveTo(0, y);
+            else ctx.lineTo(i * step, y);
+        }
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+    }
+
+    ctx.restore();
+    wanCanvasAnimId = requestAnimationFrame(renderWanTelemetryFrame);
+}
+
+function updateWanStats() {
+    const isUnderAttack = (cachedAlerts && cachedAlerts.length > 0);
+    const newest = isUnderAttack ? cachedAlerts[0] : null;
+    const now = Date.now();
+    const isRecent = newest && (now - new Date(newest.timestamp).getTime() < 8000);
+
+    // Compute live packet rate
+    let activePps = currentPps > 0 ? currentPps : (2.0 + Math.random() * 1.5);
+    let activeDiscards = 0;
+
+    if (isRecent) {
+        if (newest.attack_type === 'syn_flood') {
+            activePps = 85.0 + Math.random() * 35.0;
+            activeDiscards = 8.5 + Math.random() * 4.0;
+        } else if (newest.attack_type === 'port_scan') {
+            activePps = 45.0 + Math.random() * 20.0;
+            activeDiscards = 3.2 + Math.random() * 2.0;
+        } else if (newest.attack_type === 'brute_force') {
+            activePps = 30.0 + Math.random() * 15.0;
+            activeDiscards = 2.0 + Math.random() * 1.5;
+        }
+    }
+
+    wanTelemetryHistory.push({ pps: activePps, discards: activeDiscards });
+    if (wanTelemetryHistory.length > 35) wanTelemetryHistory.shift();
+
+    const wanRx = document.getElementById('wanRxVal');
+    const wanTx = document.getElementById('wanTxVal');
+    if (wanRx) wanRx.textContent = `${activePps.toFixed(1)} pkts/s`;
+    if (wanTx) wanTx.textContent = `${activeDiscards.toFixed(1)} pkts/s`;
+}
+
+// ------------------------------------------
+// 100% DYNAMIC HARDWARE & SENSOR HEALTH DONUT
+// ------------------------------------------
+function updateSensorHealthDonut() {
+    const list = currentNodesList && currentNodesList.length > 0 ? currentNodesList : [];
+    const hasAlerts = cachedAlerts && cachedAlerts.length > 0;
+
+    let critNodes = 0;
+    let warnNodes = 0;
+    let upNodes = 6;
+
+    if (list.length > 0) {
+        critNodes = list.filter(n => n.health === 'critical').length;
+        warnNodes = list.filter(n => n.health === 'high' || n.health === 'medium').length;
+        upNodes = Math.max(0, list.length - critNodes - warnNodes);
+        if (upNodes === 0 && critNodes === 0 && warnNodes === 0) upNodes = 6;
+    } else if (hasAlerts) {
+        const critAlerts = cachedAlerts.filter(a => (a.severity || '').toLowerCase() === 'critical').length;
+        critNodes = critAlerts > 0 ? 1 : 0;
+        warnNodes = (cachedAlerts.length > critAlerts) ? 1 : 0;
+        upNodes = Math.max(0, 6 - critNodes - warnNodes);
+    }
+
+    const total = Math.max(1, critNodes + warnNodes + upNodes);
+    const C = 238.76; // Circumference for r=38
+
+    const greenLen = (upNodes / total) * C;
+    const yellowLen = (warnNodes / total) * C;
+    const redLen = (critNodes / total) * C;
+
+    const segGreen = document.getElementById('sensorDonutGreen');
+    const segYellow = document.getElementById('sensorDonutYellow');
+    const segRed = document.getElementById('sensorDonutRed');
+
+    if (segGreen) {
+        segGreen.setAttribute('stroke-dasharray', `${greenLen} ${C}`);
+        segGreen.setAttribute('stroke-dashoffset', '0');
+    }
+    if (segYellow) {
+        segYellow.setAttribute('stroke-dasharray', `${yellowLen} ${C}`);
+        segYellow.setAttribute('stroke-dashoffset', `-${greenLen}`);
+    }
+    if (segRed) {
+        segRed.setAttribute('stroke-dasharray', `${redLen} ${C}`);
+        segRed.setAttribute('stroke-dashoffset', `-${greenLen + yellowLen}`);
+    }
+
+    const txtUp = document.getElementById('sensorCountUp');
+    const txtWarn = document.getElementById('sensorCountWarn');
+    const txtCrit = document.getElementById('sensorCountCrit');
+    const badge = document.getElementById('sensorHealthOverallBadge');
+
+    if (txtUp) txtUp.textContent = `${upNodes} Nodes`;
+    if (txtWarn) txtWarn.textContent = `${warnNodes} Nodes`;
+    if (txtCrit) txtCrit.textContent = `${critNodes} Nodes`;
+
+    if (badge) {
+        if (critNodes > 0) {
+            badge.className = 'badge badge-critical';
+            badge.textContent = `HEALTH: CRITICAL ALARM (${critNodes} AFFECTED)`;
+        } else if (warnNodes > 0) {
+            badge.className = 'badge badge-high';
+            badge.textContent = `HEALTH: WARNING STATE (${warnNodes} ANOMALIES)`;
+        } else {
+            badge.className = 'badge badge-normal';
+            badge.textContent = 'HEALTH: 100% OPERATIONAL';
+        }
+    }
 }
 
 // ==========================================
@@ -1466,7 +2955,10 @@ async function triggerAttack(type) {
 
     try {
         await fetch(`${API_BASE}/api/attack/${type}`, { method: 'POST' });
-        setTimeout(fetchData, 400);
+        // Immediate fetch to update alerts, forensics, metrics, and node inventory on first click
+        await fetchData();
+        setTimeout(fetchData, 200);
+        setTimeout(fetchData, 600);
     } catch (err) {
         console.error(`Failed to trigger ${type}:`, err);
     }
@@ -1552,6 +3044,10 @@ async function executeClearAlerts() {
     cachedAlerts = [];
     updateVulnDashboardWidgets([]);
     renderDetailedVulnTable([]);
+    syncNodesWithAlerts([]);
+    renderThreatMap();
+    updateSensorHealthDonut();
+    syncSignaturesWithAlerts([]);
 
     try {
         const res = await fetch(`${API_BASE}/api/alerts/clear`, { method: 'POST' });
@@ -1583,9 +3079,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initDetailedVulnFilters();
     updateVulnDashboardWidgets([]);
     renderDetailedVulnTable([]);
-    renderNodesTable();
+    syncNodesWithAlerts([]);
     renderSignaturesTable();
     initFaqSection();
+    renderThreatMap();
+    initWanCanvas();
+    updateSensorHealthDonut();
 
     // Start background telemetry
     startPolling();

@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NetSentinel | Enterprise SOC & Network Security Platform</title>
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/globe.gl.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -386,15 +389,15 @@
                         <table class="enterprise-table detailed-table" id="detailedVulnTable">
                             <thead>
                                 <tr>
-                                    <th style="width: 75px;">Severity</th>
+                                    <th style="width: 100px;">Severity</th>
                                     <th style="width: 100px;">Incident & Time</th>
-                                    <th style="width: 135px;">Threat Classification</th>
+                                    <th style="width: 160px;">Threat Classification</th>
                                     <th style="width: 110px;">Attacker (Src)</th>
                                     <th style="width: 110px;">Target (Dst)</th>
-                                    <th style="width: 75px;">Engine</th>
-                                    <th style="width: 75px;">Confidence</th>
+                                    <th style="width: 80px; text-align: center;">Engine</th>
+                                    <th style="width: 85px; text-align: center;">Confidence</th>
                                     <th>Forensic Evidence & Payload Telemetry</th>
-                                    <th style="width: 85px;">Status</th>
+                                    <th style="width: 115px; text-align: center;">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="detailedVulnTableBody">
@@ -426,16 +429,16 @@
                             <span>❤️</span> <span data-i18n="filter_health">Health</span>
                         </div>
                         <label class="filter-checkbox-item">
-                            <span><input type="checkbox" checked onchange="filterNodes()"> Critical</span>
-                            <span class="filter-count-badge">2</span>
+                            <span><input type="checkbox" id="filterHealthCritical" onchange="filterNodes()"> Critical</span>
+                            <span class="filter-count-badge" id="badgeHealthCritical">0</span>
                         </label>
                         <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> High</span>
-                            <span class="filter-count-badge">51</span>
+                            <span><input type="checkbox" id="filterHealthHigh" onchange="filterNodes()"> High</span>
+                            <span class="filter-count-badge" id="badgeHealthHigh">0</span>
                         </label>
                         <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> None / Secure</span>
-                            <span class="filter-count-badge">15</span>
+                            <span><input type="checkbox" id="filterHealthMedium" onchange="filterNodes()"> Medium</span>
+                            <span class="filter-count-badge" id="badgeHealthMedium">0</span>
                         </label>
                     </div>
 
@@ -444,38 +447,12 @@
                             <span>🕒</span> <span data-i18n="filter_tracked">Tracked In</span>
                         </div>
                         <label class="filter-checkbox-item">
-                            <span><input type="checkbox" checked onchange="filterNodes()"> Last 7 days</span>
-                            <span class="filter-count-badge">2</span>
+                            <span><input type="checkbox" id="filterTracked7Days" onchange="filterNodes()"> Last 7 days</span>
+                            <span class="filter-count-badge" id="badgeTracked7Days">0</span>
                         </label>
                         <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> Older than 30 days</span>
-                            <span class="filter-count-badge">66</span>
-                        </label>
-                    </div>
-
-                    <div class="filter-group">
-                        <div class="filter-group-header">
-                            <span>💻</span> <span data-i18n="filter_os">OS / Device Family</span>
-                        </div>
-                        <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> Cisco</span>
-                            <span class="filter-count-badge">44</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> Linux Ubuntu/Debian</span>
-                            <span class="filter-count-badge">5</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> Fortinet Inc.</span>
-                            <span class="filter-count-badge">3</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> VMware Inc.</span>
-                            <span class="filter-count-badge">8</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <span><input type="checkbox" onchange="filterNodes()"> Windows Server</span>
-                            <span class="filter-count-badge">1</span>
+                            <span><input type="checkbox" id="filterTrackedOlder" onchange="filterNodes()"> Older than 7 days</span>
+                            <span class="filter-count-badge" id="badgeTrackedOlder">0</span>
                         </label>
                     </div>
                 </aside>
@@ -485,7 +462,7 @@
                     <div class="card-header">
                         <div class="card-title">🖥️ <span data-i18n="title_node_inventory">List of Monitored Nodes</span></div>
                         <div class="card-actions">
-                            <input type="text" id="nodeSearchInput" oninput="filterNodes()" placeholder="Search node, IP or OS..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 220px;">
+                            <input type="text" id="nodeSearchInput" oninput="filterNodes()" placeholder="Search node, IP or role..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 220px;">
                         </div>
                     </div>
                     <div class="table-container">
@@ -494,8 +471,7 @@
                                 <tr>
                                     <th>Status</th>
                                     <th>Node / Host</th>
-                                    <th>Device / OS</th>
-                                    <th>Firmware / Role</th>
+                                    <th>Role / Device</th>
                                     <th>Tracked In</th>
                                     <th>Risk Gauge</th>
                                     <th>Total</th>
@@ -503,21 +479,20 @@
                                 </tr>
                             </thead>
                             <tbody id="nodesTableBody">
-                                <!-- Populated dynamically by app.js with hover inspectors -->
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem;">
+                                        🛡️ No monitored threat nodes detected. Inventory populates dynamically as network alerts occur.
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <!-- Pagination -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--card-border-subtle); font-size: 0.78rem; color: var(--text-muted);">
-                        <div>Showing 1–12 of 68 Monitored Nodes</div>
-                        <div style="display: flex; gap: 0.35rem;">
-                            <button class="btn" style="padding: 0.2rem 0.6rem;">&lt;</button>
-                            <button class="btn btn-live" style="padding: 0.2rem 0.6rem;">1</button>
-                            <button class="btn" style="padding: 0.2rem 0.6rem;">2</button>
-                            <button class="btn" style="padding: 0.2rem 0.6rem;">3</button>
-                            <button class="btn" style="padding: 0.2rem 0.6rem;">4</button>
-                            <button class="btn" style="padding: 0.2rem 0.6rem;">&gt;</button>
+                        <div id="nodesPaginationInfo">Showing 0–0 of 0 Monitored Nodes</div>
+                        <div id="nodesPaginationBtns" style="display: flex; gap: 0.35rem;">
+                            <!-- Dynamically generated previous, page numbers, next buttons -->
                         </div>
                     </div>
                 </div>
@@ -528,15 +503,60 @@
              VIEW 4: THREAT SIGNATURE REGISTRY & CVE DRILLDOWN
              ====================================================================== -->
         <section id="view-signatures" class="view-pane">
-            <div class="breadcrumb">
-                <a onclick="switchView('view-live-soc')">Alerts & Activity</a> <span>/</span> <span>Threat Signatures & Attack Vectors</span>
+            <div class="breadcrumb" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <a onclick="switchView('view-live-soc')">Alerts & Activity</a> <span>/</span> <span>Threat Signatures & Attack Vectors</span>
+                </div>
+                <span id="sigLiveBadge" class="badge badge-normal" style="font-size: 0.72rem;">● 5 SIGNATURES ARMORED • SYSTEM SECURE</span>
             </div>
 
+            <!-- Top KPI Tiles: Threat Intelligence & Intercept Stats -->
+            <div class="sig-kpi-row">
+                <div class="card" style="padding: 0.85rem 1rem;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Monitored Signatures</div>
+                    <div style="font-size: 1.45rem; font-weight: 800; color: var(--accent-blue); margin-top: 0.25rem;">5 <span style="font-size: 0.75rem; font-weight: 600; color: #10b981;">● Active</span></div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem;">Rule Engine & ML Isolation Forest</div>
+                </div>
+                <div class="card" style="padding: 0.85rem 1rem;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Active Attack Vectors</div>
+                    <div style="font-size: 1.45rem; font-weight: 800; color: #f59e0b; margin-top: 0.25rem;"><span id="sigTriggeredVectors">0</span> <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">/ 5 Vectors</span></div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem;" id="sigVectorsCaption">All attack vectors idle</div>
+                </div>
+                <div class="card" style="padding: 0.85rem 1rem;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Total Interceptions</div>
+                    <div style="font-size: 1.45rem; font-weight: 800; color: #ef4444; margin-top: 0.25rem;"><span id="sigTotalHits">0</span> <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Hits</span></div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem;">Real-time sync with alerts</div>
+                </div>
+                <div class="card" style="padding: 0.85rem 1rem;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">MITRE ATT&CK Matrix</div>
+                    <div style="font-size: 1.45rem; font-weight: 800; color: #a855f7; margin-top: 0.25rem;">5 <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Techniques</span></div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem;">T1046, T1110, T1498, T1014, T1071</div>
+                </div>
+            </div>
+
+            <!-- MITRE ATT&CK Vector Coverage Grid -->
+            <div class="card" style="margin-bottom: 1.25rem;">
+                <div class="card-header" style="flex-wrap: wrap; gap: 0.5rem;">
+                    <div class="card-title">🎯 <span>MITRE ATT&CK Threat Vectors Coverage</span></div>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Mapped Defense Matrix & Real-Time Telemetry</span>
+                </div>
+                <div class="sig-vectors-grid" id="sigVectorsGrid">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+            </div>
+
+            <!-- Detailed Threat Signatures & Catalog Table -->
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
                     <div class="card-title">📜 <span data-i18n="title_sig_registry">Known Threat Signatures & Attack Vectors</span></div>
-                    <div class="card-actions">
-                        <input type="text" id="sigSearchInput" oninput="filterSignatures()" placeholder="Search signature or CVE..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 240px;">
+                    <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="sigSearchInput" oninput="filterSignatures()" placeholder="Search signature, CVE, or vector..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 230px;">
+                        <button class="btn" onclick="downloadThreatReportCSV()" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 5px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Export Threat Signatures and Intercept Telemetry as CSV">
+                            📥 Export CSV Report
+                        </button>
+                        <button class="btn" onclick="downloadThreatReportJSON()" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 5px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc;" title="Export Full Security Audit Log as JSON">
+                            📄 Export JSON Audit
+                        </button>
                     </div>
                 </div>
                 <div class="table-container">
@@ -547,8 +567,10 @@
                                 <th>Identifier</th>
                                 <th>Target Protocol</th>
                                 <th>Signature Title & Threat Description</th>
+                                <th>Detection Engine</th>
                                 <th>Score</th>
-                                <th>Status</th>
+                                <th>Live Telemetry & Status</th>
+                                <th>Last Detected</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -561,90 +583,127 @@
         </section>
 
         <!-- ======================================================================
-             VIEW 5: GLOBAL WORLD THREAT MAP & WAN TELEMETRY
+             VIEW 5: GLOBAL WORLD THREAT MAP & WAN TELEMETRY (ENTERPRISE SOC)
              ====================================================================== -->
         <section id="view-threat-map" class="view-pane">
             <div class="breadcrumb">
                 <a onclick="switchView('view-live-soc')">Home</a> <span>/</span> <span>Global Threat Map & Telemetry</span>
             </div>
 
-            <!-- Global World Threat Map SVG -->
+            <!-- Global Threat Map & Ingress Intelligence Card -->
             <div class="card map-card">
-                <div class="card-header">
-                    <div class="card-title">🌍 <span data-i18n="title_threat_map">Interactive Worldwide Threat Map</span></div>
-                    <div class="card-actions">
-                        <span class="badge badge-normal" style="font-size: 0.72rem;">6 MONITORED REGIONS</span>
+                <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+                    <div class="card-title">🌐 <span data-i18n="title_threat_map">Interactive Worldwide Threat Map</span></div>
+                    <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                        <div class="threat-filter-group" style="border: 1px solid rgba(56, 189, 248, 0.3);">
+                            <button id="btnMapGlobe" class="threat-filter-btn active" onclick="setMapDisplayMode('globe')">🌐 3D GLOBE</button>
+                            <button id="btnMapFlat" class="threat-filter-btn" onclick="setMapDisplayMode('2d')">🗺️ 2D MAP</button>
+                        </div>
+                        <div class="threat-filter-group" id="threatMapFilterGroup">
+                            <button class="threat-filter-btn active" onclick="setThreatMapFilter('ALL')">ALL THREATS</button>
+                            <button class="threat-filter-btn" onclick="setThreatMapFilter('port_scan')">RECONNAISSANCE</button>
+                            <button class="threat-filter-btn" onclick="setThreatMapFilter('syn_flood')">DOS / FLOOD</button>
+                            <button class="threat-filter-btn" onclick="setThreatMapFilter('brute_force')">BRUTE FORCE</button>
+                        </div>
+                        <span id="threatMapLiveBadge" class="badge badge-normal" style="font-size: 0.72rem;">● 6 SENSORS ACTIVE • ALL SECURE</span>
                     </div>
                 </div>
 
-                <div style="position: relative; background: rgba(2, 6, 23, 0.6); border-radius: 10px; padding: 1.5rem; text-align: center;">
-                    <svg class="world-map-svg" viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Stylized World Map Continents Outline -->
-                        <path d="M150,120 Q180,80 260,110 Q320,130 310,210 Q280,260 210,240 Q160,200 150,120 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
-                        <path d="M220,260 Q270,270 290,340 Q280,430 230,450 Q200,380 220,260 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
-                        <path d="M460,90 Q540,70 560,130 Q530,190 480,180 Q450,140 460,90 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
-                        <path d="M460,190 Q550,210 560,320 Q500,410 460,340 Q430,260 460,190 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
-                        <path d="M570,80 Q780,60 880,140 Q840,260 700,240 Q620,180 570,80 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
-                        <path d="M780,310 Q880,320 870,410 Q800,420 770,360 Z" fill="rgba(148, 163, 184, 0.12)" stroke="rgba(56, 189, 248, 0.25)" stroke-width="1.5"/>
+                <div class="threat-map-split-container">
+                    <!-- Left: Interactive Threat Visualizer (3D Globe + 2D Leaflet) -->
+                    <div class="threat-map-leaflet-wrapper">
+                        <!-- 3D WebGL Threat Globe Viewport -->
+                        <div id="globeThreatMap" class="threat-globe-viewport"></div>
 
-                        <!-- Threat Arcs between key regions -->
-                        <path d="M240,160 Q360,90 490,120" stroke="#f87171" stroke-width="2" stroke-dasharray="6,6" fill="none">
-                            <animate attributeName="stroke-dashoffset" values="24;0" dur="1.2s" repeatCount="indefinite"/>
-                        </path>
-                        <path d="M490,120 Q620,160 740,250" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6,6" fill="none">
-                            <animate attributeName="stroke-dashoffset" values="24;0" dur="1.5s" repeatCount="indefinite"/>
-                        </path>
+                        <!-- 2D Esri Dark Canvas Viewport -->
+                        <div id="leafletThreatMap" style="width: 100%; height: 440px; border-radius: 8px; display: none;"></div>
 
-                        <!-- Region Beacons -->
-                        <!-- North America (Amer Region) -->
-                        <circle cx="240" cy="160" r="14" fill="rgba(239, 68, 68, 0.25)" class="map-node-pulse"/>
-                        <circle cx="240" cy="160" r="6" fill="#ef4444"/>
-                        <text x="240" y="195" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">AMER REGION (Probe Origin)</text>
+                        <!-- 3D Globe Floating HUD Overlay -->
+                        <div class="globe-hud-overlay" id="globeHudOverlay">
+                            <button id="btnGlobeRotate" class="globe-hud-btn active" onclick="toggleGlobeAutoRotate()" title="Toggle Auto-Rotation">
+                                <span id="globeRotateIcon">⏸</span> Auto-Spin
+                            </button>
+                            <button class="globe-hud-btn" onclick="resetGlobeCamera()" title="Reset Camera Perspective">
+                                🎯 Reset View
+                            </button>
+                        </div>
+                    </div>
 
-                        <!-- Europe (London Hub) -->
-                        <circle cx="490" cy="120" r="14" fill="rgba(245, 158, 11, 0.25)" class="map-node-pulse"/>
-                        <circle cx="490" cy="120" r="6" fill="#f59e0b"/>
-                        <text x="490" y="105" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">LONDON (Gateway)</text>
-
-                        <!-- Asia (Singapore Honeypot) -->
-                        <circle cx="740" cy="250" r="14" fill="rgba(56, 189, 248, 0.25)" class="map-node-pulse"/>
-                        <circle cx="740" cy="250" r="6" fill="#38bdf8"/>
-                        <text x="740" y="280" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">SINGAPORE (Decoy Listener)</text>
-                    </svg>
+                    <!-- Right: Live Threat Ingress Telemetry Sidebar -->
+                    <div class="threat-map-sidebar">
+                        <div class="threat-map-sidebar-header">
+                            <span>⚡ LIVE INGRESS INTERCEPTS</span>
+                            <span id="mapInterceptCount" class="badge badge-normal">0 Active</span>
+                        </div>
+                        <div id="mapInterceptList" class="threat-map-intercept-list">
+                            <div style="text-align: center; color: var(--text-muted); padding: 3rem 0.5rem; font-size: 0.8rem; line-height: 1.5;">
+                                🛡️ No anomalous ingress vectors detected across global sensors. System operational.
+                            </div>
+                        </div>
+                        <div class="threat-map-origin-summary">
+                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.05em;">REGIONAL INGRESS TELEMETRY</div>
+                            <div id="mapRegionalDensity" style="font-size: 0.75rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>North America (US-East)</span>
+                                    <span style="color: #10b981;">● Optimal</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Europe (London/Frankfurt)</span>
+                                    <span style="color: #10b981;">● Optimal</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Asia-Pacific (Singapore)</span>
+                                    <span style="color: #10b981;">● Decoy Honeypot Ready</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- WAN Performance & Sensor Health Row -->
             <div class="vuln-mid-row">
+                <!-- WAN GigabitEthernet Telemetry Canvas Chart -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">📈 <span data-i18n="title_wan_traffic">WAN Traffic Errors & Discard Telemetry</span></div>
-                    </div>
-                    <div style="padding: 1.5rem 1rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.78rem;">
-                            <span style="color: #38bdf8;">● Received Discards: <strong id="wanRxVal">0.0 pkts/s</strong></span>
-                            <span style="color: #f87171;">● Transmit Discards: <strong id="wanTxVal">0.0 pkts/s</strong></span>
+                        <div style="display: flex; gap: 0.4rem; align-items: center;">
+                            <span class="badge badge-method-rule" style="font-size: 0.68rem;">GigabitEthernet0/0/0</span>
+                            <span class="badge badge-normal" style="font-size: 0.68rem;">PROMISCUOUS UP</span>
                         </div>
-                        <div style="height: 140px; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid var(--card-border-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem;">
-                            Live GigabitEthernet0/0/0 Interface Telemetry Active
+                    </div>
+                    <div style="padding: 1rem 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.65rem; font-size: 0.78rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <span style="color: #38bdf8;">● Ingress Throughput: <strong id="wanRxVal">0.0 pkts/s</strong></span>
+                            <span style="color: #f87171;">● Interface Discards: <strong id="wanTxVal">0.0 pkts/s</strong></span>
+                            <span style="color: var(--text-muted);">● Bandwidth: <strong>1.0 Gbps Full-Duplex</strong></span>
+                        </div>
+                        <div style="position: relative; height: 145px; background: rgba(2, 6, 23, 0.75); border-radius: 8px; border: 1px solid var(--card-border-subtle); overflow: hidden;">
+                            <canvas id="wanTelemetryCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
                         </div>
                     </div>
                 </div>
 
+                <!-- 100% Dynamic Hardware & Sensor Health Donut -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">🛡️ <span data-i18n="title_sensor_health">Hardware & Sensor Health Status</span></div>
+                        <span id="sensorHealthOverallBadge" class="badge badge-normal" style="font-size: 0.7rem;">HEALTH: 100% OPERATIONAL</span>
                     </div>
-                    <div style="display: flex; align-items: center; justify-content: space-around; padding: 1rem 0;">
-                        <svg width="120" height="120" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="24" stroke-dasharray="190 240"/>
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="24" stroke-dasharray="35 240" stroke-dashoffset="-190"/>
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="#ef4444" stroke-width="24" stroke-dasharray="15 240" stroke-dashoffset="-225"/>
+                    <div style="display: flex; align-items: center; justify-content: space-around; padding: 1rem 1.25rem;">
+                        <svg width="125" height="125" viewBox="0 0 100 100" id="sensorDonutSvg">
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(148, 163, 184, 0.15)" stroke-width="20"/>
+                            <circle id="sensorDonutGreen" cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="20" stroke-dasharray="238.76 238.76" stroke-dashoffset="0" transform="rotate(-90 50 50)" style="transition: all 0.6s ease;"/>
+                            <circle id="sensorDonutYellow" cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="20" stroke-dasharray="0 238.76" stroke-dashoffset="0" transform="rotate(-90 50 50)" style="transition: all 0.6s ease;"/>
+                            <circle id="sensorDonutRed" cx="50" cy="50" r="38" fill="none" stroke="#ef4444" stroke-width="20" stroke-dasharray="0 238.76" stroke-dashoffset="0" transform="rotate(-90 50 50)" style="transition: all 0.6s ease;"/>
                         </svg>
-                        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
-                            <div><strong style="color: #10b981;">45 Nodes</strong> Up (Normal)</div>
-                            <div><strong style="color: #f59e0b;">2 Nodes</strong> Warning State</div>
-                            <div><strong style="color: #ef4444;">3 Nodes</strong> Critical Alarm</div>
+                        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.45rem;">
+                            <div><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; margin-right: 6px;"></span><strong id="sensorCountUp" style="color: #10b981;">6 Nodes</strong> Up (Normal)</div>
+                            <div><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; margin-right: 6px;"></span><strong id="sensorCountWarn" style="color: #f59e0b;">0 Nodes</strong> Warning State</div>
+                            <div><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; margin-right: 6px;"></span><strong id="sensorCountCrit" style="color: #ef4444;">0 Nodes</strong> Critical Alarm</div>
+                            <div style="border-top: 1px solid var(--card-border-subtle); padding-top: 0.4rem; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">
+                                Virtual Loom Threads: <strong>Active</strong> • Socket Traps: <strong>Armed</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -817,7 +876,9 @@
             <p id="modalSigSummary" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.25rem;">
                 Identified hard-coded or default authentication credentials in network infrastructure. An unauthenticated attacker can exploit this vector to execute arbitrary configuration overrides.
             </p>
-            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">AFFECTED MONITORED HOSTS:</div>
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">DETECTION RULE SIGNATURE (SNORT / SURICATA SPEC):</div>
+            <pre id="modalSigRuleLogic" style="background: rgba(2, 6, 23, 0.75); border: 1px solid var(--card-border-subtle); border-radius: 8px; padding: 0.65rem; font-size: 0.72rem; font-family: var(--font-mono); color: #38bdf8; white-space: pre-wrap; margin-bottom: 1rem; line-height: 1.4;"></pre>
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">AFFECTED MONITORED HOSTS:</div>
             <div id="modalSigNodes" style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border-subtle); border-radius: 8px; padding: 0.75rem; font-size: 0.78rem; font-family: var(--font-mono); color: var(--accent-blue);">
                 EAST_vMX (10.1.21.16), bas-ex2200 (10.1.21.18), WEST_vMX (10.1.21.20)
             </div>
@@ -825,6 +886,6 @@
     </div>
 
     <!-- Application Controller Script -->
-    <script src="js/app.js?v=3"></script>
+    <script src="js/app.js?v=4"></script>
 </body>
 </html>

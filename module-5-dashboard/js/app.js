@@ -1842,14 +1842,33 @@ function renderMitreVectorsGrid(alerts = cachedAlerts) {
 
     const list = alerts || [];
 
-    grid.innerHTML = THREAT_SIGNATURES_REGISTRY.map(v => {
+    // Filter to ONLY attack vectors that have actively been intercepted (hits > 0)
+    const activeVectors = THREAT_SIGNATURES_REGISTRY.filter(v => getAlertsForSignature(v, list).length > 0);
+
+    // If 0 active vectors (e.g. initial state or after clearing alerts), display clean empty state
+    if (activeVectors.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; background: rgba(15, 23, 42, 0.45); border: 1px dashed var(--card-border); border-radius: 8px;">
+                <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🛡️</div>
+                <div style="font-size: 1.05rem; font-weight: 700; color: #10b981; letter-spacing: 0.02em;">ALL THREAT VECTORS ARMORED & SECURE</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; max-width: 550px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                    No active threat vectors detected. When attacks or probes hit the platform (e.g. honeypot probe, port scan, SYN flood), only the intercepted vector cards will appear here dynamically.
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Only render the cards for vectors that are ACTUALLY active / intercepted
+    grid.innerHTML = activeVectors.map(v => {
         const matches = getAlertsForSignature(v, list);
         const hits = matches.length;
-        const isTriggered = hits > 0;
         const lastAlert = matches[0];
-        const lastAttacker = lastAlert ? (lastAlert.src_ip || '0.0.0.0') : null;
-        const lastTarget = lastAlert ? (lastAlert.dst_ip || '10.0.0.1') : null;
-        const lastTime = lastAlert && lastAlert.timestamp ? new Date(lastAlert.timestamp).toLocaleTimeString() : null;
+        let lastAttacker = lastAlert ? (lastAlert.src_ip || '0.0.0.0') : '0.0.0.0';
+        if (lastAttacker === '0:0:0:0:0:0:0:1' || lastAttacker === '::1') lastAttacker = '127.0.0.1';
+        let lastTarget = lastAlert ? (lastAlert.dst_ip || '10.0.0.1') : '10.0.0.1';
+        if (lastTarget === '0:0:0:0:0:0:0:1' || lastTarget === '::1') lastTarget = '127.0.0.1';
+        const lastTime = lastAlert && lastAlert.timestamp ? new Date(lastAlert.timestamp).toLocaleTimeString() : 'Just now';
 
         let tactic = 'Initial Access';
         let icon = '🛡️';
@@ -1860,24 +1879,24 @@ function renderMitreVectorsGrid(alerts = cachedAlerts) {
         else if (v.id === 'SIG-1005') { tactic = 'C2 / Flow Entropy Anomaly'; icon = '🧠'; }
 
         return `
-            <div class="sig-vector-card ${isTriggered ? 'active-attack' : ''}">
+            <div class="sig-vector-card active-attack">
                 <div class="sig-vector-header">
                     <div>
                         <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${icon} ${tactic}</span>
                         <div class="sig-vector-title">${escapeHtml(v.name)}</div>
                         <div class="sig-vector-meta">${escapeHtml(v.id)} • MITRE ${escapeHtml(v.mitre)} • ${escapeHtml(v.cve)}</div>
                     </div>
-                    <span class="badge badge-${isTriggered ? 'critical' : v.sev}" style="font-size: 0.68rem;">
-                        ${isTriggered ? `[ACTIVE • ${hits} HITS]` : `[${v.sev.toUpperCase()}]`}
+                    <span class="badge badge-critical" style="font-size: 0.68rem;">
+                        [ACTIVE • ${hits} HITS]
                     </span>
                 </div>
                 <div class="sig-vector-body">
                     ${escapeHtml(v.desc)}
                 </div>
-                <div style="font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 4px; border: 1px solid ${isTriggered ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.05)'};">
-                    <span style="color: var(--text-muted);">${isTriggered ? '🚨 Ingress Telemetry:' : 'Status:'}</span>
-                    <strong style="color: ${isTriggered ? '#ef4444' : '#10b981'}; font-family: var(--font-mono);">
-                        ${isTriggered ? `${lastAttacker} ➔ ${lastTarget} (${lastTime})` : '● 0 Hits (Standing By)'}
+                <div style="font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <span style="color: var(--text-muted);">🚨 Ingress Telemetry:</span>
+                    <strong style="color: #ef4444; font-family: var(--font-mono);">
+                        ${escapeHtml(lastAttacker)} ➔ ${escapeHtml(lastTarget)} (${escapeHtml(lastTime)})
                     </strong>
                 </div>
                 <div class="sig-vector-footer" style="margin-top: 0.6rem;">
@@ -1916,8 +1935,10 @@ function renderMitreLiveIncidents(alerts = cachedAlerts) {
         const mapped = mapAlertToMitre(a);
         const safeSev = escapeHtml((a.severity || 'high').toLowerCase());
         const timeFormatted = a.timestamp ? escapeHtml(new Date(a.timestamp).toLocaleTimeString()) : 'Just now';
-        const safeSrc = escapeHtml(a.src_ip || '0.0.0.0');
-        const safeDst = escapeHtml(a.dst_ip || '10.0.0.1');
+        let safeSrc = escapeHtml(a.src_ip || '0.0.0.0');
+        if (safeSrc === '0:0:0:0:0:0:0:1' || safeSrc === '::1') safeSrc = '127.0.0.1';
+        let safeDst = escapeHtml(a.dst_ip || '10.0.0.1');
+        if (safeDst === '0:0:0:0:0:0:0:1' || safeDst === '::1') safeDst = '127.0.0.1';
         const safeDetails = escapeHtml(a.details || 'Network attack interception recorded.');
         const confPct = Math.round((a.confidence || 0.95) * 100);
         const methodBadge = (a.detection_method || '').toLowerCase() === 'ml'

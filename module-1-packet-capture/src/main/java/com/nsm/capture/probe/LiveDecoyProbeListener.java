@@ -51,8 +51,14 @@ public class LiveDecoyProbeListener {
                 try {
                     Socket socket = serverSocket.accept();
                     String remoteIp = socket.getInetAddress().getHostAddress();
+                    if ("0:0:0:0:0:0:0:1".equals(remoteIp) || "::1".equals(remoteIp)) {
+                        remoteIp = "127.0.0.1";
+                    }
                     int remotePort = socket.getPort();
                     String localIp = socket.getLocalAddress().getHostAddress();
+                    if ("0:0:0:0:0:0:0:1".equals(localIp) || "::1".equals(localIp)) {
+                        localIp = "127.0.0.1";
+                    }
 
                     PacketData packet = PacketData.create(
                             Instant.now(),

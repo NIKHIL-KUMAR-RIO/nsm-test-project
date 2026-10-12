@@ -528,54 +528,56 @@
                     <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem;">Real-time sync with alerts</div>
                 </div>
                 <div class="card" style="padding: 0.85rem 1rem;">
-                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">MITRE ATT&CK Matrix</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">MITRE ATTACK Matrix</div>
                     <div style="font-size: 1.45rem; font-weight: 800; color: #a855f7; margin-top: 0.25rem;">5 <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Techniques</span></div>
                     <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.2rem;">T1046, T1110, T1498, T1014, T1071</div>
                 </div>
             </div>
 
-            <!-- MITRE ATT&CK Vector Coverage Grid -->
+            <!-- MITRE ATTACK Vector Coverage Grid -->
             <div class="card" style="margin-bottom: 1.25rem;">
-                <div class="card-header" style="flex-wrap: wrap; gap: 0.5rem;">
-                    <div class="card-title">🎯 <span>MITRE ATT&CK Threat Vectors Coverage</span></div>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">Mapped Defense Matrix & Real-Time Telemetry</span>
+                <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="card-title">🎯 <span>MITRE ATTACK Threat Vectors Coverage</span></div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Mapped Defense Matrix & Real-Time Alert Telemetry</span>
+                    </div>
+                    <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                        <button class="btn" onclick="downloadThreatReportCSV()" style="padding: 0.38rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 600;" title="Export MITRE ATTACK Intercept Telemetry as CSV">
+                            📥 Export CSV Report
+                        </button>
+                        <button class="btn" onclick="downloadThreatReportJSON()" style="padding: 0.38rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc; font-weight: 600;" title="Export Full Security Audit Log as JSON">
+                            📄 Export JSON Audit
+                        </button>
+                    </div>
                 </div>
                 <div class="sig-vectors-grid" id="sigVectorsGrid">
                     <!-- Populated dynamically by app.js -->
                 </div>
             </div>
 
-            <!-- Detailed Threat Signatures & Catalog Table -->
+            <!-- Real-Time MITRE ATTACK Intercepted Incidents Stream -->
             <div class="card">
-                <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
-                    <div class="card-title">📜 <span data-i18n="title_sig_registry">Known Threat Signatures & Attack Vectors</span></div>
-                    <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                        <input type="text" id="sigSearchInput" oninput="filterSignatures()" placeholder="Search signature, CVE, or vector..." style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 6px; padding: 0.35rem 0.8rem; font-size: 0.8rem; width: 230px;">
-                        <button class="btn" onclick="downloadThreatReportCSV()" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 5px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Export Threat Signatures and Intercept Telemetry as CSV">
-                            📥 Export CSV Report
-                        </button>
-                        <button class="btn" onclick="downloadThreatReportJSON()" style="padding: 0.35rem 0.75rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 5px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc;" title="Export Full Security Audit Log as JSON">
-                            📄 Export JSON Audit
-                        </button>
-                    </div>
+                <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; align-items: center;">
+                    <div class="card-title">🚨 <span>Active Intercepted Incidents (MITRE Telemetry)</span></div>
+                    <span id="mitreInterceptsBadge" class="badge badge-normal" style="font-size: 0.75rem;">0 Incidents Recorded</span>
                 </div>
                 <div class="table-container">
                     <table class="enterprise-table">
                         <thead>
                             <tr>
                                 <th>Severity</th>
-                                <th>Identifier</th>
-                                <th>Target Protocol</th>
-                                <th>Signature Title & Threat Description</th>
+                                <th>Timestamp</th>
+                                <th>MITRE ID</th>
+                                <th>Attack Vector</th>
+                                <th>Attacker Source IP</th>
+                                <th>Target Asset</th>
                                 <th>Detection Engine</th>
-                                <th>Score</th>
-                                <th>Live Telemetry & Status</th>
-                                <th>Last Detected</th>
-                                <th>Action</th>
+                                <th>Confidence</th>
+                                <th>Incident Details</th>
                             </tr>
                         </thead>
-                        <tbody id="signaturesTableBody">
-                            <!-- Populated dynamically by app.js -->
+                        <tbody id="mitreLiveIncidentsTable">
+                            <!-- Populated dynamically based on active alerts -->
                         </tbody>
                     </table>
                 </div>

@@ -1713,53 +1713,106 @@ const THREAT_SIGNATURES_REGISTRY = [
     }
 ];
 
+function mapAlertToMitre(alert) {
+    if (!alert) return null;
+    const type = (alert.attack_type || '').toLowerCase();
+    const details = (alert.details || '').toLowerCase();
+    const method = (alert.detection_method || '').toLowerCase();
+
+    // 1. Decoy Honeypot Trap (Port 2222, 8088, 8888, 9090)
+    if (details.includes('decoy') || details.includes('honeypot') || type.includes('decoy')) {
+        return {
+            sigId: 'SIG-1004',
+            mitre: 'T1046',
+            tactic: 'Defense Deception',
+            name: 'Java 21 Loom Decoy Honeypot Trap',
+            icon: '🪤'
+        };
+    }
+
+    // 2. Flow Entropy & Volumetric ML Anomaly (Isolation Forest)
+    if (method === 'ml' || details.includes('entropy') || details.includes('anomaly') || type.includes('anomaly')) {
+        return {
+            sigId: 'SIG-1005',
+            mitre: 'T1071',
+            tactic: 'C2 / Flow Entropy Anomaly',
+            name: 'Isolation Forest Flow Entropy & Volumetric Anomaly',
+            icon: '🧠'
+        };
+    }
+
+    // 3. Port Scan / Reconnaissance Sweep
+    if (type.includes('port_scan') || type.includes('port-scan') || type.includes('scan') || details.includes('scan') || details.includes('ports')) {
+        return {
+            sigId: 'SIG-1003',
+            mitre: 'T1046',
+            tactic: 'Reconnaissance',
+            name: 'TCP Multi-Port Reconnaissance Sweep',
+            icon: '🔍'
+        };
+    }
+
+    // 4. Volumetric SYN Flood Surge
+    if (type.includes('syn_flood') || type.includes('syn-flood') || type.includes('syn') || details.includes('syn') || details.includes('flood')) {
+        return {
+            sigId: 'SIG-1002',
+            mitre: 'T1498.001',
+            tactic: 'Impact / Denial of Service',
+            name: 'TCP SYN Flood Volumetric Denial-of-Service',
+            icon: '💥'
+        };
+    }
+
+    // 5. Automated SSH / RDP Brute Force
+    if (type.includes('brute_force') || type.includes('brute-force') || type.includes('brute') || details.includes('brute') || details.includes('authentication')) {
+        return {
+            sigId: 'SIG-1001',
+            mitre: 'T1110.001',
+            tactic: 'Credential Access',
+            name: 'SSH Automated Brute Force Intrusion',
+            icon: '🔑'
+        };
+    }
+
+    // Default fallback to Network Reconnaissance
+    return {
+        sigId: 'SIG-1003',
+        mitre: 'T1046',
+        tactic: 'Network Telemetry',
+        name: alert.attack_type ? alert.attack_type.toUpperCase().replace('_', ' ') : 'Network Anomaly',
+        icon: '🛡️'
+    };
+}
+
 function getAlertsForSignature(sig, alerts) {
     if (!alerts || alerts.length === 0) return [];
     return alerts.filter(a => {
-        const type = (a.attack_type || '').toLowerCase();
-        const ruleName = (a.ruleName || a.alertType || '').toLowerCase();
-        const desc = (a.description || a.details || '').toLowerCase();
-        const dstPort = parseInt(a.dst_port || a.destPort || 0);
-
-        if (sig.id === 'SIG-1001') {
-            return type === 'brute_force' || ruleName.includes('brute') || desc.includes('brute') || dstPort === 22;
-        }
-        if (sig.id === 'SIG-1002') {
-            return type === 'syn_flood' || ruleName.includes('syn') || desc.includes('syn') || dstPort === 80;
-        }
-        if (sig.id === 'SIG-1003') {
-            return type === 'port_scan' || ruleName.includes('scan') || desc.includes('scan');
-        }
-        if (sig.id === 'SIG-1004') {
-            return type === 'decoy' || ruleName.includes('decoy') || ruleName.includes('honeypot') || [2222, 8088, 8888, 9090].includes(dstPort);
-        }
-        if (sig.id === 'SIG-1005') {
-            return type === 'anomaly' || ruleName.includes('isolation') || ruleName.includes('anomaly') || (a.detectionMethod && a.detectionMethod.includes('ML'));
-        }
-        return false;
+        const mapped = mapAlertToMitre(a);
+        return mapped && mapped.sigId === sig.id;
     });
 }
 
 function syncSignaturesWithAlerts(alerts = cachedAlerts) {
-    renderSignaturesTable(alerts);
-    renderMitreVectorsGrid(alerts);
-    updateSignaturesKpis(alerts);
+    const list = alerts || [];
+    renderMitreVectorsGrid(list);
+    renderMitreLiveIncidents(list);
+    updateSignaturesKpis(list);
 }
 
 function updateSignaturesKpis(alerts = cachedAlerts) {
+    const list = alerts || [];
     const totalHitsEl = document.getElementById('sigTotalHits');
     const triggeredVectorsEl = document.getElementById('sigTriggeredVectors');
     const vectorsCaptionEl = document.getElementById('sigVectorsCaption');
     const liveBadgeEl = document.getElementById('sigLiveBadge');
 
-    let totalHits = 0;
+    let totalHits = list.length;
     let triggeredCount = 0;
 
     THREAT_SIGNATURES_REGISTRY.forEach(sig => {
-        const matches = getAlertsForSignature(sig, alerts);
+        const matches = getAlertsForSignature(sig, list);
         if (matches.length > 0) {
             triggeredCount++;
-            totalHits += matches.length;
         }
     });
 
@@ -1778,7 +1831,7 @@ function updateSignaturesKpis(alerts = cachedAlerts) {
             liveBadgeEl.textContent = `🚨 ${triggeredCount} ACTIVE ATTACK VECTORS • ${totalHits} INTERCEPTS`;
         } else {
             liveBadgeEl.className = 'badge badge-normal';
-            liveBadgeEl.textContent = '● 5 SIGNATURES ARMORED • SYSTEM SECURE';
+            liveBadgeEl.textContent = '● 5 VECTORS ARMORED • SYSTEM SECURE';
         }
     }
 }
@@ -1787,12 +1840,16 @@ function renderMitreVectorsGrid(alerts = cachedAlerts) {
     const grid = document.getElementById('sigVectorsGrid');
     if (!grid) return;
 
+    const list = alerts || [];
+
     grid.innerHTML = THREAT_SIGNATURES_REGISTRY.map(v => {
-        const matches = getAlertsForSignature(v, alerts);
+        const matches = getAlertsForSignature(v, list);
         const hits = matches.length;
         const isTriggered = hits > 0;
         const lastAlert = matches[0];
-        const lastAttacker = lastAlert ? (lastAlert.src_ip || lastAlert.sourceIp || '192.168.1.77') : null;
+        const lastAttacker = lastAlert ? (lastAlert.src_ip || '0.0.0.0') : null;
+        const lastTarget = lastAlert ? (lastAlert.dst_ip || '10.0.0.1') : null;
+        const lastTime = lastAlert && lastAlert.timestamp ? new Date(lastAlert.timestamp).toLocaleTimeString() : null;
 
         let tactic = 'Initial Access';
         let icon = '🛡️';
@@ -1808,23 +1865,25 @@ function renderMitreVectorsGrid(alerts = cachedAlerts) {
                     <div>
                         <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${icon} ${tactic}</span>
                         <div class="sig-vector-title">${escapeHtml(v.name)}</div>
-                        <div class="sig-vector-meta">${escapeHtml(v.id)} • ${escapeHtml(v.mitre)} • ${escapeHtml(v.cve)}</div>
+                        <div class="sig-vector-meta">${escapeHtml(v.id)} • MITRE ${escapeHtml(v.mitre)} • ${escapeHtml(v.cve)}</div>
                     </div>
-                    <span class="badge badge-${v.sev}" style="font-size: 0.68rem;">[${v.sev.toUpperCase()}]</span>
+                    <span class="badge badge-${isTriggered ? 'critical' : v.sev}" style="font-size: 0.68rem;">
+                        ${isTriggered ? `[ACTIVE • ${hits} HITS]` : `[${v.sev.toUpperCase()}]`}
+                    </span>
                 </div>
                 <div class="sig-vector-body">
                     ${escapeHtml(v.desc)}
                 </div>
-                <div style="font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 5px 8px; border-radius: 4px;">
-                    <span style="color: var(--text-muted);">Active Ingress:</span>
-                    <strong style="color: ${isTriggered ? '#ef4444' : '#10b981'};">
-                        ${isTriggered ? `🚨 ${hits} Intercepts (${lastAttacker})` : '● 0 Hits (Idle)'}
+                <div style="font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 4px; border: 1px solid ${isTriggered ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.05)'};">
+                    <span style="color: var(--text-muted);">${isTriggered ? '🚨 Ingress Telemetry:' : 'Status:'}</span>
+                    <strong style="color: ${isTriggered ? '#ef4444' : '#10b981'}; font-family: var(--font-mono);">
+                        ${isTriggered ? `${lastAttacker} ➔ ${lastTarget} (${lastTime})` : '● 0 Hits (Standing By)'}
                     </strong>
                 </div>
-                <div class="sig-vector-footer">
+                <div class="sig-vector-footer" style="margin-top: 0.6rem;">
                     <span class="badge ${v.engine.includes('ML') ? 'badge-method-ml' : 'badge-method-rule'}" style="font-size: 0.68rem;">${escapeHtml(v.engine)}</span>
                     <div>
-                        <button class="btn" onclick="openSignatureModal('${v.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Inspect</button>
+                        <button class="btn" onclick="openSignatureModal('${v.id}')" style="padding: 0.2rem 0.6rem; font-size: 0.7rem;">Inspect Vector</button>
                     </div>
                 </div>
             </div>
@@ -1832,82 +1891,55 @@ function renderMitreVectorsGrid(alerts = cachedAlerts) {
     }).join('');
 }
 
-function renderSignaturesTableWithData(dataList, alerts = cachedAlerts) {
-    const tbody = document.getElementById('signaturesTableBody');
+function renderMitreLiveIncidents(alerts = cachedAlerts) {
+    const tbody = document.getElementById('mitreLiveIncidentsTable');
+    const badge = document.getElementById('mitreInterceptsBadge');
     if (!tbody) return;
 
-    if (!dataList || dataList.length === 0) {
+    const list = alerts || [];
+    if (badge) {
+        badge.textContent = `${list.length} Incident${list.length === 1 ? '' : 's'} Recorded`;
+        badge.className = list.length > 0 ? 'badge badge-critical' : 'badge badge-normal';
+    }
+
+    if (list.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2.5rem 0; font-size: 0.85rem;">
-                    No signatures matching the search query.
+                <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 0.85rem;">
+                    🛡️ All threat vectors clear. 0 active intrusions recorded. Listening for incoming network traffic...
                 </td>
             </tr>`;
         return;
     }
 
-    tbody.innerHTML = dataList.map(v => {
-        const matches = getAlertsForSignature(v, alerts);
-        const hits = matches.length;
-        const isTriggered = hits > 0;
-        const lastAlert = matches[0];
-        const lastAttacker = lastAlert ? (lastAlert.src_ip || lastAlert.sourceIp || '192.168.1.77') : null;
-        const lastTime = lastAlert && lastAlert.timestamp ? new Date(lastAlert.timestamp).toLocaleTimeString() : 'Just now';
+    tbody.innerHTML = list.map(a => {
+        const mapped = mapAlertToMitre(a);
+        const safeSev = escapeHtml((a.severity || 'high').toLowerCase());
+        const timeFormatted = a.timestamp ? escapeHtml(new Date(a.timestamp).toLocaleTimeString()) : 'Just now';
+        const safeSrc = escapeHtml(a.src_ip || '0.0.0.0');
+        const safeDst = escapeHtml(a.dst_ip || '10.0.0.1');
+        const safeDetails = escapeHtml(a.details || 'Network attack interception recorded.');
+        const confPct = Math.round((a.confidence || 0.95) * 100);
+        const methodBadge = (a.detection_method || '').toLowerCase() === 'ml'
+            ? `<span class="badge badge-method-ml">🧠 ML</span>`
+            : `<span class="badge badge-method-rule">⚙️ RULE</span>`;
 
         return `
             <tr>
-                <td><span class="badge badge-${v.sev}">[${v.sev.toUpperCase()}]</span></td>
-                <td>
-                    <strong style="color: var(--accent-blue); font-family: var(--font-mono); font-size: 0.82rem;">${escapeHtml(v.id)}</strong>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">${escapeHtml(v.cve)} • ${escapeHtml(v.mitre)}</div>
-                </td>
-                <td><span class="badge badge-low">${escapeHtml(v.proto)}</span></td>
-                <td>
-                    <strong style="color: var(--text-primary); font-size: 0.84rem;">${escapeHtml(v.name)}</strong>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">${escapeHtml(v.desc)}</div>
-                </td>
-                <td><span class="badge ${v.engine.includes('ML') ? 'badge-method-ml' : 'badge-method-rule'}" style="font-size: 0.7rem;">${escapeHtml(v.engine)}</span></td>
-                <td><strong style="color: ${v.score >= 9.0 ? '#ef4444' : (v.score >= 7.5 ? '#f59e0b' : '#38bdf8')}; font-family: var(--font-mono); font-size: 0.95rem;">${v.score.toFixed(1)}</strong></td>
-                <td>
-                    ${isTriggered 
-                        ? `<span class="badge badge-critical" style="animation: mapPulse 1.5s infinite;">🚨 TRIGGERED (${hits} hits)</span>` 
-                        : `<span style="color: #10b981; font-size: 0.76rem; font-weight: 600;">● Armed (0 hits)</span>`}
-                </td>
-                <td>
-                    ${isTriggered 
-                        ? `<div><strong style="color: #ef4444; font-family: var(--font-mono); font-size: 0.76rem;">${escapeHtml(lastAttacker)}</strong><div style="font-size: 0.68rem; color: var(--text-muted);">${escapeHtml(lastTime)}</div></div>` 
-                        : `<span style="color: var(--text-muted); font-size: 0.72rem;">None (Idle)</span>`}
-                </td>
-                <td>
-                    <div style="display: flex; gap: 0.35rem; align-items: center;">
-                        <button class="btn" onclick="openSignatureModal('${v.id}')" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;">Inspect</button>
-                        ${v.simType ? `<button class="btn btn-live" onclick="simulateFromRegistry('${v.simType}')" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Simulate this attack vector live">⚡ Test</button>` : ''}
-                    </div>
+                <td><span class="badge badge-${safeSev}">[${safeSev.toUpperCase()}]</span></td>
+                <td style="font-family: monospace; font-size: 0.78rem;">${timeFormatted}</td>
+                <td><strong style="color: #a855f7; font-family: var(--font-mono); font-size: 0.8rem;">${escapeHtml(mapped.mitre)}</strong></td>
+                <td><span style="font-weight: 600;">${mapped.icon} ${escapeHtml(mapped.name)}</span></td>
+                <td><span class="ip-badge-src" style="font-family: monospace; font-size: 0.78rem;">${safeSrc}</span></td>
+                <td><span class="ip-badge-dst" style="font-family: monospace; font-size: 0.78rem;">${safeDst}</span></td>
+                <td>${methodBadge}</td>
+                <td><span style="color: #10b981; font-weight: 700;">${confPct}%</span></td>
+                <td style="font-size: 0.75rem; color: var(--text-secondary); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${safeDetails}">
+                    ${safeDetails}
                 </td>
             </tr>
         `;
     }).join('');
-}
-
-function renderSignaturesTable(alerts = cachedAlerts) {
-    const query = (document.getElementById('sigSearchInput')?.value || '').toLowerCase();
-    let list = THREAT_SIGNATURES_REGISTRY;
-    if (query) {
-        list = THREAT_SIGNATURES_REGISTRY.filter(v =>
-            v.id.toLowerCase().includes(query) ||
-            v.cve.toLowerCase().includes(query) ||
-            v.mitre.toLowerCase().includes(query) ||
-            v.name.toLowerCase().includes(query) ||
-            v.desc.toLowerCase().includes(query) ||
-            v.proto.toLowerCase().includes(query) ||
-            v.engine.toLowerCase().includes(query)
-        );
-    }
-    renderSignaturesTableWithData(list, alerts);
-}
-
-function filterSignatures() {
-    renderSignaturesTable(cachedAlerts);
 }
 
 function openSignatureModal(sigId) {
@@ -1921,6 +1953,8 @@ function openSignatureModal(sigId) {
     const modalRuleLogic = document.getElementById('modalSigRuleLogic');
     const modalNodes = document.getElementById('modalSigNodes');
 
+    const matches = getAlertsForSignature(v, cachedAlerts);
+
     if (modalTitle) modalTitle.textContent = `${v.id} • ${v.name}`;
     if (modalScore) modalScore.textContent = v.score.toFixed(1);
     if (modalSev) {
@@ -1933,7 +1967,7 @@ function openSignatureModal(sigId) {
     }
     if (modalLink) {
         modalLink.href = v.advisory;
-        modalLink.textContent = `${v.cve} (${v.mitre}) Reference ↗`;
+        modalLink.textContent = `${v.cve} (MITRE ${v.mitre}) Reference ↗`;
     }
     if (modalSummary) {
         modalSummary.textContent = v.desc;
@@ -1942,7 +1976,16 @@ function openSignatureModal(sigId) {
         modalRuleLogic.textContent = v.ruleLogic;
     }
     if (modalNodes) {
-        modalNodes.textContent = v.nodes;
+        if (matches.length > 0) {
+            const first = matches[0];
+            const src = first.src_ip || '0.0.0.0';
+            const dst = first.dst_ip || '10.0.0.1';
+            modalNodes.textContent = `${src} (Active Ingress) ➔ ${dst} (${matches.length} Interceptions Logged)`;
+            modalNodes.style.color = '#ef4444';
+        } else {
+            modalNodes.textContent = 'No active intrusions detected • Standing By (Armored)';
+            modalNodes.style.color = '#10b981';
+        }
     }
 
     const modal = document.getElementById('signatureDetailModal');
@@ -1963,7 +2006,7 @@ async function simulateFromRegistry(type) {
 function downloadThreatReportCSV() {
     const alerts = cachedAlerts || [];
     const headers = [
-        "Signature ID",
+        "MITRE Vector ID",
         "CVE / Reference",
         "MITRE Technique",
         "Attack Vector Title",
@@ -1972,7 +2015,7 @@ function downloadThreatReportCSV() {
         "CVSS Score",
         "Severity",
         "Active Hits",
-        "Status",
+        "Defense Status",
         "Last Attacker IP",
         "Target Asset",
         "Detection Rule Logic"
@@ -1982,8 +2025,8 @@ function downloadThreatReportCSV() {
         const matches = getAlertsForSignature(sig, alerts);
         const hits = matches.length;
         const lastAlert = matches[0];
-        const lastIp = lastAlert ? (lastAlert.src_ip || lastAlert.sourceIp || 'N/A') : 'None';
-        const target = lastAlert ? (lastAlert.dst_ip || '10.0.0.1') : (sig.nodes.split('➔')[1] || sig.nodes).trim();
+        const lastIp = lastAlert ? (lastAlert.src_ip || 'None') : 'None';
+        const target = lastAlert ? (lastAlert.dst_ip || '10.0.0.1') : 'Internal Network';
         const status = hits > 0 ? `TRIGGERED (${hits} hits)` : 'ARMED (0 hits)';
 
         return [
@@ -2003,12 +2046,36 @@ function downloadThreatReportCSV() {
         ].join(',');
     });
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+    let csvContent = "data:text/csv;charset=utf-8," + [
+        "# NetSentinel NSM Platform - MITRE ATTACK Threat Vectors Coverage Report",
+        headers.join(','),
+        ...rows
+    ].join('\n');
+
+    if (alerts.length > 0) {
+        csvContent += "\n\n# ACTUALLY INTERCEPTED INCIDENT LOG\nTimestamp,MITRE Technique,Attack Vector,Severity,Source IP,Destination IP,Engine,Confidence,Details\n";
+        const incidentRows = alerts.map(a => {
+            const mapped = mapAlertToMitre(a);
+            return [
+                `"${a.timestamp || new Date().toISOString()}"`,
+                `"${mapped.mitre}"`,
+                `"${mapped.name.replace(/"/g, '""')}"`,
+                `"${(a.severity || 'high').toUpperCase()}"`,
+                `"${a.src_ip || '0.0.0.0'}"`,
+                `"${a.dst_ip || '10.0.0.1'}"`,
+                `"${(a.detection_method || 'rule').toUpperCase()}"`,
+                `"${Math.round((a.confidence || 0.95) * 100)}%"`,
+                `"${(a.details || '').replace(/"/g, '""')}"`
+            ].join(',');
+        });
+        csvContent += incidentRows.join('\n');
+    }
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `NetSentinel_Threat_Signatures_Report_${timestamp}.csv`);
+    link.setAttribute("download", `NetSentinel_MITRE_ATTACK_Report_${timestamp}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -2018,16 +2085,16 @@ function downloadThreatReportJSON() {
     const alerts = cachedAlerts || [];
     const report = {
         platform: "NetSentinel NSM Platform",
-        reportType: "Threat Signatures & Attack Vectors Audit Report",
+        reportType: "MITRE ATTACK Threat Vectors Coverage & Interception Audit",
         generatedAt: new Date().toISOString(),
         auditor: "NetSentinel SOC Administrator",
         summary: {
-            totalRegisteredSignatures: THREAT_SIGNATURES_REGISTRY.length,
+            totalRegisteredVectors: THREAT_SIGNATURES_REGISTRY.length,
             activeTriggeredVectors: THREAT_SIGNATURES_REGISTRY.filter(s => getAlertsForSignature(s, alerts).length > 0).length,
             totalInterceptions: alerts.length,
             overallStatus: alerts.length > 0 ? "ELEVATED_THREAT_ACTIVITY" : "ALL_SECURE"
         },
-        signatures: THREAT_SIGNATURES_REGISTRY.map(sig => {
+        mitreVectors: THREAT_SIGNATURES_REGISTRY.map(sig => {
             const matches = getAlertsForSignature(sig, alerts);
             return {
                 id: sig.id,
@@ -2039,20 +2106,32 @@ function downloadThreatReportJSON() {
                 engine: sig.engine,
                 cvssScore: sig.score,
                 severity: sig.sev,
-                activeHits: matches.length,
+                interceptHits: matches.length,
                 status: matches.length > 0 ? "TRIGGERED" : "ARMED",
-                lastDetectedAlert: matches[0] || null,
-                ruleLogic: sig.ruleLogic,
-                advisory: sig.advisory
+                latestAttacker: matches.length > 0 ? (matches[0].src_ip || null) : null
+            };
+        }),
+        interceptedIncidents: alerts.map(a => {
+            const mapped = mapAlertToMitre(a);
+            return {
+                timestamp: a.timestamp,
+                mitreTechnique: mapped.mitre,
+                attackVector: mapped.name,
+                severity: a.severity,
+                sourceIp: a.src_ip,
+                destinationIp: a.dst_ip,
+                detectionEngine: a.detection_method,
+                confidence: a.confidence,
+                details: a.details
             };
         })
     };
 
-    const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
+    const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
     const link = document.createElement("a");
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    link.setAttribute("href", jsonStr);
-    link.setAttribute("download", `NetSentinel_Threat_Audit_Report_${timestamp}.json`);
+    link.setAttribute("href", jsonString);
+    link.setAttribute("download", `NetSentinel_MITRE_ATTACK_Audit_${timestamp}.json`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -3080,7 +3159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateVulnDashboardWidgets([]);
     renderDetailedVulnTable([]);
     syncNodesWithAlerts([]);
-    renderSignaturesTable();
+    syncSignaturesWithAlerts([]);
     initFaqSection();
     renderThreatMap();
     initWanCanvas();

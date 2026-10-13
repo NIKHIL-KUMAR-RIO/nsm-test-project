@@ -29,6 +29,81 @@ Ultimately, NetSentinel demonstrates high-throughput, low-latency intrusion dete
 
 ---
 
+## Quick Start & System Execution Guide
+
+### 1. Prerequisites & Required Downloads
+To set up and run the NetSentinel platform on any Windows, macOS, or Linux system, ensure the following tools are installed:
+
+| Component | Minimum Version | Download Link & Setup | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Java JDK** | Java 21 LTS (or 25) | [Eclipse Adoptium Temurin 21+](https://adoptium.net/temurin/releases/) | Core runtime engine, Project Loom virtual threads, Spring Boot backend |
+| **Apache Maven** | Maven 3.9+ | [Apache Maven Official Download](https://maven.apache.org/download.cgi) | Multi-module build management and Fat JAR packaging |
+| **Web Browser** | Modern Version | Brave, Google Chrome, Microsoft Edge, or Mozilla Firefox | WebGL 3D globe rendering, Chart.js telemetry, Web Audio API alarm |
+| **Git** | 2.40+ | [Git SCM Official Download](https://git-scm.com/) | Version control and repository synchronization |
+
+> **Pure Java Architecture Note:** Unlike legacy IDS platforms (e.g., Snort or Suricata), NetSentinel is **100% pure Java**. It requires **zero root drivers, zero WinPcap, and zero Npcap installations** to run fully functional intrusion simulations, PCAP file uploads, honeypot decoy traps, and database audits!
+
+---
+
+### 2. Step-by-Step Instructions to Run the Project
+
+#### Method A: One-Click Launcher (Recommended for Windows)
+1. **Clone or Download Repository**:
+   ```bash
+   git clone https://github.com/your-repo/network-security-monitoring-platform.git
+   cd network-security-monitoring-platform
+   ```
+2. **Execute the Batch Launcher**:
+   - Double-click `run.bat` in the project root, or execute in PowerShell / Command Prompt:
+     ```powershell
+     .\run.bat
+     ```
+   - *Tip:* To force a fresh Maven rebuild after editing code or assets, pass the rebuild argument:
+     ```powershell
+     .\run.bat rebuild
+     ```
+3. **Access the Console**:
+   - Open your browser at: **`http://localhost:8080/`** (or `http://localhost:8080/login.html`).
+
+---
+
+#### Method B: Standard Maven Build & Run (Cross-Platform)
+1. **Compile & Package Multi-Module Reactor**:
+   ```bash
+   mvn clean package -DskipTests
+   ```
+2. **Launch Standalone Executable Fat JAR**:
+   ```bash
+   java -jar module-4-backend-storage/target/module-4-backend-storage-1.0.0.jar
+   ```
+3. **Open Dashboard**:
+   - Navigate to `http://localhost:8080/` in your browser.
+
+---
+
+### 3. Default System Credentials & RBAC Access Flow
+
+| Role | Username | Password | Secret Passcode | Capabilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Administrator** | `admin` | `Admin@123` | N/A | Full operational control, live decoy honeypots, trigger simulated attack scenarios, 1-click Clear database, and approve/reject analyst registrations. |
+| **Analyst (Self-Service)** | *Choose during registration* | *Min 6 chars* | `Creamroll` *(Instant Admin)* | Standard analyst observer: view real-time traffic rhythm, DPI pcap analyzer, MITRE matrix, and 3D globe. If passcode `Creamroll` is supplied at registration, account is instantly granted `ROLE_ADMIN`! |
+
+- **To Register New Personnel**: Click **Request Access** on the login portal, fill in your details, and submit. If approved by an admin or provisioned with the secret team code (`Creamroll`), you can immediately authenticate.
+
+---
+
+### 4. Key Highlights & User Interface Features
+- 🛡️ **Biometric SOC Portal**: Translucent glassmorphism login card with glowing borders, center security shield emblem, animated biometric fingerprint scanning beam, and high-definition cyber network background (`login-bg.jpg`).
+- 🔊 **High-Decibel Tactical SOC Klaxon**: Built-in Web Audio API dual-pulse acoustic alarm (850 Hz – 1550 Hz sweep, 0.75 master gain) that sounds loudly during high/critical attack detections with zero external audio file latency.
+- 🌐 **5-View Single-Page Application (SPA)**:
+  1. *View 1: Real-Time Telemetry & ECG Threat Oscilloscope* (1Hz Chart.js graph, canvas ECG oscilloscope, audio siren).
+  2. *View 2: Deep Packet Inspection (DPI)* (PCAP drag-and-drop file upload).
+  3. *View 3: Attack Simulation Studio* (1-Click Port Scan, SYN Flood, Brute Force).
+  4. *View 4: MITRE ATT&CK Matrix & Forensic Export* (1-click CSV & JSON reports).
+  5. *View 5: Interactive 3D Cyber Threat Globe* (Three.js/globe.gl ballistic missile-arc attack trajectories).
+
+---
+
 ## Week 2
 
 ## User Roles
@@ -715,6 +790,6 @@ During **Week 12**, the NetSentinel team finalized production packaging, verifie
 * [x] **100% Pure Java Implementation**: Zero Python or platform-dependent C libraries used across the entire application stack.
 * [x] **Decoupled 5-Module Architecture**: Clean separation of concerns across Ingestion, Rule Detection, Anomaly Detection, Backend/Persistence, and Web Dashboard.
 * [x] **Strict Contract Conformance**: Frozen `Packet JSON` and `Alert JSON` schemas verified across all pipelines.
-* [x] **13/13 Passing Automated Tests**: Clean test reactor build with unit and integration coverage.
+* [x] **27/27 Passing Automated Tests (18 Integration + 9 Unit)**: Clean test reactor build with unit and integration coverage.
 * [x] **Live & Offline Evaluation**: Seamless operation across both physical LAN honeypot traps and synthetic simulation replay.
 * [x] **Approved & Evaluated by Project Guide**: Er. Ram Babu Buri (Department of Computer Science & Information Technology).

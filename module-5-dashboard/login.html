@@ -9,16 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #050811;
-            --bg-card: rgba(11, 19, 41, 0.88);
-            --border-glow: rgba(56, 189, 248, 0.25);
+            --bg-border: #0284c7;
+            --bg-border-glow: rgba(2, 132, 199, 0.55);
+            --box-bg: rgba(6, 18, 38, 0.72);
+            --pill-bg: rgba(255, 255, 255, 0.12);
+            --pill-border: rgba(255, 255, 255, 0.25);
+            --cyan-accent: #38bdf8;
+            --cyan-glow: rgba(56, 189, 248, 0.5);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --cyan-accent: #38bdf8;
-            --cyan-glow: rgba(56, 189, 248, 0.4);
-            --emerald-accent: #10b981;
-            --amber-accent: #f59e0b;
-            --rose-accent: #f43f5e;
             --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
@@ -31,308 +30,560 @@
 
         body {
             font-family: var(--font-sans);
-            background-color: var(--bg-base);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-image: 
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent),
-                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.08), transparent 40%);
+            background-color: #030712;
+            background-image: url('img/login-bg.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            background-attachment: fixed;
             padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .login-card {
+        /* Subtle dark cyber overlay to ensure contrast and readability without hiding the image */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(3, 10, 24, 0.2) 0%, rgba(2, 6, 18, 0.55) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* The Outer Login Card - Matching the uploaded reference image */
+        .cyber-login-container {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            max-width: 460px;
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glow);
-            border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.1);
-            padding: 2.25rem;
+            max-width: 540px;
+            background: var(--box-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 2px solid var(--bg-border);
+            border-radius: 26px;
+            box-shadow: 
+                0 0 25px var(--bg-border-glow),
+                inset 0 0 20px rgba(2, 132, 199, 0.15),
+                0 25px 50px rgba(0, 0, 0, 0.7);
+            padding: 42px 34px 28px 34px;
+            margin: 28px 0;
+        }
+
+        /* Top Center Shield Emblem - Positioned right at the top border */
+        .center-top-shield {
+            position: absolute;
+            top: -34px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            border: 2.5px solid var(--bg-border);
+            background: #051329;
+            box-shadow: 0 0 20px var(--bg-border-glow), inset 0 0 10px rgba(2, 132, 199, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cyan-accent);
+        }
+
+        /* Center Brand Header */
+        .brand-header {
+            text-align: center;
+            margin-top: 8px;
+            margin-bottom: 22px;
+        }
+
+        .brand-title {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #ffffff;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .brand-subtitle {
+            font-size: 0.72rem;
+            color: var(--cyan-accent);
+            font-family: var(--font-mono);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-top: 3px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* Middle Form Layout: Left Input Fields + Right Fingerprint Emblem */
+        .login-core-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .inputs-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Translucent Pill Input Containers */
+        .input-pill {
+            display: flex;
+            align-items: center;
+            background: var(--pill-bg);
+            border: 1.5px solid var(--pill-border);
+            border-radius: 14px;
+            padding: 0 14px;
+            height: 50px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+        }
+
+        .input-pill:focus-within {
+            border-color: var(--cyan-accent);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+        }
+
+        .input-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            width: 24px;
+            opacity: 0.95;
+            flex-shrink: 0;
+        }
+
+        .input-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 12px;
+            flex-shrink: 0;
+        }
+
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-family: var(--font-sans);
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.65);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+        }
+
+        /* Right Column Fingerprint Container */
+        .fingerprint-container {
+            width: 116px;
+            height: 116px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-border);
+            background: rgba(2, 132, 199, 0.08);
+            box-shadow: 
+                0 0 18px var(--bg-border-glow),
+                inset 0 0 12px rgba(2, 132, 199, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
             position: relative;
             overflow: hidden;
         }
 
-        .login-card::before {
-            content: '';
+        .fingerprint-icon {
+            width: 78px;
+            height: 78px;
+            color: var(--cyan-accent);
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .fingerprint-container:hover .fingerprint-icon {
+            transform: scale(1.05);
+            color: #ffffff;
+        }
+
+        /* Subtle animated scan beam across the fingerprint */
+        .scan-beam {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #38bdf8, #818cf8, #10b981);
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, #ffffff, #38bdf8, transparent);
+            box-shadow: 0 0 8px #38bdf8;
+            opacity: 0.7;
+            animation: scanMove 3s ease-in-out infinite alternate;
         }
 
-        .brand-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
+        @keyframes scanMove {
+            0% { top: 12px; }
+            100% { top: 102px; }
         }
 
-        .brand-icon {
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 0.75rem;
+        /* Action Buttons */
+        .btn-action {
+            width: 100%;
+            height: 48px;
             border-radius: 12px;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--cyan-accent);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-        }
-
-        .brand-title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #fff 40%, var(--cyan-accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-subtitle {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-            font-family: var(--font-mono);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        /* Tabs for Sign In vs Register */
-        .auth-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(148, 163, 184, 0.15);
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 1.5rem;
-        }
-
-        .auth-tab-btn {
-            padding: 0.6rem;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            border-radius: 7px;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-
-        .auth-tab-btn.active {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--cyan-accent);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-        }
-
-        .alert-box {
-            padding: 0.85rem 1rem;
-            border-radius: 8px;
-            font-size: 0.82rem;
-            margin-bottom: 1.25rem;
-            display: none;
-            font-weight: 500;
-            line-height: 1.45;
-        }
-
-        .alert-error {
-            background: rgba(244, 63, 94, 0.12);
-            border: 1px solid rgba(244, 63, 94, 0.4);
-            color: #fda4af;
-        }
-
-        .alert-pending {
-            background: rgba(245, 158, 11, 0.12);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            color: #fde68a;
-        }
-
-        .alert-success {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #6ee7b7;
-        }
-
-        .alert-logout {
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            color: #bae6fd;
-        }
-
-        .form-group {
-            margin-bottom: 1.15rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 0.45rem;
-        }
-
-        .form-input {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.92rem;
-            color: #fff;
             font-family: var(--font-sans);
-            transition: all 0.2s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--cyan-accent);
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
-            background: rgba(15, 23, 42, 0.95);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 0.85rem;
-            background: linear-gradient(135deg, #0284c7, #2563eb);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
             font-size: 0.92rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-            margin-top: 0.5rem;
+            transition: all 0.22s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
-        .btn-submit:hover {
-            background: linear-gradient(135deg, #0369a1, #1d4ed8);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+        /* Button 1: LOGIN */
+        .btn-login {
+            background: rgba(2, 132, 199, 0.3);
+            border: 1.5px solid var(--bg-border);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .btn-login:hover {
+            background: rgba(2, 132, 199, 0.5);
+            border-color: #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
             transform: translateY(-1px);
         }
 
+        /* Button 2: REQUEST ACCESS */
+        .btn-request {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.24);
+            color: #e2e8f0;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .btn-request:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.45);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* Alert Notification Banners */
+        .alert-box {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+            display: none;
+            font-weight: 500;
+            line-height: 1.4;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .alert-error {
+            background: rgba(244, 63, 94, 0.16);
+            border: 1.5px solid rgba(244, 63, 94, 0.5);
+            color: #fecdd3;
+        }
+
+        .alert-pending {
+            background: rgba(245, 158, 11, 0.16);
+            border: 1.5px solid rgba(245, 158, 11, 0.5);
+            color: #fef08a;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.16);
+            border: 1.5px solid rgba(16, 185, 129, 0.5);
+            color: #a7f3d0;
+        }
+
+        .alert-logout {
+            background: rgba(56, 189, 248, 0.16);
+            border: 1.5px solid rgba(56, 189, 248, 0.5);
+            color: #bae6fd;
+        }
+
+        /* Footer Note */
         .footer-note {
-            margin-top: 1.75rem;
+            margin-top: 22px;
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: var(--text-muted);
             font-family: var(--font-mono);
+            letter-spacing: 0.06em;
+            opacity: 0.85;
+        }
+
+        /* Modal Overlay for Request Access */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 18, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(6, 18, 38, 0.92);
+            border: 2px solid var(--bg-border);
+            border-radius: 22px;
+            box-shadow: 0 0 30px var(--bg-border-glow), 0 25px 50px rgba(0,0,0,0.8);
+            padding: 30px 28px;
+            position: relative;
+            animation: modalFadeIn 0.25s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+            letter-spacing: 0.03em;
+        }
+
+        .modal-desc {
+            font-size: 0.75rem;
+            color: var(--cyan-accent);
+            font-family: var(--font-mono);
+            margin-bottom: 20px;
+        }
+
+        .modal-field {
+            margin-bottom: 12px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .modal-input {
+            width: 100%;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            padding: 0 14px;
+            color: #fff;
+            font-size: 0.88rem;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .modal-input:focus {
+            border-color: var(--cyan-accent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .cyber-login-container {
+                padding: 38px 20px 24px 20px;
+            }
+            .login-core-row {
+                flex-direction: column;
+            }
+            .fingerprint-container {
+                width: 96px;
+                height: 96px;
+            }
+            .fingerprint-icon {
+                width: 54px;
+                height: 54px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
+    <div class="cyber-login-container">
+        <!-- Top Center Shield Icon (Matching reference image) -->
+        <div class="center-top-shield">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(2, 132, 199, 0.2)"/>
+                <circle cx="12" cy="10" r="2.2" fill="#38bdf8" stroke="none"/>
+                <path d="M11 11.5L10.2 16h3.6L13 11.5z" fill="#38bdf8" stroke="none"/>
+            </svg>
+        </div>
+
+        <!-- Center Brand Header -->
         <div class="brand-header">
-            <div class="brand-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    <circle cx="12" cy="11" r="3"/>
-                </svg>
-            </div>
             <h1 class="brand-title">NetSentinel SOC</h1>
+            <div class="brand-subtitle">ENTERPRISE SECURITY OPERATIONS CENTER</div>
         </div>
 
-        <!-- Auth Mode Switcher -->
-        <div class="auth-tabs">
-            <button type="button" class="auth-tab-btn active" id="tabSignInBtn" onclick="switchAuthTab('signin')">
-                🔐 Sign In
-            </button>
-            <button type="button" class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">
-                📝 Request Access
-            </button>
-        </div>
-
-        <!-- Feedback Alert Boxes -->
+        <!-- Feedback Alert Banners -->
         <div id="errorBox" class="alert-box alert-error">
-            ⚠️ Invalid credentials. Access denied.
+            &#9888;&#65039; Invalid credentials. Access denied.
         </div>
-
         <div id="pendingBox" class="alert-box alert-pending">
-            ⏳ <strong>Account Pending Approval:</strong> Your registration request has been submitted. An administrator must approve your account before you can log in.
+            &#9203; <strong>Account Pending Approval:</strong> Your registration request is awaiting Administrator review.
         </div>
-
         <div id="lockedBox" class="alert-box alert-error">
-            🚫 <strong>Account Disabled:</strong> This account has been deactivated by a SOC Administrator.
+            &#128683; <strong>Account Disabled:</strong> This account has been deactivated by an Administrator.
         </div>
-
         <div id="successBox" class="alert-box alert-success">
-            ✅ <strong>Registration Submitted:</strong> Your account was created with status <em>PENDING</em>. Please wait for administrator approval.
+            &#9989; <strong>Registration Submitted:</strong> Your account was created with status <em>PENDING</em>.
         </div>
-
         <div id="logoutBox" class="alert-box alert-logout">
-            🔒 Logged out successfully. Session closed.
+            &#128274; Logged out successfully. Session terminated.
         </div>
 
-        <!-- TAB 1: SIGN IN FORM -->
+        <!-- Main Login Form -->
         <form id="loginForm" action="/login" method="POST">
-            <div class="form-group">
-                <label class="form-label" for="username">Username or Email</label>
-                <input class="form-input" type="text" id="username" name="username" placeholder="Enter username or email" required autofocus autocomplete="username">
+            <!-- Row with Username/Password on Left, Fingerprint on Right -->
+            <div class="login-core-row">
+                <div class="inputs-column">
+                    <!-- Username Pill Input -->
+                    <div class="input-pill">
+                        <div class="input-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="input-divider"></div>
+                        <input class="input-field" type="text" id="username" name="username" placeholder="USERNAME" required autofocus autocomplete="username">
+                    </div>
+
+                    <!-- Password Pill Input -->
+                    <div class="input-pill">
+                        <div class="input-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <div class="input-divider"></div>
+                        <input class="input-field" type="password" id="password" name="password" placeholder="********" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <!-- Fingerprint Biometric Emblem (Right Side) -->
+                <div class="fingerprint-container" title="Biometric Security Gateway">
+                    <div class="scan-beam"></div>
+                    <svg class="fingerprint-icon" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M 22,68 C 17,50 20,32 32,20 C 43,10 57,10 68,20 C 80,32 83,50 78,68"/>
+                        <path d="M 28,78 C 24,70 23,60 25,50"/>
+                        <path d="M 75,78 C 79,70 80,60 78,50"/>
+                        <path d="M 30,66 C 26,52 28,38 37,28 C 45,19 55,19 63,28 C 72,38 74,52 70,66"/>
+                        <path d="M 38,72 C 34,60 36,46 43,38 C 47,32 53,32 57,38 C 64,46 66,60 62,72"/>
+                        <path d="M 45,74 C 42,65 44,54 48,48 C 50,45 52,45 54,48 C 57,54 58,65 55,74"/>
+                        <path d="M 49,60 C 49,56 50,54 51,54 C 52,54 53,56 53,60 C 53,68 51,74 50,78"/>
+                        <path d="M 34,80 C 37,77 40,75 42,74"/>
+                        <path d="M 66,80 C 63,77 60,75 58,74"/>
+                        <path d="M 43,84 C 47,82 50,82 54,84"/>
+                    </svg>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <input class="form-input" type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
-            </div>
-
-            <button type="submit" class="btn-submit">
-                <span>Authenticate &amp; Enter Console</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
+            <!-- Button 1: LOGIN -->
+            <button type="submit" class="btn-action btn-login">
+                <span>LOGIN</span>
             </button>
-        </form>
 
-        <!-- TAB 2: REGISTRATION REQUEST FORM -->
-        <form id="registerForm" style="display: none;" onsubmit="handleRegistration(event)">
-            <div class="form-group">
-                <label class="form-label" for="regFullName">Full Name</label>
-                <input class="form-input" type="text" id="regFullName" placeholder="e.g. Alex Hunter" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="regEmail">Official Email</label>
-                <input class="form-input" type="email" id="regEmail" placeholder="analyst@university.edu" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="regUsername">Desired Username</label>
-                <input class="form-input" type="text" id="regUsername" placeholder="e.g. alex_h" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="regPassword">Password (Min 6 chars)</label>
-                <input class="form-input" type="password" id="regPassword" placeholder="••••••••••••" minlength="6" required autocomplete="new-password">
-            </div>
-
-            <button type="submit" id="regSubmitBtn" class="btn-submit" style="background: linear-gradient(135deg, #059669, #10b981);">
-                <span>Submit Registration Request</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+            <!-- Button 2: REQUEST ACCESS (Replaces Register) -->
+            <button type="button" class="btn-action btn-request" onclick="openRequestModal()">
+                <span>REQUEST ACCESS</span>
             </button>
         </form>
 
         <div class="footer-note">
-            RESTRICTED ACCESS • AUTHORIZED SOC PERSONNEL &amp; VERIFIED OPERATORS ONLY
+            RESTRICTED ACCESS &bull; AUTHORIZED SOC PERSONNEL &amp; VERIFIED OPERATORS ONLY
+        </div>
+    </div>
+
+    <!-- Modal for Request Access / Analyst Registration -->
+    <div id="requestModal" class="modal-overlay" onclick="handleBackdropClick(event)">
+        <div class="modal-card">
+            <h2 class="modal-title">Request SOC Access</h2>
+            <div class="modal-desc">SUBMIT REGISTRATION FOR ADMINISTRATOR APPROVAL</div>
+
+            <form id="registerForm" onsubmit="handleRegistration(event)">
+                <div class="modal-field">
+                    <label class="modal-label" for="regFullName">Full Name</label>
+                    <input class="modal-input" type="text" id="regFullName" placeholder="e.g. Alex Hunter" required>
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label" for="regEmail">Official Email</label>
+                    <input class="modal-input" type="email" id="regEmail" placeholder="analyst@university.edu" required>
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label" for="regUsername">Desired Username</label>
+                    <input class="modal-input" type="text" id="regUsername" placeholder="e.g. alex_h" required>
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label" for="regPassword">Password (Min 6 chars)</label>
+                    <input class="modal-input" type="password" id="regPassword" placeholder="••••••••••••" minlength="6" required autocomplete="new-password">
+                </div>
+
+                <div class="modal-field">
+                    <label class="modal-label" for="regAdminCode">Team Authorization Passcode (Optional)</label>
+                    <input class="modal-input" type="text" id="regAdminCode" placeholder="Enter secret code for instant Admin clearance">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" id="regSubmitBtn" class="btn-action btn-login" style="margin-bottom:0; flex:1;">
+                        <span>SUBMIT REQUEST</span>
+                    </button>
+                    <button type="button" class="btn-action btn-request" style="flex:1;" onclick="closeRequestModal()">
+                        <span>CANCEL</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -355,27 +606,17 @@
             document.getElementById('successBox').style.display = 'block';
         }
 
-        function switchAuthTab(mode) {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const tabSignInBtn = document.getElementById('tabSignInBtn');
-            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+        function openRequestModal() {
+            document.getElementById('requestModal').style.display = 'flex';
+        }
 
-            // Hide alerts when switching
-            document.getElementById('errorBox').style.display = 'none';
-            document.getElementById('pendingBox').style.display = 'none';
-            document.getElementById('lockedBox').style.display = 'none';
+        function closeRequestModal() {
+            document.getElementById('requestModal').style.display = 'none';
+        }
 
-            if (mode === 'signin') {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                tabSignInBtn.classList.add('active');
-                tabRegisterBtn.classList.remove('active');
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                tabSignInBtn.classList.remove('active');
-                tabRegisterBtn.classList.add('active');
+        function handleBackdropClick(e) {
+            if (e.target.id === 'requestModal') {
+                closeRequestModal();
             }
         }
 
@@ -384,13 +625,14 @@
             const btn = document.getElementById('regSubmitBtn');
             const origText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<span>Submitting Request...</span>';
+            btn.innerHTML = '<span>SUBMITTING...</span>';
 
             const payload = {
                 fullName: document.getElementById('regFullName').value.trim(),
                 email: document.getElementById('regEmail').value.trim(),
                 username: document.getElementById('regUsername').value.trim(),
-                password: document.getElementById('regPassword').value
+                password: document.getElementById('regPassword').value,
+                adminCode: document.getElementById('regAdminCode').value.trim()
             };
 
             try {
@@ -402,10 +644,10 @@
                 const data = await res.json();
 
                 if (res.status === 201) {
-                    // Success -> switch to sign in with success box
+                    closeRequestModal();
                     document.getElementById('successBox').style.display = 'block';
+                    document.getElementById('successBox').innerHTML = '&#9989; <strong>Registration Successful!</strong> ' + (data.message || 'Account created.');
                     document.getElementById('registerForm').reset();
-                    switchAuthTab('signin');
                 } else {
                     alert('Registration Failed: ' + (data.message || 'Please check your inputs'));
                 }

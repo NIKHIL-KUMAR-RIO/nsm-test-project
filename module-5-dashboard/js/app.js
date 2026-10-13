@@ -874,18 +874,98 @@ function playAlertAlarm(severity = 'high') {
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
+        const sev = (severity || 'high').toLowerCase();
 
-        const osc1 = ctx.createOscillator();
-        const gain1 = ctx.createGain();
-        osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(920, now);
-        osc1.frequency.exponentialRampToValueAtTime(520, now + 0.14);
-        gain1.gain.setValueAtTime(0.2, now);
-        gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
-        osc1.connect(gain1);
-        gain1.connect(ctx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.14);
+        if (sev === 'critical' || sev === 'high') {
+            // ==========================================
+            // TACTICAL SOC EMERGENCY KLAXON (2-Pulse High Alert)
+            // Loud, dual-harmonic urgent warning alarm
+            // ==========================================
+            const masterGain = ctx.createGain();
+            masterGain.gain.setValueAtTime(0.75, now);
+            masterGain.connect(ctx.destination);
+
+            // Pulse 1: 0.00s -> 0.18s
+            const osc1a = ctx.createOscillator();
+            const osc1b = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+
+            osc1a.type = 'sawtooth';
+            osc1b.type = 'square';
+            osc1a.frequency.setValueAtTime(850, now);
+            osc1a.frequency.exponentialRampToValueAtTime(1350, now + 0.16);
+            osc1b.frequency.setValueAtTime(854, now);
+            osc1b.frequency.exponentialRampToValueAtTime(1360, now + 0.16);
+
+            gain1.gain.setValueAtTime(0.7, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+
+            osc1a.connect(gain1);
+            osc1b.connect(gain1);
+            gain1.connect(masterGain);
+
+            osc1a.start(now);
+            osc1b.start(now);
+            osc1a.stop(now + 0.18);
+            osc1b.stop(now + 0.18);
+
+            // Pulse 2: 0.22s -> 0.44s (Slightly higher pitch for maximum urgency)
+            const p2Start = now + 0.22;
+            const osc2a = ctx.createOscillator();
+            const osc2b = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+
+            osc2a.type = 'sawtooth';
+            osc2b.type = 'square';
+            osc2a.frequency.setValueAtTime(950, p2Start);
+            osc2a.frequency.exponentialRampToValueAtTime(1550, p2Start + 0.20);
+            osc2b.frequency.setValueAtTime(955, p2Start);
+            osc2b.frequency.exponentialRampToValueAtTime(1560, p2Start + 0.20);
+
+            gain2.gain.setValueAtTime(0.75, p2Start);
+            gain2.gain.exponentialRampToValueAtTime(0.01, p2Start + 0.22);
+
+            osc2a.connect(gain2);
+            osc2b.connect(gain2);
+            gain2.connect(masterGain);
+
+            osc2a.start(p2Start);
+            osc2b.start(p2Start);
+            osc2a.stop(p2Start + 0.22);
+            osc2b.stop(p2Start + 0.22);
+
+        } else if (sev === 'medium') {
+            // Medium Severity: Distinct dual-tone warning chime
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(700, now);
+            osc.frequency.exponentialRampToValueAtTime(1050, now + 0.26);
+
+            gain.gain.setValueAtTime(0.55, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.28);
+
+        } else {
+            // Low Severity: Single crisp cyber ping
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+
+            gain.gain.setValueAtTime(0.4, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        }
     } catch (e) {
         console.warn('Audio play error:', e);
     }

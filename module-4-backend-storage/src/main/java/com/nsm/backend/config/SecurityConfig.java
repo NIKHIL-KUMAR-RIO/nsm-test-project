@@ -87,7 +87,7 @@ public class SecurityConfig {
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
                         // Public resources: Login page, registration endpoint, stylesheets, scripts, images
-                        .requestMatchers("/login.html", "/css/**", "/js/**", "/img/**", "/favicon.ico", "/api/auth/register").permitAll()
+                        .requestMatchers("/login.html", "/login-bg.jpg", "/css/**", "/js/**", "/img/**", "/favicon.ico", "/api/auth/register").permitAll()
                         // Destructive actions, attack simulation triggers, and user management require ADMIN role
                         .requestMatchers("/api/alerts/clear", "/api/attack/**", "/api/ingest/**", "/api/admin/**").hasRole("ADMIN")
                         // Observability, metrics, alert feeds, and SOC Dashboard accessible to both ADMIN and ANALYST

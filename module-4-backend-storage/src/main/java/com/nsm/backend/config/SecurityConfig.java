@@ -1,17 +1,16 @@
 package com.nsm.backend.config;
 
+import com.nsm.backend.storage.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,28 +19,27 @@ import java.util.List;
 
 /**
  * Spring Security Configuration (Person 4 Backend Hardening):
- * Enforces Role-Based Access Control (RBAC):
- * - ROLE_ADMIN: Full operational control (clear alerts, attack simulations, ingestion).
+ * Enforces Option A Authentication & Role-Based Access Control (RBAC):
+ * - Database-backed user authentication with BCrypt hashing.
+ * - ROLE_ADMIN: Full operational control, user approval/management, clear alerts, attack simulations.
  * - ROLE_ANALYST: Read-only SOC observation (view dashboard, metrics, alerts, stream).
+ * - PENDING registrations are rejected until administrator approval.
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    private final DatabaseUserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+
+    public SecurityConfig(DatabaseUserDetailsService userDetailsService, UserRepository userRepository) {
+        this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(encoder.encode("admin123"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin);
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -68,27 +66,53 @@ public class SecurityConfig {
                 new org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler();
         logoutSuccessHandler.setDefaultTargetUrl("/login.html?logout=true");
 
+        AuthenticationFailureHandler failureHandler = (request, response, exception) -> {
+            String errorParam = "true";
+            if (exception instanceof org.springframework.security.authentication.DisabledException) {
+                errorParam = "pending";
+            } else if (exception instanceof org.springframework.security.authentication.LockedException) {
+                errorParam = "locked";
+            }
+            response.sendRedirect("/login.html?error=" + errorParam);
+        };
+
+        AuthenticationSuccessHandler successHandler = (request, response, authentication) -> {
+            userRepository.findByUsernameOrEmail(authentication.getName())
+                    .ifPresent(u -> userRepository.updateLastLogin(u.id(), java.time.Instant.now().toString()));
+            response.sendRedirect("/");
+        };
+
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer::disable)
+                .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
-                        // Public resources: Login page, stylesheets, scripts, favicon
-                        .requestMatchers("/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
-                        // Destructive and attack simulation actions require ADMIN role
-                        .requestMatchers("/api/alerts/clear", "/api/attack/**", "/api/ingest/**").hasRole("ADMIN")
-                        // Observability, APIs, and Dashboard UI require ADMIN role
-                        .requestMatchers("/api/**").hasRole("ADMIN")
-                        .requestMatchers("/", "/index.html").hasRole("ADMIN")
+                        // Public resources: Login page, registration endpoint, stylesheets, scripts, images
+                        .requestMatchers("/login.html", "/css/**", "/js/**", "/img/**", "/favicon.ico", "/api/auth/register").permitAll()
+                        // Destructive actions, attack simulation triggers, and user management require ADMIN role
+                        .requestMatchers("/api/alerts/clear", "/api/attack/**", "/api/ingest/**", "/api/admin/**").hasRole("ADMIN")
+                        // Observability, metrics, alert feeds, and SOC Dashboard accessible to both ADMIN and ANALYST
+                        .requestMatchers("/api/**").hasAnyRole("ADMIN", "ANALYST")
+                        .requestMatchers("/", "/index.html").hasAnyRole("ADMIN", "ANALYST")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(
+                                new org.springframework.security.web.authentication.HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")
+                        )
+                        .defaultAuthenticationEntryPointFor(
+                                new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint("/login.html"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/**")
+                        )
                 )
                 .formLogin(form -> form
                         .loginPage("/login.html")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/login.html?error=true")
+                        .successHandler(successHandler)
+                        .failureHandler(failureHandler)
                         .permitAll()
                 )
-                .httpBasic(Customizer.withDefaults())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/logout"))
                         .logoutSuccessHandler(logoutSuccessHandler)

@@ -48,9 +48,28 @@ public class DatabaseInitializer implements CommandLineRunner {
             );
         """);
 
+        jdbcTemplate.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                username TEXT UNIQUE NOT NULL,
+                full_name TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                role TEXT NOT NULL DEFAULT 'ANALYST',
+                account_status TEXT NOT NULL DEFAULT 'PENDING',
+                created_at TEXT NOT NULL,
+                last_login TEXT
+            );
+        """);
+
         jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_alerts_ts ON alerts(timestamp DESC);");
         jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_packets_ts ON packets(timestamp DESC);");
+        jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);");
+        jdbcTemplate.execute("CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);");
 
-        log.info("SQLite schema initialized successfully (tables: alerts, packets).");
+        // Remove legacy default 'admin' account if present
+        jdbcTemplate.update("DELETE FROM users WHERE LOWER(username) = 'admin' OR LOWER(email) = 'admin@netsentinel.local'");
+
+        log.info("SQLite schema initialized successfully (tables: alerts, packets, users).");
     }
 }

@@ -21,7 +21,7 @@
         <div class="nav-left">
             <a class="brand" onclick="switchView('view-live-soc')">
                 <div class="brand-icon">🛡️</div>
-                <div class="brand-title">NetSentinel <span id="brandConsoleLabel" style="color: var(--accent-red);">SOC ADMIN</span></div>
+                <div class="brand-title">NetSentinel <span id="brandConsoleLabel">SOC</span></div>
             </a>
 
             <!-- Mega Nav Menus -->
@@ -140,9 +140,33 @@
 
             <!-- Authenticated User Profile Badge -->
             <div id="userBadge" class="user-badge">
-                <span>👑</span>
-                <span id="usernameDisplay">admin</span>
-                <span id="roleDisplay" style="font-size: 0.7rem; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 700; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">SOC ADMIN</span>
+                <span id="userRoleIcon">👤</span>
+                <span id="usernameDisplay">...</span>
+                <span id="roleDisplay" style="font-size: 0.7rem; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 700; display: none;"></span>
+            </div>
+
+            <!-- User Management Button & Hover Approval Dropdown (ADMIN ONLY) -->
+            <div class="user-mgmt-dropdown-wrapper" id="userMgmtWrapper" style="display: none;">
+                <button id="btnUserManagement" class="btn" onclick="openUserManagementModal()" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Manage Operator Accounts (Click to open console)">
+                    👥 <span>Users</span>
+                    <span id="pendingBadgePill" style="display:none; margin-left: 4px; background: #f59e0b; color: #000; font-size: 0.65rem; padding: 1px 5px; border-radius: 10px; font-weight: 800;">0</span>
+                </button>
+                <div class="user-mgmt-dropdown" id="userMgmtHoverMenu">
+                    <div class="dropdown-section-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border-subtle); padding-bottom: 0.4rem; margin-bottom: 0.4rem;">
+                        <span>OPERATOR APPROVALS</span>
+                        <span id="hoverPendingCountBadge" style="background: #f59e0b; color: #000; font-size: 0.65rem; padding: 1px 6px; border-radius: 8px; font-weight: 800;">0 PENDING</span>
+                    </div>
+                    <div id="userMgmtHoverList" style="max-height: 250px; overflow-y: auto;">
+                        <div style="padding: 0.75rem; text-align: center; color: var(--text-muted); font-size: 0.78rem;">
+                            Loading pending requests...
+                        </div>
+                    </div>
+                    <div style="padding: 0.4rem 0.2rem 0.1rem; border-top: 1px solid var(--card-border-subtle); margin-top: 0.4rem;">
+                        <button type="button" class="btn btn-sm" onclick="openUserManagementModal()" style="width: 100%; justify-content: center; font-size: 0.75rem; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
+                            Open All Users Console ↗
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Live State Toggle -->
@@ -176,9 +200,9 @@
                 <a onclick="switchView('view-live-soc')">Home</a> <span>/</span> <span>Live SOC Threat Rhythm</span>
             </div>
 
-            <!-- Interactive Attack Triggers (Admin Console) -->
+            <!-- Interactive Attack Triggers (Demo Helper) -->
             <div class="sim-bar" id="adminSimBar">
-                <div class="sim-title" data-i18n="sim_bar_title">⚡ Interactive Attack Triggers (Admin Console)</div>
+                <div class="sim-title" data-i18n="sim_bar_title">⚡ Interactive Attack Triggers (Demo Helper)</div>
                 <div class="sim-buttons">
                     <button class="btn-attack" onclick="triggerAttack('port-scan')">🎯 <span data-i18n="sim_port_scan">Port Scan</span></button>
                     <button class="btn-attack" onclick="triggerAttack('syn-flood')">🌊 <span data-i18n="sim_syn_flood">SYN Flood</span></button>
@@ -883,6 +907,55 @@
             <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">AFFECTED MONITORED HOSTS:</div>
             <div id="modalSigNodes" style="background: var(--bg-surface-elevated); border: 1px solid var(--card-border-subtle); border-radius: 8px; padding: 0.75rem; font-size: 0.78rem; font-family: var(--font-mono); color: var(--accent-blue);">
                 EAST_vMX (10.1.21.16), bas-ex2200 (10.1.21.18), WEST_vMX (10.1.21.20)
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL 3: USER MANAGEMENT & ACCESS CONTROL (OPTION A)
+         ========================================================================== -->
+    <div id="userManagementModal" class="modal-overlay" onclick="if(event.target.id==='userManagementModal') closeUserManagementModal();">
+        <div class="modal-dialog" style="max-width: 840px; width: 95%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="font-size: 1.4rem;">👥</span>
+                    <div>
+                        <h3 style="color: var(--text-primary); font-size: 1.15rem; margin: 0;">SOC Operator Accounts &amp; Access Control</h3>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">Role-Based Access Control • Administrator-Approved Operator Accounts</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="closeUserManagementModal()" style="padding: 0.2rem 0.6rem;">✕</button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div id="userMgmtSummaryText" style="font-size: 0.82rem; color: var(--text-secondary);">
+                    Loading operators...
+                </div>
+                <button class="btn btn-sm" onclick="loadUserManagementList()" style="border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; padding: 0.35rem 0.75rem;">
+                    🔄 Refresh List
+                </button>
+            </div>
+
+            <div style="max-height: 420px; overflow-y: auto; border: 1px solid var(--card-border-subtle); border-radius: 8px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left;">
+                    <thead>
+                        <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--card-border-subtle); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.75rem;">
+                            <th style="padding: 10px 12px;">NAME</th>
+                            <th style="padding: 10px 12px;">HANDLE / EMAIL</th>
+                            <th style="padding: 10px 12px;">ROLE</th>
+                            <th style="padding: 10px 12px;">STATUS</th>
+                            <th style="padding: 10px 12px;">LAST LOGIN</th>
+                            <th style="padding: 10px 12px; text-align: right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-muted);">Loading user records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+                <button class="btn" onclick="closeUserManagementModal()">Close</button>
             </div>
         </div>
     </div>

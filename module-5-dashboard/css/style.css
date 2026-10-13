@@ -333,6 +333,44 @@ body {
     display: block;
 }
 
+/* User Management Hover Dropdown (Option A) */
+.user-mgmt-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.user-mgmt-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-dropdown);
+    width: 320px;
+    padding: 0.5rem;
+    display: none;
+    z-index: 1020;
+    animation: dropdownFadeIn 0.15s ease-out;
+}
+
+.user-mgmt-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: transparent;
+}
+
+.user-mgmt-dropdown-wrapper:hover .user-mgmt-dropdown,
+.user-mgmt-dropdown-wrapper.open .user-mgmt-dropdown,
+.user-mgmt-dropdown.show {
+    display: block;
+}
+
 .lang-option {
     display: flex;
     align-items: center;
@@ -539,13 +577,12 @@ body {
     background: var(--bg-surface);
     border: 1px solid var(--card-border);
     border-radius: 12px;
-    padding: 0.9rem 1.25rem;
+    padding: 0.85rem 1.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .sim-title {
@@ -555,24 +592,28 @@ body {
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .sim-buttons {
     display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
 .btn-attack {
     background: var(--bg-surface-elevated);
     border: 1px solid var(--card-border);
     color: var(--text-primary);
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem 0.95rem;
     border-radius: 8px;
     font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .btn-attack:hover {
@@ -1612,6 +1653,10 @@ body {
     justify-content: center;
     z-index: 9999;
     padding: 1.5rem;
+}
+
+.modal-overlay.active {
+    display: flex !important;
 }
 
 .modal-dialog {

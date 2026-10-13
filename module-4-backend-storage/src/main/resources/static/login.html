@@ -10,13 +10,14 @@
     <style>
         :root {
             --bg-base: #050811;
-            --bg-card: rgba(11, 19, 41, 0.85);
+            --bg-card: rgba(11, 19, 41, 0.88);
             --border-glow: rgba(56, 189, 248, 0.25);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --cyan-accent: #38bdf8;
             --cyan-glow: rgba(56, 189, 248, 0.4);
             --emerald-accent: #10b981;
+            --amber-accent: #f59e0b;
             --rose-accent: #f43f5e;
             --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
@@ -44,14 +45,14 @@
 
         .login-card {
             width: 100%;
-            max-width: 440px;
+            max-width: 460px;
             background: var(--bg-card);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-glow);
             border-radius: 16px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.1);
-            padding: 2.5rem;
+            padding: 2.25rem;
             position: relative;
             overflow: hidden;
         }
@@ -68,13 +69,13 @@
 
         .brand-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .brand-icon {
-            width: 54px;
-            height: 54px;
-            margin: 0 auto 1rem;
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 0.75rem;
             border-radius: 12px;
             background: rgba(56, 189, 248, 0.1);
             border: 1px solid rgba(56, 189, 248, 0.3);
@@ -95,21 +96,53 @@
         }
 
         .brand-subtitle {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
-            margin-top: 0.35rem;
+            margin-top: 0.25rem;
             font-family: var(--font-mono);
             letter-spacing: 0.05em;
             text-transform: uppercase;
+        }
+
+        /* Tabs for Sign In vs Register */
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-tab-btn {
+            padding: 0.6rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 7px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .auth-tab-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--cyan-accent);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         .alert-box {
             padding: 0.85rem 1rem;
             border-radius: 8px;
             font-size: 0.82rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             display: none;
             font-weight: 500;
+            line-height: 1.45;
         }
 
         .alert-error {
@@ -118,24 +151,36 @@
             color: #fda4af;
         }
 
-        .alert-logout {
+        .alert-pending {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fde68a;
+        }
+
+        .alert-success {
             background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.4);
             color: #6ee7b7;
         }
 
+        .alert-logout {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #bae6fd;
+        }
+
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.15rem;
         }
 
         .form-label {
             display: block;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.45rem;
         }
 
         .form-input {
@@ -144,7 +189,7 @@
             border: 1px solid rgba(148, 163, 184, 0.2);
             border-radius: 8px;
             padding: 0.75rem 1rem;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             color: #fff;
             font-family: var(--font-sans);
             transition: all 0.2s ease;
@@ -182,56 +227,8 @@
             transform: translateY(-1px);
         }
 
-        .credentials-helper {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px dashed rgba(148, 163, 184, 0.2);
-        }
-
-        .helper-title {
-            font-size: 0.72rem;
-            font-family: var(--font-mono);
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.75rem;
-            text-align: center;
-        }
-
-        .badge-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-        }
-
-        .role-btn {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 8px;
-            padding: 0.6rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            font-family: var(--font-mono);
-        }
-
-        .role-btn strong {
-            display: block;
-            color: var(--cyan-accent);
-            font-size: 0.8rem;
-            margin-bottom: 0.15rem;
-        }
-
-        .role-btn:hover {
-            border-color: var(--cyan-accent);
-            background: rgba(56, 189, 248, 0.08);
-            color: #fff;
-        }
-
         .footer-note {
-            margin-top: 1.5rem;
+            margin-top: 1.75rem;
             text-align: center;
             font-size: 0.7rem;
             color: var(--text-muted);
@@ -250,30 +247,57 @@
                 </svg>
             </div>
             <h1 class="brand-title">NetSentinel SOC</h1>
-            <div class="brand-subtitle">Authentication Gateway // B.Tech IDS</div>
         </div>
 
+        <!-- Auth Mode Switcher -->
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab-btn active" id="tabSignInBtn" onclick="switchAuthTab('signin')">
+                🔐 Sign In
+            </button>
+            <button type="button" class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">
+                📝 Request Access
+            </button>
+        </div>
+
+        <!-- Feedback Alert Boxes -->
         <div id="errorBox" class="alert-box alert-error">
             ⚠️ Invalid credentials. Access denied.
+        </div>
+
+        <div id="pendingBox" class="alert-box alert-pending">
+            ⏳ <strong>Account Pending Approval:</strong> Your registration request has been submitted. An administrator must approve your account before you can log in.
+        </div>
+
+        <div id="lockedBox" class="alert-box alert-error">
+            🚫 <strong>Account Disabled:</strong> This account has been deactivated by a SOC Administrator.
+        </div>
+
+        <div id="successBox" class="alert-box alert-success">
+            ✅ <strong>Registration Submitted:</strong> Your account was created with status <em>PENDING</em>. Please wait for administrator approval.
+        </div>
+
+        <div id="adminSuccessBox" class="alert-box alert-success" style="display: none; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.12); color: #bae6fd;">
+            👑 <strong>Admin Clearance Granted:</strong> Authorization code verified! Your Administrator account is activated. Sign in below.
         </div>
 
         <div id="logoutBox" class="alert-box alert-logout">
             🔒 Logged out successfully. Session closed.
         </div>
 
+        <!-- TAB 1: SIGN IN FORM -->
         <form id="loginForm" action="/login" method="POST">
             <div class="form-group">
-                <label class="form-label" for="username">Administrator Username</label>
-                <input class="form-input" type="text" id="username" name="username" placeholder="admin" required autofocus>
+                <label class="form-label" for="username">Username or Email</label>
+                <input class="form-input" type="text" id="username" name="username" placeholder="Enter username or email" required autofocus autocomplete="username">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">Administrator Password</label>
-                <input class="form-input" type="password" id="password" name="password" placeholder="••••••••••••" required>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
             </div>
 
             <button type="submit" class="btn-submit">
-                <span>Access Admin Monitoring Console</span>
+                <span>Authenticate &amp; Enter Console</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
@@ -281,65 +305,138 @@
             </button>
         </form>
 
-        <div class="credentials-helper">
-            <div class="helper-title">⚡ Quick-Fill Administrator Account</div>
-            <div class="badge-grid" style="grid-template-columns: 1fr;">
-                <button type="button" class="role-btn" onclick="fillCreds('admin', 'admin123')">
-                    <strong>👑 SOC ADMINISTRATOR</strong>
-                    Auto-Fill (admin / admin123) &amp; Enter Console
-                </button>
+        <!-- TAB 2: REGISTRATION REQUEST FORM -->
+        <form id="registerForm" style="display: none;" onsubmit="handleRegistration(event)">
+            <div class="form-group">
+                <label class="form-label" for="regFullName">Full Name</label>
+                <input class="form-input" type="text" id="regFullName" placeholder="e.g. Alex Hunter" required>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label class="form-label" for="regEmail">Official Email</label>
+                <input class="form-input" type="email" id="regEmail" placeholder="analyst@university.edu" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="regUsername">Desired Username</label>
+                <input class="form-input" type="text" id="regUsername" placeholder="e.g. alex_h" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="regPassword">Password (Min 6 chars)</label>
+                <input class="form-input" type="password" id="regPassword" placeholder="••••••••••••" minlength="6" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                    <label class="form-label" for="regAdminCode" style="margin-bottom: 0;">Team Authorization Code</label>
+                    <span style="font-size: 0.68rem; color: var(--cyan-accent); font-family: var(--font-mono);">Optional • For Admin Role</span>
+                </div>
+                <input class="form-input" type="password" id="regAdminCode" placeholder="Enter team passkey (leave blank for Analyst)" autocomplete="off">
+            </div>
+
+            <button type="submit" id="regSubmitBtn" class="btn-submit" style="background: linear-gradient(135deg, #059669, #10b981);">
+                <span>Submit Registration Request</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </button>
+        </form>
 
         <div class="footer-note">
-            Role-Based Access Control • Spring Security Hardened
+            RESTRICTED ACCESS • AUTHORIZED SOC PERSONNEL &amp; VERIFIED OPERATORS ONLY
         </div>
     </div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        if (params.get('error') !== null) {
+        const error = params.get('error');
+        if (error === 'pending') {
+            document.getElementById('pendingBox').style.display = 'block';
+        } else if (error === 'locked') {
+            document.getElementById('lockedBox').style.display = 'block';
+        } else if (error !== null) {
             document.getElementById('errorBox').style.display = 'block';
         }
+
         if (params.get('logout') !== null) {
             document.getElementById('logoutBox').style.display = 'block';
             try { localStorage.removeItem('netsentinel_user'); } catch (_) {}
         }
+        if (params.get('registered') !== null) {
+            document.getElementById('successBox').style.display = 'block';
+        }
 
-        function fillCreds(u, p) {
-            document.getElementById('username').value = u;
-            document.getElementById('password').value = p;
-            try {
-                localStorage.setItem('netsentinel_user', JSON.stringify({
-                    username: 'admin',
-                    isAdmin: true,
-                    roles: ['ROLE_ADMIN']
-                }));
-            } catch (_) {}
+        function switchAuthTab(mode) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabSignInBtn = document.getElementById('tabSignInBtn');
+            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
 
-            if (window.location.protocol === 'file:') {
-                window.location.href = 'index.html';
+            // Hide alerts when switching
+            document.getElementById('errorBox').style.display = 'none';
+            document.getElementById('pendingBox').style.display = 'none';
+            document.getElementById('lockedBox').style.display = 'none';
+            document.getElementById('successBox').style.display = 'none';
+            const adminBox = document.getElementById('adminSuccessBox');
+            if (adminBox) adminBox.style.display = 'none';
+
+            if (mode === 'signin') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                tabSignInBtn.classList.add('active');
+                tabRegisterBtn.classList.remove('active');
             } else {
-                document.getElementById('loginForm').submit();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                tabSignInBtn.classList.remove('active');
+                tabRegisterBtn.classList.add('active');
             }
         }
 
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.addEventListener('submit', function(e) {
-                try {
-                    localStorage.setItem('netsentinel_user', JSON.stringify({
-                        username: 'admin',
-                        isAdmin: true,
-                        roles: ['ROLE_ADMIN']
-                    }));
-                } catch (_) {}
+        async function handleRegistration(e) {
+            e.preventDefault();
+            const btn = document.getElementById('regSubmitBtn');
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span>Verifying &amp; Submitting...</span>';
 
-                if (window.location.protocol === 'file:') {
-                    e.preventDefault();
-                    window.location.href = 'index.html';
+            const adminCodeVal = document.getElementById('regAdminCode').value.trim();
+            const payload = {
+                fullName: document.getElementById('regFullName').value.trim(),
+                email: document.getElementById('regEmail').value.trim(),
+                username: document.getElementById('regUsername').value.trim(),
+                password: document.getElementById('regPassword').value,
+                adminCode: adminCodeVal.length > 0 ? adminCodeVal : null
+            };
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (res.status === 201) {
+                    if (data.role === 'ADMIN' || data.status === 'admin_activated') {
+                        document.getElementById('adminSuccessBox').style.display = 'block';
+                        document.getElementById('successBox').style.display = 'none';
+                    } else {
+                        document.getElementById('successBox').style.display = 'block';
+                        document.getElementById('adminSuccessBox').style.display = 'none';
+                    }
+                    document.getElementById('registerForm').reset();
+                    switchAuthTab('signin');
+                } else {
+                    alert('Registration Failed: ' + (data.message || 'Please check your inputs'));
                 }
-            });
+            } catch (err) {
+                alert('Connection error while contacting NetSentinel server: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
         }
     </script>
 </body>

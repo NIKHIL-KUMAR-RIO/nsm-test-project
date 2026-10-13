@@ -151,4 +151,138 @@ class NsmBackendIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/login.html?logout=true"));
     }
+
+    // ==========================================
+    // OPTION A AUTHENTICATION & USER MANAGEMENT TESTS
+    // ==========================================
+
+    @Test
+    void testUserRegistrationSucceedsWithPendingApproval() throws Exception {
+        String uniqueSuffix = String.valueOf(System.currentTimeMillis() % 100000);
+        String regPayload = """
+            {
+                "fullName": "Test Security Analyst",
+                "email": "analyst%s@university.edu",
+                "username": "analyst%s",
+                "password": "SecurePassword123!"
+            }
+        """.formatted(uniqueSuffix, uniqueSuffix);
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(regPayload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("pending_approval"))
+                .andExpect(jsonPath("$.username").value("analyst" + uniqueSuffix));
+    }
+
+    @Test
+    void testUserRegistrationRejectsInvalidInput() throws Exception {
+        // Missing name, invalid email, weak password
+        String badPayload = """
+            {
+                "fullName": "",
+                "email": "not-an-email",
+                "username": "ab",
+                "password": "123"
+            }
+        """;
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(badPayload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("error"));
+    }
+
+    @Test
+    @WithMockUser(username = "analyst1", roles = {"ANALYST"})
+    void testAnalystCanAccessObservabilityApis() throws Exception {
+        mockMvc.perform(get("/api/alerts"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/traffic-stats"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "analyst1", roles = {"ANALYST"})
+    void testAnalystIsForbiddenFromAdminUserManagement() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/admin/users/1/approve"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "rio10", roles = {"ADMIN"})
+    void testAdminCanListAndManageUsers() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users").isArray())
+                .andExpect(jsonPath("$.total").isNumber());
+    }
+
+    @Test
+    void testRegisterWithValidTeamAdminCodeGrantsActiveAdminAndAllowsLogin() throws Exception {
+        String unique = String.valueOf(System.currentTimeMillis() % 100000);
+        String username = "lead_admin_" + unique;
+        String payload = """
+            {
+                "fullName": "Team Lead Administrator",
+                "email": "%s@university.edu",
+                "username": "%s",
+                "password": "SuperSecretPassword123!",
+                "adminCode": "NSM-ADMIN-2026"
+            }
+        """.formatted(username, username);
+
+        // 1. Registration with valid team authorization code
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("admin_activated"))
+                .andExpect(jsonPath("$.role").value("ADMIN"))
+                .andExpect(jsonPath("$.username").value(username));
+
+        // 2. Immediate login succeeds without waiting for approval
+        mockMvc.perform(post("/login")
+                        .param("username", username)
+                        .param("password", "SuperSecretPassword123!"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/"));
+    }
+
+    @Test
+    void testRegisterWithInvalidAdminCodeFails() throws Exception {
+        String unique = String.valueOf(System.currentTimeMillis() % 100000);
+        String username = "intruder_" + unique;
+        String payload = """
+            {
+                "fullName": "Unauthorized Attempt",
+                "email": "%s@university.edu",
+                "username": "%s",
+                "password": "Password123!",
+                "adminCode": "WRONG_SECRET_PASSKEY"
+            }
+        """.formatted(username, username);
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("error"))
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Invalid Team Authorization Code")));
+    }
+
+    @Test
+    void testLegacyAdminAccountIsRejected() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "admin")
+                        .param("password", "admin123"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/login.html?error=true"));
+    }
 }

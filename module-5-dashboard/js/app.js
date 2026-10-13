@@ -30,7 +30,7 @@ function escapeHtml(str) {
 // ==========================================
 // TIER 2 SECURITY HARDENING: AUTH & RBAC CONTEXT
 // ==========================================
-let currentUser = { username: 'admin', isAdmin: true, roles: ['ROLE_ADMIN'] };
+let currentUser = null;
 
 async function fetchCurrentUser() {
     try {
@@ -48,11 +48,15 @@ async function fetchCurrentUser() {
             return;
         }
     } catch (e) {
-        console.warn('Auth status check (using local state fallback):', e);
+        console.warn('Auth status check error:', e);
     }
 
-    currentUser = { username: 'admin', isAdmin: true, roles: ['ROLE_ADMIN'] };
-    renderUserBadge(currentUser);
+    if (window.location.protocol === 'file:') {
+        currentUser = { username: 'operator', isAdmin: false, roles: ['ROLE_ANALYST'] };
+        renderUserBadge(currentUser);
+    } else {
+        window.location.href = '/login.html';
+    }
 }
 
 function handleLogout() {
@@ -65,22 +69,314 @@ function handleLogout() {
 }
 
 function renderUserBadge(user) {
+    if (!user) return;
     const usernameEl = document.getElementById('usernameDisplay');
     const roleEl = document.getElementById('roleDisplay');
+    const roleIcon = document.getElementById('userRoleIcon');
     const brandLabel = document.getElementById('brandConsoleLabel');
+    const btnUserMgmt = document.getElementById('btnUserManagement');
+    const pendingPill = document.getElementById('pendingBadgePill');
+    const btnClearAlerts = document.getElementById('btnClearAlerts');
+    const adminSimBar = document.getElementById('adminSimBar');
 
     if (usernameEl) {
-        usernameEl.textContent = 'admin';
+        usernameEl.textContent = user.username || 'operator';
+        if (user.fullName) {
+            usernameEl.title = `${user.fullName} (${user.email || user.username})`;
+        }
     }
     if (roleEl) {
-        roleEl.textContent = '👑 SOC ADMIN';
-        roleEl.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-        roleEl.style.color = '#f87171';
-        roleEl.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        roleEl.style.display = 'inline-block';
     }
-    if (brandLabel) {
-        brandLabel.textContent = 'SOC ADMIN';
-        brandLabel.style.color = 'var(--accent-red)';
+
+    if (user.isAdmin) {
+        if (roleIcon) roleIcon.textContent = '👑';
+        if (roleEl) {
+            roleEl.textContent = '👑 SOC ADMIN';
+            roleEl.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+            roleEl.style.color = '#f87171';
+            roleEl.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        }
+        if (brandLabel) {
+            brandLabel.textContent = 'SOC ADMIN';
+            brandLabel.style.color = 'var(--accent-red)';
+        }
+        if (adminSimBar) {
+            adminSimBar.style.display = 'block';
+        }
+        const userMgmtWrapper = document.getElementById('userMgmtWrapper');
+        if (userMgmtWrapper) userMgmtWrapper.style.display = 'inline-block';
+        if (btnUserMgmt) {
+            btnUserMgmt.style.display = 'inline-flex';
+            const count = user.pendingCount || 0;
+            if (count > 0) {
+                if (pendingPill) {
+                    pendingPill.style.display = 'inline-block';
+                    pendingPill.textContent = count;
+                }
+                btnUserMgmt.title = `${count} pending operator registration request(s) - Hover or Click to approve`;
+            } else {
+                if (pendingPill) pendingPill.style.display = 'none';
+                btnUserMgmt.title = 'Manage SOC Operator Accounts (Admin Console)';
+            }
+        }
+        updateHoverPendingList();
+        if (btnClearAlerts) {
+            btnClearAlerts.style.display = 'inline-flex';
+        }
+    } else {
+        // ANALYST Role
+        if (roleIcon) roleIcon.textContent = '🛡️';
+        if (roleEl) {
+            roleEl.textContent = '🛡️ ANALYST';
+            roleEl.style.backgroundColor = 'rgba(56, 189, 248, 0.2)';
+            roleEl.style.color = '#38bdf8';
+            roleEl.style.border = '1px solid rgba(56, 189, 248, 0.4)';
+        }
+        if (brandLabel) {
+            brandLabel.textContent = 'SOC ANALYST';
+            brandLabel.style.color = 'var(--accent-blue)';
+        }
+        if (adminSimBar) {
+            adminSimBar.style.display = 'none';
+        }
+        const userMgmtWrapper = document.getElementById('userMgmtWrapper');
+        if (userMgmtWrapper) userMgmtWrapper.style.display = 'none';
+        if (btnUserMgmt) {
+            btnUserMgmt.style.display = 'none';
+        }
+        if (btnClearAlerts) {
+            btnClearAlerts.style.display = 'none'; // Analyst cannot clear alerts
+        }
+    }
+}
+
+// ==========================================
+// USER MANAGEMENT MODAL & DROPDOWN CONTROLS (OPTION A)
+// ==========================================
+function openUserManagementModal() {
+    const modal = document.getElementById('userManagementModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+        loadUserManagementList();
+    }
+}
+
+function closeUserManagementModal() {
+    const modal = document.getElementById('userManagementModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
+}
+
+async function updateHoverPendingList(cachedUsers, cachedPending) {
+    const hoverList = document.getElementById('userMgmtHoverList');
+    const hoverBadge = document.getElementById('hoverPendingCountBadge');
+    if (!hoverList) return;
+
+    try {
+        let users = cachedUsers;
+        let pending = cachedPending;
+
+        if (!users) {
+            const res = await fetch(`${API_BASE}/api/admin/users`, { credentials: 'include' });
+            if (!res.ok) return;
+            const data = await res.json();
+            users = data.users || [];
+            pending = data.pending !== undefined ? data.pending : 0;
+        }
+
+        const pendingUsers = users.filter(u => u.accountStatus === 'PENDING');
+
+        if (hoverBadge) {
+            if (pendingUsers.length > 0) {
+                hoverBadge.textContent = `${pendingUsers.length} PENDING`;
+                hoverBadge.style.display = 'inline-block';
+                hoverBadge.style.background = '#f59e0b';
+                hoverBadge.style.color = '#000';
+            } else {
+                hoverBadge.textContent = '0 PENDING';
+                hoverBadge.style.background = 'rgba(148, 163, 184, 0.25)';
+                hoverBadge.style.color = 'var(--text-muted)';
+            }
+        }
+
+        if (pendingUsers.length === 0) {
+            hoverList.innerHTML = `
+                <div style="padding: 1rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.78rem;">
+                    ✓ No pending access requests.<br>All operator accounts are active.
+                </div>
+            `;
+            return;
+        }
+
+        hoverList.innerHTML = pendingUsers.map(u => `
+            <div style="padding: 0.6rem; margin-bottom: 0.4rem; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text-primary); font-size: 0.82rem;">${escapeHtml(u.fullName || u.username)}</div>
+                        <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-blue);">${escapeHtml(u.username)}</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">${escapeHtml(u.email || '')}</div>
+                    </div>
+                    <span style="background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 0.65rem; white-space: nowrap;">⏳ PENDING</span>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 0.45rem; padding-top: 0.35rem; border-top: 1px dashed rgba(148, 163, 184, 0.15);">
+                    <button class="btn btn-sm" onclick="approveUserAccount(${u.id}, '${escapeHtml(u.username)}')" style="background: #059669; border-color: #047857; color: #fff; padding: 3px 10px; font-size: 0.72rem; font-weight: 700;" title="Approve registration">
+                        ✓ Approve
+                    </button>
+                    <button class="btn btn-sm" onclick="deleteUserAccount(${u.id}, '${escapeHtml(u.username)}')" style="border-color: #ef4444; color: #f87171; padding: 3px 7px; font-size: 0.72rem;" title="Reject registration">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    } catch (_) {}
+}
+
+async function loadUserManagementList() {
+    const tbody = document.getElementById('userTableBody');
+    const summaryEl = document.getElementById('userMgmtSummaryText');
+    const pendingPill = document.getElementById('pendingBadgePill');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="6" style="padding: 18px; text-align: center; color: var(--text-muted);">Fetching operator records...</td></tr>';
+
+    try {
+        const res = await fetch(`${API_BASE}/api/admin/users`, { credentials: 'include' });
+        if (res.status === 403) {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding: 18px; text-align: center; color: #f87171;">Access Denied: Only SOC Administrators can manage accounts.</td></tr>';
+            return;
+        }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const data = await res.json();
+        const users = data.users || [];
+        const pending = data.pending || 0;
+
+        if (summaryEl) {
+            summaryEl.innerHTML = `Total Operators: <strong>${users.length}</strong> &nbsp;|&nbsp; Pending Approval: <strong style="color: #f59e0b;">${pending}</strong>`;
+        }
+        if (pendingPill) {
+            if (pending > 0) {
+                pendingPill.style.display = 'inline-block';
+                pendingPill.textContent = pending;
+            } else {
+                pendingPill.style.display = 'none';
+            }
+        }
+
+        updateHoverPendingList(users, pending);
+
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding: 18px; text-align: center; color: var(--text-muted);">No operator accounts found.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+            const isSelf = currentUser && (currentUser.username === u.username || currentUser.email === u.email);
+            
+            let statusBadge = '';
+            if (u.accountStatus === 'ACTIVE') {
+                statusBadge = '<span style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35); padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.72rem;">ACTIVE</span>';
+            } else if (u.accountStatus === 'PENDING') {
+                statusBadge = '<span style="background: rgba(245, 158, 11, 0.15); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.35); padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.72rem;">⏳ PENDING</span>';
+            } else {
+                statusBadge = '<span style="background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.35); padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.72rem;">DISABLED</span>';
+            }
+
+            let roleBadge = u.role === 'ADMIN'
+                ? '<span style="color: #f87171; font-weight: 700; font-size: 0.75rem;">👑 ADMIN</span>'
+                : '<span style="color: #38bdf8; font-weight: 700; font-size: 0.75rem;">🛡️ ANALYST</span>';
+
+            let actionButtons = '<div style="display: flex; gap: 4px; justify-content: flex-end;">';
+            if (u.accountStatus === 'PENDING') {
+                actionButtons += `<button class="btn btn-sm" onclick="approveUserAccount(${u.id}, '${escapeHtml(u.username)}')" style="background: #059669; border-color: #047857; color: #fff; padding: 3px 8px; font-size: 0.72rem;" title="Approve registration">✓ Approve</button>`;
+            } else if (u.accountStatus === 'ACTIVE' && !isSelf) {
+                actionButtons += `<button class="btn btn-sm" onclick="disableUserAccount(${u.id}, '${escapeHtml(u.username)}')" style="border-color: #f59e0b; color: #fbbf24; padding: 3px 8px; font-size: 0.72rem;" title="Deactivate user">Disable</button>`;
+            } else if (u.accountStatus === 'DISABLED' && !isSelf) {
+                actionButtons += `<button class="btn btn-sm" onclick="approveUserAccount(${u.id}, '${escapeHtml(u.username)}')" style="border-color: #10b981; color: #6ee7b7; padding: 3px 8px; font-size: 0.72rem;" title="Reactivate user">Reactivate</button>`;
+            }
+            if (!isSelf) {
+                actionButtons += `<button class="btn btn-sm" onclick="deleteUserAccount(${u.id}, '${escapeHtml(u.username)}')" style="border-color: #ef4444; color: #f87171; padding: 3px 7px; font-size: 0.72rem;" title="Delete user">✕</button>`;
+            } else {
+                actionButtons += '<span style="color: var(--text-muted); font-size: 0.72rem; padding: 3px 6px;">(You)</span>';
+            }
+            actionButtons += '</div>';
+
+            return `
+                <tr style="border-bottom: 1px solid var(--card-border-subtle);">
+                    <td style="padding: 10px 12px; font-weight: 600;">${escapeHtml(u.fullName || u.username)}</td>
+                    <td style="padding: 10px 12px;">
+                        <span style="font-family: var(--font-mono); color: var(--text-primary);">${escapeHtml(u.username)}</span><br>
+                        <small style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(u.email || '')}</small>
+                    </td>
+                    <td style="padding: 10px 12px;">${roleBadge}</td>
+                    <td style="padding: 10px 12px;">${statusBadge}</td>
+                    <td style="padding: 10px 12px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">${escapeHtml(u.lastLogin && u.lastLogin !== 'null' ? u.lastLogin.substring(0, 19).replace('T', ' ') : 'Never')}</td>
+                    <td style="padding: 10px 12px; text-align: right;">${actionButtons}</td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding: 18px; text-align: center; color: #f87171;">Failed to load operators: ${err.message}</td></tr>`;
+    }
+}
+
+async function approveUserAccount(id, username) {
+    try {
+        const res = await fetch(`${API_BASE}/api/admin/users/${id}/approve`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            loadUserManagementList();
+            fetchCurrentUser();
+        } else {
+            const err = await res.json();
+            alert('Approval error: ' + (err.message || res.statusText));
+        }
+    } catch (e) {
+        alert('Network error approving operator: ' + e.message);
+    }
+}
+
+async function disableUserAccount(id, username) {
+    if (!confirm(`Are you sure you want to deactivate operator "${username}"?`)) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/admin/users/${id}/disable`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            loadUserManagementList();
+        } else {
+            const err = await res.json();
+            alert('Error: ' + (err.message || res.statusText));
+        }
+    } catch (e) {
+        alert('Network error: ' + e.message);
+    }
+}
+
+async function deleteUserAccount(id, username) {
+    if (!confirm(`Permanently delete account for "${username}"? This cannot be undone.`)) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            loadUserManagementList();
+            fetchCurrentUser();
+        } else {
+            const err = await res.json();
+            alert('Error: ' + (err.message || res.statusText));
+        }
+    } catch (e) {
+        alert('Network error: ' + e.message);
     }
 }
 
@@ -3102,6 +3398,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeClearModal();
         closeSignatureModal();
+        closeUserManagementModal();
     }
 });
 
@@ -3174,6 +3471,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initDropdowns();
     initEcgCanvas();
     fetchCurrentUser();
+
+    const userMgmtWrapper = document.getElementById('userMgmtWrapper');
+    if (userMgmtWrapper) {
+        userMgmtWrapper.addEventListener('mouseenter', () => {
+            updateHoverPendingList();
+        });
+    }
 
     // Initialize rich views
     initDetailedVulnFilters();

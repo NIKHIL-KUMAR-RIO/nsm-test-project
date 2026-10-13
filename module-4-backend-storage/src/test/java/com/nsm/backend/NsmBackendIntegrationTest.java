@@ -28,6 +28,9 @@ class NsmBackendIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @org.springframework.beans.factory.annotation.Value("${nsm.security.admin-code:NSM-ADMIN-2026}")
+    private String configuredAdminCode;
+
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testGetSummaryEndpoint() throws Exception {
@@ -234,9 +237,9 @@ class NsmBackendIntegrationTest {
                 "email": "%s@university.edu",
                 "username": "%s",
                 "password": "SuperSecretPassword123!",
-                "adminCode": "NSM-ADMIN-2026"
+                "adminCode": "%s"
             }
-        """.formatted(username, username);
+        """.formatted(username, username, configuredAdminCode);
 
         // 1. Registration with valid team authorization code
         mockMvc.perform(post("/api/auth/register")

@@ -1,4 +1,8 @@
-# Maven build artifacts
+# ==============================================================================
+# NetSentinel NSM Platform - Git Ignore Rules
+# ==============================================================================
+
+# Maven Build Artifacts
 target/
 **/target/
 *.jar
@@ -6,26 +10,56 @@ target/
 *.nar
 *.ear
 *.class
+.mvn/timing.properties
+.flattened-pom.xml
 
-# SQLite databases
+# SQLite Databases & Concurrency Journal/WAL Files
 *.db
+*.db-*
 *.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
 *.sqlite3
 nsm.db
 **/nsm.db
 
-# IDE settings
+# IDE & Editor Configurations
+# IntelliJ IDEA
 .idea/
 *.iml
-.vscode/
-*.ipr
 *.iws
+*.ipr
+out/
 
-# OS files
+# Visual Studio Code
+.vscode/
+
+# Eclipse / VS Code Java Language Server (JDT)
+.project
+.classpath
+.settings/
+.factorypath
+
+# NetBeans
+nbproject/
+nb-configuration.xml
+
+# Operating System Files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
 
-# Temp files
+# Temporary Files, Logs & Crash Dumps
 *.log
 *.tmp
+hs_err_pid*
+replay_pid*
+
+# Academic Documentation & Evaluation Exports (Kept in external archive)
+NETSENTINEL_12_WEEK_*
+NETSENTINEL_SRS*
+NETSENTINEL_SOFTWARE_REQUIREMENTS_SPECIFICATION*
+*.xlsx
